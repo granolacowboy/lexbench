@@ -157,40 +157,92 @@ first session were made outside it and were recorded by hand in `state/runs.json
 <!-- results:start -->
 | Family | Task or group | n | claude-opus-5-5 | claude-sonnet-5-5 | claude-haiku-5-5 |
 |---|---|---:|---:|---:|---:|
-| LegalBench | corporate_lobbying (issue-spotting) | 100 | 0.810 | 0.750 | 0.800 |
-| LegalBench | cuad_audit_rights (interpretation) | 100 | 0.990 | 0.990 | 0.990 |
-| LegalBench | diversity_1 (rule-application) | 100 | 0.980 | 1.000 | 1.000 |
-| LegalBench | function_of_decision_section (rhetorical-understanding) | 100 | 0.510 | 0.560 | 0.450 |
-| LegalBench | hearsay (rule-application) | 94 | 0.904 | 0.702 | 0.670 |
-| LegalBench | insurance_policy_interpretation (interpretation) | 100 | 0.660 | 0.560 | 0.520 |
-| LegalBench | oral_argument_question_purpose (rhetorical-understanding) | 100 | 0.470 | 0.480 | 0.320 |
-| LegalBench | overruling (rhetorical-understanding) | 100 | 0.970 | 0.950 | 0.980 |
-| LegalBench | personal_jurisdiction (rule-application) | 50 | 1.000 | 0.940 | 0.800 |
-| LegalBench | proa (interpretation) | 95 | 0.926 | 0.958 | 0.905 |
-| LegalBench | telemarketing_sales_rule (rule-application) | 47 | 0.957 | 0.596 | 0.723 |
+| LegalBench | corporate_lobbying (issue-spotting) | 100 | 0.810 | 0.790 | 0.760 |
+| LegalBench | cuad_audit_rights (interpretation) | 100 | 1.000 | 0.990 | 0.990 |
+| LegalBench | diversity_1 (rule-application) | 100 | 1.000 | 1.000 | 1.000 |
+| LegalBench | function_of_decision_section (rhetorical-understanding) | 99 | 0.556 | 0.576 | 0.455 |
+| LegalBench | hearsay (rule-application) | 94 | 0.883 | 0.862 | 0.862 |
+| LegalBench | insurance_policy_interpretation (interpretation) | 100 | 0.660 | 0.590 | 0.540 |
+| LegalBench | oral_argument_question_purpose (rhetorical-understanding) | 100 | 0.460 | 0.520 | 0.350 |
+| LegalBench | overruling (rhetorical-understanding) | 100 | 0.950 | 0.950 | 0.980 |
+| LegalBench | personal_jurisdiction (rule-application) | 50 | 0.980 | 1.000 | 0.920 |
+| LegalBench | proa (interpretation) | 95 | 0.937 | 0.979 | 0.937 |
+| LegalBench | telemarketing_sales_rule (rule-application) | 47 | 0.957 | 0.936 | 0.830 |
 | LegalBench | ucc_v_common_law (rule-application) | 94 | 0.989 | 1.000 | 1.000 |
-| LegalBench | mean of task accuracies | 1080 | 0.847 | 0.790 | 0.763 |
-| Fragment cases | deadline cases | 87 | 1.000 | 1.000 | 0.977 |
-| Fragment cases | flags cases | 110 | 1.000 | 1.000 | 0.936 |
-| Fragment cases | all, bar 0.90 | 197 | 1.000 (pass) | 1.000 (pass) | 0.954 (pass) |
+| LegalBench | mean of task accuracies | 1079 | 0.849 | 0.849 | 0.802 |
+| Fragment cases | deadline cases | 87 | 0.862 | 0.874 | 0.851 |
+| Fragment cases | flags cases | 110 | 1.000 | 1.000 | 1.000 |
+| Fragment cases | all, bar 0.90 | 197 | 0.939 (pass) | 0.944 (pass) | 0.934 (pass) |
 | Routing | manifest trigger | 141 | 0.894 | 0.872 | 0.879 |
 | Routing | paraphrase | 72 | 1.000 | 1.000 | 1.000 |
 | Routing | routing suite | 58 | 0.931 | 0.966 | 0.897 |
 | Routing | all, bar 0.95 | 271 | 0.930 (below bar) | 0.926 (below bar) | 0.915 (below bar) |
 <!-- results:end -->
 
-First results, 2026-11-10: each family was submitted through the Message Batches API to
-each Claude entry at the thinking settings described above. An earlier submission at the
-default thinking settings is recorded in `state/batches.json` as superseded and is not
-reported. In that submission, thinking used up the output bound and left most responses
-empty.
+Results of 2026-11-10. The LegalBench and fragment families were rerun in run
+FIX-LEXBENCH-1 with the equal settings above: six batches submitted at 17:50Z, all ended by
+18:05Z, with no errored requests. The routing results are from the batches of 16:45Z at
+the entry-level settings. Earlier submissions remain recorded in `state/batches.json` as
+superseded and are not reported. In the first, at the default thinking settings, thinking
+used up the output bound and left 1,608 of 4,644 responses (34.6%) empty, between 0.5%
+and 69.9% by entry and family. The LegalBench and fragment batches of 16:45Z, which gave
+Opus 5.5 more output room than the other entries and printed each deadline category's kind
+in the prompt, are superseded by the rerun. Their per-case records are kept in
+`results/superseded/`.
 
 Accuracy is the share of cases graded correct. A missing, empty, malformed or errored
-response counts as incorrect, and so does a response that does not begin with an answer
-within the family's output bound. `results/summary.json` reports the number of such format
+response counts as incorrect, and so does a response in which no answer can be read under
+the rules in [Grading](#grading). `results/summary.json` reports the number of such format
 failures per task and model. The LegalBench row "mean of task accuracies" weights each
 task equally; balanced accuracy per task is in `results/summary.json`. Per-case verdicts
 are in `results/<family>/<model name>.jsonl`.
+
+## Grading
+
+The graders are deterministic and call no model.
+
+- **LegalBench.** Every non-empty line of the response is read. Repeated answer cues (one to
+  four words and a colon, such as "A:", "Label:", "FINAL ANSWER:" or "Governed by:") and
+  edge punctuation are removed from each line. The answer is the last line that is then
+  exactly a label of the task's label space. Failing that, a label of at least two
+  characters that opens the first line and is followed by punctuation or the end of the
+  line ("Yes, because ...") is read. A response with neither is a format failure.
+- **Fragment cases.** The last JSON object in the response is the answer; a deadline case
+  needs the category and the kind, and an intake case the exact set of flags.
+- **Routing.** The first command-shaped token of the first line, with an optional leading
+  slash, must equal the expected command.
+
+**When the rules were settled.** The first commit (`f618b0b`) read only the first line of a
+LegalBench response. After the first reported responses had been inspected, the head of
+the first pull request (`224b4da`) also removed repeated cues, read the second line when
+the first held only a cue, and read a label at the start of the first line; the fragment
+grader began to take the last JSON object. Review XREVIEW-LEXBENCH-1 showed that the prefix
+rule could read a wrong answer as right and that a label stated after reasoning was not
+read. The current LegalBench rule was settled in commit `968dc8d`, before the rerun batches
+were submitted, so the reported LegalBench and fragment responses were produced after the
+rules were fixed. No rule was changed after the rerun responses were seen.
+
+**Per-model effect of the rules** on the reported LegalBench responses (correct cases of
+1,079, with the mean of task accuracies):
+
+| Grading rule | claude-opus-5-5 | claude-sonnet-5-5 | claude-haiku-5-5 |
+|---|---:|---:|---:|
+| Strict: the whole response equals the label | 728 (0.699) | 657 (0.591) | 709 (0.661) |
+| First commit `f618b0b` | 822 (0.782) | 695 (0.631) | 782 (0.735) |
+| First pull request head `224b4da` | 898 (0.845) | 789 (0.715) | 845 (0.790) |
+| Current rule (reported) | 902 (0.849) | 903 (0.849) | 856 (0.802) |
+
+Most of the difference between strict match and the earlier rules comes from answer cues
+repeated from the prompt, such as "FINAL ANSWER: NO" or "Governed by: UCC". The difference
+between the `224b4da` rule and the current rule comes from responses that give a short
+justification and then the label on a last line: 114 for Sonnet, 12 for Haiku and 4 for
+Opus. Two Haiku responses state one label and then revise it; the last label is read,
+which makes one correct and one incorrect. The order of the models therefore depends on
+the rule. Under either earlier rule Sonnet ranks last. Under the current rule, Opus and
+Sonnet are level (902 and 903 correct). One Opus response begins with a zero-width space
+before "A: Yes" (`lb-proa-0009`). Its cue is therefore not removed, and the response counts
+as a format failure although its label is correct. The rule was left unchanged, because
+the response was seen only after the rerun.
 
 ## Pass bars
 

@@ -238,7 +238,9 @@
         "expired": 0
       },
       "ended_at": "2026-11-10T16:49:27Z",
-      "polled_at": "2026-11-10T16:49:27Z"
+      "polled_at": "2026-11-10T16:49:27Z",
+      "superseded": true,
+      "note": "Superseded in run FIX-LEXBENCH-1 by the rerun at equal thinking settings and output bounds (legalbench) or after the deadline prompt change (fragments). Per-case records: results/superseded/legalbench/claude-haiku-5-5.jsonl."
     },
     {
       "batch_id": "msgbatch_016op9fhDUyyMTMmAxJBExT4",
@@ -261,7 +263,9 @@
         "expired": 0
       },
       "ended_at": "2026-11-10T16:49:29Z",
-      "polled_at": "2026-11-10T16:49:29Z"
+      "polled_at": "2026-11-10T16:49:29Z",
+      "superseded": true,
+      "note": "Superseded in run FIX-LEXBENCH-1 by the rerun at equal thinking settings and output bounds (legalbench) or after the deadline prompt change (fragments). Per-case records: results/superseded/fragments/claude-haiku-5-5.jsonl."
     },
     {
       "batch_id": "msgbatch_01GE6jNNVtnwzFzASRDS4hkt",
@@ -307,7 +311,9 @@
         "expired": 0
       },
       "ended_at": "2026-11-10T16:49:31Z",
-      "polled_at": "2026-11-10T16:49:31Z"
+      "polled_at": "2026-11-10T16:49:31Z",
+      "superseded": true,
+      "note": "Superseded in run FIX-LEXBENCH-1 by the rerun at equal thinking settings and output bounds (legalbench) or after the deadline prompt change (fragments). Per-case records: results/superseded/legalbench/claude-sonnet-5-5.jsonl."
     },
     {
       "batch_id": "msgbatch_01STDXR4Juspk4QH9W5eQ2bn",
@@ -330,7 +336,9 @@
         "expired": 0
       },
       "ended_at": "2026-11-10T16:49:33Z",
-      "polled_at": "2026-11-10T16:49:33Z"
+      "polled_at": "2026-11-10T16:49:33Z",
+      "superseded": true,
+      "note": "Superseded in run FIX-LEXBENCH-1 by the rerun at equal thinking settings and output bounds (legalbench) or after the deadline prompt change (fragments). Per-case records: results/superseded/fragments/claude-sonnet-5-5.jsonl."
     },
     {
       "batch_id": "msgbatch_01Vtw326D33v8UchNEQNCDgJ",
@@ -376,7 +384,9 @@
         "expired": 0
       },
       "ended_at": "2026-11-10T16:49:35Z",
-      "polled_at": "2026-11-10T16:49:35Z"
+      "polled_at": "2026-11-10T16:49:35Z",
+      "superseded": true,
+      "note": "Superseded in run FIX-LEXBENCH-1 by the rerun at equal thinking settings and output bounds (legalbench) or after the deadline prompt change (fragments). Per-case records: results/superseded/legalbench/claude-opus-5-5.jsonl."
     },
     {
       "batch_id": "msgbatch_013RszPFgoUq8p5nU7roUnJW",
@@ -399,7 +409,9 @@
         "expired": 0
       },
       "ended_at": "2026-11-10T16:49:37Z",
-      "polled_at": "2026-11-10T16:49:37Z"
+      "polled_at": "2026-11-10T16:49:37Z",
+      "superseded": true,
+      "note": "Superseded in run FIX-LEXBENCH-1 by the rerun at equal thinking settings and output bounds (legalbench) or after the deadline prompt change (fragments). Per-case records: results/superseded/fragments/claude-opus-5-5.jsonl."
     },
     {
       "batch_id": "msgbatch_01JvfjG7CUjMK9DeQChB445y",
@@ -423,6 +435,150 @@
       },
       "ended_at": "2026-11-10T16:49:38Z",
       "polled_at": "2026-11-10T16:49:38Z"
+    },
+    {
+      "batch_id": "msgbatch_01L8bEnzY1KhuMewXccYHJ2M",
+      "submission_id": "sub_legalbench_claude-opus-5-5_20261110T175009Z_1",
+      "family": "legalbench",
+      "model": "claude-opus-5-5",
+      "provider": "anthropic",
+      "provider_model": "claude-opus-5-5",
+      "request_count": 1079,
+      "estimated_usd": 13.2445,
+      "data_sha256": "36b9ace52e687be250c78ee26e410860a6c8bfd4e517431ec6e9833648c5665c",
+      "config_sha256": "8b77f10d2a61f2e01d0a0b329fab5f7d030e10ceb24f002c5440439aeeffc974",
+      "chunk": "1/1",
+      "submitted_at": "2026-11-10T17:50:09Z",
+      "status": "ended",
+      "counts": {
+        "processing": 0,
+        "succeeded": 1079,
+        "errored": 0,
+        "canceled": 0,
+        "expired": 0
+      },
+      "ended_at": "2026-11-10T17:55:09Z",
+      "polled_at": "2026-11-10T17:55:09Z"
+    },
+    {
+      "batch_id": "msgbatch_014xYHjABG1CuiqGNzkMa4C6",
+      "submission_id": "sub_legalbench_claude-sonnet-5-5_20261110T175013Z_1",
+      "family": "legalbench",
+      "model": "claude-sonnet-5-5",
+      "provider": "anthropic",
+      "provider_model": "claude-sonnet-5-5",
+      "request_count": 1079,
+      "estimated_usd": 6.6223,
+      "data_sha256": "36b9ace52e687be250c78ee26e410860a6c8bfd4e517431ec6e9833648c5665c",
+      "config_sha256": "b5753c8e2d9e066c7727c6f0aa7a988fdfb5e938b271e4610c54dd5275036470",
+      "chunk": "1/1",
+      "submitted_at": "2026-11-10T17:50:13Z",
+      "status": "ended",
+      "counts": {
+        "processing": 0,
+        "succeeded": 1079,
+        "errored": 0,
+        "canceled": 0,
+        "expired": 0
+      },
+      "ended_at": "2026-11-10T17:55:11Z",
+      "polled_at": "2026-11-10T17:55:11Z"
+    },
+    {
+      "batch_id": "msgbatch_01UPehMdEtWMHtN1VyNDnYit",
+      "submission_id": "sub_legalbench_claude-haiku-5-5_20261110T175017Z_1",
+      "family": "legalbench",
+      "model": "claude-haiku-5-5",
+      "provider": "anthropic",
+      "provider_model": "claude-haiku-5-5",
+      "request_count": 1079,
+      "estimated_usd": 0.3311,
+      "data_sha256": "36b9ace52e687be250c78ee26e410860a6c8bfd4e517431ec6e9833648c5665c",
+      "config_sha256": "408d46e00909fe8217c3996f32270777765c53ab42116374c1a8db5ed4936402",
+      "chunk": "1/1",
+      "submitted_at": "2026-11-10T17:50:17Z",
+      "status": "ended",
+      "counts": {
+        "processing": 0,
+        "succeeded": 1079,
+        "errored": 0,
+        "canceled": 0,
+        "expired": 0
+      },
+      "ended_at": "2026-11-10T18:05:14Z",
+      "polled_at": "2026-11-10T18:05:14Z"
+    },
+    {
+      "batch_id": "msgbatch_01KMFW6RWK7f1RjkmBRN3k12",
+      "submission_id": "sub_fragments_claude-opus-5-5_20261110T175022Z_1",
+      "family": "fragments",
+      "model": "claude-opus-5-5",
+      "provider": "anthropic",
+      "provider_model": "claude-opus-5-5",
+      "request_count": 197,
+      "estimated_usd": 3.3731,
+      "data_sha256": "71fa9bc5d37851eebe126d3f5954e02860971a4266bbedad928714d1fe6aee55",
+      "config_sha256": "fe5d02633c8b4f9b1817c97e9797813c6f359cefee368490f899f68c8313de2a",
+      "chunk": "1/1",
+      "submitted_at": "2026-11-10T17:50:22Z",
+      "status": "ended",
+      "counts": {
+        "processing": 0,
+        "succeeded": 197,
+        "errored": 0,
+        "canceled": 0,
+        "expired": 0
+      },
+      "ended_at": "2026-11-10T17:55:14Z",
+      "polled_at": "2026-11-10T17:55:14Z"
+    },
+    {
+      "batch_id": "msgbatch_01BDdTPEsCmy3NuXeLgPZQsW",
+      "submission_id": "sub_fragments_claude-sonnet-5-5_20261110T175026Z_1",
+      "family": "fragments",
+      "model": "claude-sonnet-5-5",
+      "provider": "anthropic",
+      "provider_model": "claude-sonnet-5-5",
+      "request_count": 197,
+      "estimated_usd": 1.6866,
+      "data_sha256": "71fa9bc5d37851eebe126d3f5954e02860971a4266bbedad928714d1fe6aee55",
+      "config_sha256": "f6e6916439776e702dbae19feedf2d5979ea01dfdca9e08281b7c06b325b8e50",
+      "chunk": "1/1",
+      "submitted_at": "2026-11-10T17:50:26Z",
+      "status": "ended",
+      "counts": {
+        "processing": 0,
+        "succeeded": 197,
+        "errored": 0,
+        "canceled": 0,
+        "expired": 0
+      },
+      "ended_at": "2026-11-10T17:55:15Z",
+      "polled_at": "2026-11-10T17:55:15Z"
+    },
+    {
+      "batch_id": "msgbatch_01RZ2NAWvk1KZgZHx57vjo9c",
+      "submission_id": "sub_fragments_claude-haiku-5-5_20261110T175031Z_1",
+      "family": "fragments",
+      "model": "claude-haiku-5-5",
+      "provider": "anthropic",
+      "provider_model": "claude-haiku-5-5",
+      "request_count": 197,
+      "estimated_usd": 0.0843,
+      "data_sha256": "71fa9bc5d37851eebe126d3f5954e02860971a4266bbedad928714d1fe6aee55",
+      "config_sha256": "88f8d039e61c2f3d59179fbf5fcf3a25ab058cba736b4bae63dc70d28e19e4c5",
+      "chunk": "1/1",
+      "submitted_at": "2026-11-10T17:50:31Z",
+      "status": "ended",
+      "counts": {
+        "processing": 0,
+        "succeeded": 197,
+        "errored": 0,
+        "canceled": 0,
+        "expired": 0
+      },
+      "ended_at": "2026-11-10T18:05:16Z",
+      "polled_at": "2026-11-10T18:05:16Z"
     }
   ]
 }
