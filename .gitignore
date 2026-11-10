@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.lexbench-cache/
+# Third-party LegalBench records and prompts: materialised by `lexbench build` from pinned
+# upstream revisions and verified against data/MANIFEST.json; not redistributed here.
+data/legalbench/*.jsonl
+data/legalbench/prompts/

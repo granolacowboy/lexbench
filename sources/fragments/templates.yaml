@@ -1,0 +1,243 @@
+# Templates for the synthetic fragment cases, written for LexBench.
+# Deadline scenarios are keyed by pack (without the mhsb-pack- prefix) and category id; each
+# describes an event without naming the category. Flag rules make every expected flag
+# deterministic; each flag has one neutral fact (rule not met) and signal facts (rule met).
+# Placeholders: {client} {other} {company} {state} {other_state} and dates {d_*}, {n_*}.
+schema_version: 1
+deadline_scenarios:
+  bankruptcy-consumer/code_rules_period:
+    - "The petition for {client} was filed on {d_past}; the remaining schedules must be filed within the period the Bankruptcy Code and Rules set."
+    - "The trustee's objection to {client}'s claimed exemptions must be met within the period set by the Bankruptcy Rules, counted from the {d_past} filing."
+  bankruptcy-consumer/debtor_education_deadline:
+    - "{client} has not yet completed the post-filing personal financial management course required before a discharge."
+    - "The case of {client} was filed on {d_past}, and the certificate for the financial management course has not been filed."
+  bankruptcy-consumer/meeting_of_creditors_date:
+    - "The court's notice received on {d_past} sets the section 341 meeting for {client} on {d_future}."
+    - "{client} must appear before the trustee for questioning on {d_future}, as the court's notice states."
+  business-transactional/tax_election:
+    - "{client} formed {company} on {d_past} and wants it taxed as an S corporation; the election form must be filed in time."
+    - "The members of {company} want to change the entity's federal tax classification by filing an election."
+  business-transactional/annual_report_franchise_tax:
+    - "The secretary of state requires {company} to file its yearly report and pay the franchise tax by {d_future}."
+    - "{company} received a reminder that its state annual filing and franchise tax payment come due on {d_future}."
+  business-transactional/annual_meeting:
+    - "The bylaws of {company} call for one shareholder meeting each year; the directors chose {d_future}."
+    - "{client} asks the firm to calendar the yearly members' meeting of {company} for {d_future}."
+  business-transactional/assumed_name_filing:
+    - "{company} trades under a trade name whose registration lapses on {d_future}."
+    - "{client} wants {company} to do business under a new trade name and needs the registration filed."
+  business-transactional/beneficial_ownership_reporting:
+    - "{company} must report the individuals who own or control it to the federal registry, where the requirement applies."
+    - "A new owner acquired 30 percent of {company} on {d_past}; an updated ownership report may be required."
+  civil-litigation/limitation_period:
+    - "{client} says {other} breached their contract on {d_past} and no suit has been filed; the firm tracks the last day to sue."
+    - "{client} wants to sue {other} for property damage that occurred on {d_past}; the firm records the time limit for filing."
+  civil-litigation/answer_deadline:
+    - "{client} was served with a summons and complaint on {d_past}; the docket shows when the responsive pleading is due."
+    - "The docket shows that the response of {client} to the complaint filed by {other} is due on {d_future}."
+  civil-litigation/discovery_cutoff:
+    - "The scheduling order entered on {d_past} sets {d_future} as the last day to complete fact discovery."
+    - "The court's order in {client} v. {other} closes all discovery on {d_future}."
+  civil-litigation/appeal_window:
+    - "Final judgment was entered against {client} on {d_past}; the last day to file a notice of appeal must be calendared."
+    - "The docket shows the trial court's final order in {client} v. {other} was entered on {d_past}, and {client} may seek review in the appellate court."
+  criminal-defense/court_date:
+    - "The court's notice sets the arraignment of {client} for {d_future}."
+    - "{client} must appear for a pretrial conference on {d_future}, according to the court's notice."
+  criminal-defense/discovery_motion_cutoff:
+    - "The court's order requires all pretrial motions in the case against {client} to be filed by {d_future}."
+    - "The scheduling order sets {d_future} as the last day for discovery requests in the case of {client}."
+  employment-plaintiff/agency_charge_window:
+    - "{client} was terminated on {d_past} and has not yet filed a discrimination charge with the federal or state agency."
+    - "{client} was demoted on {d_past} after reporting harassment and wants to file a charge with the agency."
+  employment-plaintiff/post_right_to_sue_window:
+    - "{client} received a notice of right to sue from the agency on {d_past}."
+    - "The agency dismissed the charge of {client} and issued a right-to-sue letter dated {d_past}."
+  employment-plaintiff/wage_claim:
+    - "{client} reports unpaid overtime for the pay periods ending {d_past} and wants to recover the wages."
+    - "{company} did not pay {client} the final paycheck after the job ended on {d_past}."
+  estate-probate/signing_logistics:
+    - "The will and trust of {client} are ready; witnesses and a notary must be arranged for the execution meeting on {d_future}."
+    - "{client} will sign the estate plan documents on {d_future}, and the firm must book the conference room and two witnesses."
+  estate-probate/annual_review:
+    - "The estate plan of {client} was signed on {d_past}; the firm reviews each plan with the client once a year."
+    - "The firm's yearly check-in with {client} about whether the estate plan still fits is due on {d_future}."
+  estate-probate/probate_inventory_accounting:
+    - "Letters testamentary were issued to {client} as personal representative on {d_past}; the estate inventory must be filed with the court."
+    - "As administrator of the estate of {other}, {client} must file the periodic account with the probate court."
+  estate-probate/creditor_claim_period:
+    - "Notice to creditors of the estate of {other} was first published on {d_past}."
+    - "A creditor of the estate of {other} wants to know until when claims against the estate may be presented."
+  estate-probate/estate_tax_return:
+    - "{other} died on {d_past} with a gross estate above the federal exemption; the estate tax return must be filed."
+    - "The executor of the estate of {other}, {client}, asks when the federal estate tax return is due."
+  family-law/response_to_petition:
+    - "{client} was served with a petition for dissolution of marriage on {d_past}."
+    - "{other} filed for custody, and {client} was served with the petition on {d_past}."
+  family-law/disclosure_deadline:
+    - "The court requires {client} to serve a financial affidavit and supporting documents within the period the state rule sets."
+    - "{client} has not yet exchanged the required financial statements with {other} in the divorce."
+  family-law/hearing_date:
+    - "The court's notice sets a temporary orders hearing for {client} on {d_future}."
+    - "The court scheduled the custody hearing between {client} and {other} for {d_future}."
+  immigration/status_expiration:
+    - "The arrival record of {client} shows an authorized stay until {d_future}."
+    - "The work permit of {client} expires on {d_future}, according to the card."
+  immigration/one_year_asylum_window:
+    - "{client} arrived in the United States on {d_past} and intends to apply for asylum."
+    - "{client} entered the country on {d_past} fleeing persecution and has not yet filed a protection application."
+  immigration/response_window:
+    - "{client} received a request for evidence dated {d_past} from the agency."
+    - "The agency sent {client} a notice of intent to deny dated {d_past}."
+  landlord-tenant-consumer/eviction_answer_window:
+    - "{client}, a tenant, was served with an eviction summons on {d_past}."
+    - "The landlord {other} filed an eviction case, and {client} received the summons and complaint on {d_past}."
+  landlord-tenant-consumer/consumer_suit_window:
+    - "{client} says a debt collector made abusive calls on {d_past} and wants to sue under federal consumer law."
+    - "{client} wants to sue {company} for unlawful collection practices that occurred on {d_past}."
+  landlord-tenant-consumer/consumer_dispute_window:
+    - "{client} received a debt validation notice on {d_past} and wants to dispute the debt in writing."
+    - "{client} found an error on a credit report on {d_past} and wants to send a written dispute."
+  personal-injury/limitation_period:
+    - "{client} was injured in a collision on {d_past}; the firm tracks the last day to file suit."
+    - "{client} fell in a grocery store on {d_past}; the firm records the time limit for bringing the claim."
+  personal-injury/government_notice_of_claim:
+    - "{client} tripped on a broken city sidewalk on {d_past}; written notice to the city is required before any suit."
+    - "A county bus struck the car of {client} on {d_past}; a claim must first be presented to the county."
+  personal-injury/records_turnaround:
+    - "Medical records for {client} were requested from the treating clinic on {d_past}; the firm follows up if they have not arrived within its standard period."
+    - "The firm asked the hospital for the billing records of {client} and follows up after its usual waiting period."
+  personal-injury/lien_deadline:
+    - "A hospital asserted a lien on the recovery of {client} on {d_past}; the response is due by {d_future}."
+    - "The health plan of {client} claims reimbursement from the settlement, and the lien must be resolved by {d_future}."
+  real-estate/contingency_date:
+    - "The purchase contract of {client} lets the inspection condition expire on {d_future}."
+    - "Under the contract, the buyer's financing condition ends on {d_future}."
+  real-estate/title_objection:
+    - "Under the contract, the buyer must deliver objections to the title commitment by {d_future}."
+    - "{client} received the title commitment on {d_past}; written objections to title are due under the contract by {d_future}."
+  real-estate/closing_date:
+    - "The contract sets the transfer of the deed and the purchase price for {d_future}."
+    - "{client} and {other} agreed in the contract to settle the purchase on {d_future}."
+  real-estate/recording_date:
+    - "The deed from the closing on {d_past} must be delivered to the county recorder; the closing file sets {d_future}."
+    - "The mortgage signed at the closing of {client} on {d_past} is to be sent for recording by {d_future}."
+  workers-compensation/notice_window:
+    - "{client} was hurt at work on {d_past} and has not yet told the employer in writing."
+    - "{client} developed a repetitive strain injury first diagnosed on {d_past}; the employer has not been informed."
+  workers-compensation/claim_window:
+    - "{client} reported the injury of {d_past} to the employer; no claim petition has been filed with the commission."
+    - "The insurer has paid nothing on the injury of {client} from {d_past}, and no formal claim has been filed."
+  workers-compensation/reopening_window:
+    - "The claim of {client} was closed by an award on {d_past}; the condition has since worsened."
+    - "{client} settled the medical portion of the claim on {d_past} and now needs further surgery for the same injury."
+  workers-compensation/appeal_window:
+    - "The workers' compensation judge issued a decision denying the claim of {client} on {d_past}."
+    - "The commission's order reducing the benefits of {client} was mailed on {d_past}, and {client} disagrees with it."
+
+flags:
+  conflict_match:
+    rule: "A person or business named in the record appears on the firm's conflict list."
+    neutral: "Opposing party: {other}."
+    signal:
+      - "Opposing party: {conflict}."
+  possible_conflict:
+    rule: "A person or business named in the record appears on the firm's conflict list."
+    neutral: "Other party involved: {other}."
+    signal:
+      - "Other party involved: {conflict}."
+  outside_jurisdiction:
+    rule: "The matter arises in, or would be filed in, a state other than the firm's practice state."
+    neutral: "The matter concerns events and property in {state}."
+    signal:
+      - "The matter concerns events and property in {other_state}."
+  outside_service_area:
+    rule: "The loss occurred outside the firm's practice state."
+    neutral: "Where the loss occurred: {state}."
+    signal:
+      - "Where the loss occurred: {other_state}."
+  outside_case_types:
+    rule: "The matter type is not on the firm's list of accepted matter types."
+    neutral: "Matter type stated by the person: {accepted_type}."
+    signal:
+      - "Matter type stated by the person: {rejected_type}."
+  possible_limitation_issue:
+    rule: "The date of the loss or of the claim is more than 18 months before today's date."
+    neutral: "Date of the loss or claim, as the person states it: {d_recent}."
+    signal:
+      - "Date of the loss or claim, as the person states it: {d_old}."
+  prior_counsel_of_record:
+    rule: "The person says another lawyer currently represents them in this matter."
+    neutral: "The person has not consulted or retained another lawyer about this matter."
+    signal:
+      - "The person says attorney {lawyer} currently represents them in this matter."
+  liability_or_evidence_question:
+    rule: "The person says they may have been partly at fault, or that no report, photograph or witness exists."
+    neutral: "A police report was made, and the person names two witnesses."
+    signal:
+      - "The person says they may have entered the intersection on a red light; a police report was made."
+      - "The person says no report was made, no photographs were taken and nobody saw the incident."
+  prior_filing_question:
+    rule: "The person reports a bankruptcy case filed within the last eight years."
+    neutral: "The person has never filed a bankruptcy case."
+    signal:
+      - "The person filed a bankruptcy case in {year_recent}."
+  collectability_question:
+    rule: "The opposing party is reported to be out of business, insolvent, or without assets or insurance."
+    neutral: "The opposing party is an operating business with liability insurance."
+    signal:
+      - "The opposing party closed its business last year and has no insurance."
+  agency_deadline_question:
+    rule: "The adverse action date is more than 150 days before today's date and no agency charge has been filed."
+    neutral: "Adverse action date: {d_past}; no agency charge has been filed."
+    signal:
+      - "Adverse action date: {d_150}; no agency charge has been filed."
+  employer_threshold_question:
+    rule: "The employer is reported to have fewer than 15 employees."
+    neutral: "The person says the employer has {n_large} employees."
+    signal:
+      - "The person says the employer has {n_small} employees."
+  eligibility_question:
+    rule: "The person reports a prior removal order or a previously denied application."
+    neutral: "The person reports no prior applications and no removal proceedings."
+    signal:
+      - "The person reports that an earlier application was denied in {year_recent}."
+      - "The person reports a removal order entered in {year_recent}."
+  answer_deadline_question:
+    rule: "An answer or hearing date falls within 7 days after today's date."
+    neutral: "The answer or hearing date stated by the person: {d_far}."
+    signal:
+      - "The answer or hearing date stated by the person: {d_near}."
+  fee_shifting_question:
+    rule: "The lease contains an attorney-fee clause, or the person names a consumer protection statute."
+    neutral: "The written agreement has no attorney-fee clause, and the person names no statute."
+    signal:
+      - "The written lease contains an attorney-fee clause."
+      - "The person says the collector violated the Fair Debt Collection Practices Act."
+  dual_representation_question:
+    rule: "The person asks the firm to represent more than one party to the same transaction."
+    neutral: "The person asks the firm to represent only them in the transaction."
+    signal:
+      - "The person asks the firm to represent both them and the other party to the transaction."
+  notice_or_claim_deadline_question:
+    rule: "The injury date is more than 30 days before today's date and the employer has not been given written notice."
+    neutral: "Injury date: {d_5}; the employer was given written notice the next day."
+    signal:
+      - "Injury date: {d_30}; the employer has not been given written notice."
+
+case_types:
+  personal-injury:
+    accepted: [motor vehicle, premises, dog bite, product]
+    rejected: [medical malpractice, defamation]
+  family-law:
+    accepted: [divorce, custody, child support]
+    rejected: [adult guardianship, adoption]
+  immigration:
+    accepted: [family-based petition, naturalization, asylum]
+    rejected: [investor visa, employer compliance audit]
+
+names:
+  first: [Avery, Bianca, Callum, Dalia, Emeka, Freya, Gideon, Hana, Idris, Juniper, Kofi, Leona, Mateo, Nadia, Osric, Teodora, Quentin, Rosalind, Soren, Talia]
+  last: [Abernathy, Bellweather, Castellano, Draycott, Eskelund, Farrow, Gallagher, Holloway, Ilves, Jarrah, Kestrel, Larkspur, Marchetti, Northam, Oyelaran, Pemberton, Quarrie, Rensselaer, Stroud, Thistlewood]
+  company: [Copperline Fabrication LLC, Bluewater Grocers Inc., Meridian Freight LLC, Harrowgate Supply Co., Fernhill Bakery LLC, Northgate Analytics Inc.]
+  states: [Oregon, Ohio, Georgia, Arizona, Vermont, Minnesota, Colorado, Kentucky]

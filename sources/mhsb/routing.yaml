@@ -1,0 +1,374 @@
+# Imported by tools/import_mhsb.py from MHSBai/platform-plugins. Permitted fields only.
+# Regenerate with the tool; do not edit by hand.
+schema_version: 1
+commands:
+- command: start
+  triggers:
+  - what can you do for me
+  - where do i begin
+  - show me my commands
+  - what changed in the plugin
+  - where do i start
+  - what can this do
+- command: before-i-paste
+  triggers:
+  - can i paste this
+  - is it safe to paste
+  - check before i paste
+  - may i share this document with claude
+  - can i paste
+  - is it okay to put
+- command: explain-this
+  triggers:
+  - explain this in plain language
+  - what does this mean
+  - help me understand this document
+  - what does this letter
+  - explain this paragraph
+- command: follow-up
+  triggers:
+  - draft a follow-up
+  - write back to the client
+  - what should i send next
+  - reply to this client email
+  - write back to
+  - what should i say to
+  - waiting on a reply
+- command: meeting-notes
+  triggers:
+  - turn this call into notes
+  - meeting notes
+  - summarize this consultation
+  - tasks from this meeting
+  - file note
+  - write it up
+- command: ai-policy-draft
+  triggers:
+  - draft our ai policy
+  - we need an ai use policy
+  - ai policy for the firm
+  - rules for using ai
+  - tell clients we use ai
+- command: ai-training
+  triggers:
+  - train my staff on ai
+  - how should paralegals use claude
+  - ai training for the team
+  - how to use this safely
+  - how do i bill time
+- command: ask-mhsb
+  triggers:
+  - contact mhsb support
+  - something is broken with the plugin
+  - ask mhsb a question
+  - who do i tell
+  - note to mhsb
+- command: brief
+  triggers:
+  - what is due this week
+  - anything stale
+  - give me my morning brief
+  - what is missing from my matters
+  - caseload by staff
+  - on my plate
+  - nothing scheduled
+  - most open cases
+  - slipping through the cracks
+- command: consult-prep
+  triggers:
+  - prepare me for the consultation
+  - consult prep
+  - get ready for the hearing
+  - one page before the meeting with the prospect
+  - get me ready for
+  - what do i need to ask
+  - what should i know
+- command: matter-status
+  triggers:
+  - where does this matter stand
+  - status of the matter
+  - client update on the case
+  - where are we on
+  - case stands
+- command: intake-triage
+  triggers:
+  - triage new leads
+  - which leads should we call first
+  - score the intake queue
+  - check new inquiries for conflicts
+  - came in overnight
+  - should we call first
+  - conflict with anyone
+- command: letter
+  triggers:
+  - draft a decline letter
+  - welcome letter for the new client
+  - document request letter
+  - prepare a closing letter
+  - say no to
+  - papers we need
+  - welcome packet
+- command: dates
+  triggers:
+  - what deadlines are coming up
+  - statute of limitations date
+  - how many days since the accident
+  - list the court dates
+  - how many days since
+  - does the statute run
+  - court dates
+- command: checklist
+  triggers:
+  - which documents are missing
+  - is the file ready for signing
+  - document checklist for this matter
+  - still missing from
+  - do we have the
+  - file ready
+- command: hygiene
+  triggers:
+  - audit our fields
+  - clean up the platform data
+  - duplicate date fields
+  - matters without a responsible attorney
+  - nobody use
+  - two date fields
+  - no attorney assigned
+- command: report
+  triggers:
+  - run the incident aging report
+  - list available reports
+  - schedule the monday report
+  - set up a weekly report
+  - monday numbers
+  - run the
+  - reports can i get
+  - emailed to me
+- command: on-brand
+  triggers:
+  - is this on brand
+  - check this draft against our voice
+  - does this sound like the firm
+  - sound like us
+  - before it goes out
+  - mention claude
+- command: check-setup
+  triggers:
+  - check my setup
+  - am i signed in
+  - which version am i running
+  - is the connector working
+  - why cannot i see
+  - did the monday report
+  - hooked up
+- command: form-protections
+  triggers:
+  - are our intake forms protected
+  - public form exposure
+  - can someone submit a fake booking
+  - bot fill out
+- command: pipeline-health
+  triggers:
+  - pipeline health
+  - which automations are dark
+  - templates never sent
+  - duplicate sends
+  - actually going out
+- command: timekeeper-hours
+  triggers:
+  - hours per timekeeper
+  - how many hours did each attorney record
+  - team hours this month
+  - how many hours did
+- command: production
+  triggers:
+  - production by billing method
+  - billed amounts this month
+  - how much did we bill
+- command: budget-vs-actual
+  triggers:
+  - budget versus actual
+  - flat fee matters over budget
+  - budgeted hours versus recorded
+  - over budget
+phrases:
+- id: R01
+  phrase: what's due this week
+  command: brief
+- id: R02
+  phrase: anything stale
+  command: brief
+- id: R03
+  phrase: write back to Mrs. Wexford
+  command: follow-up
+- id: R04
+  phrase: how many days since the accident on the Halvorsen matter
+  command: dates
+- id: R05
+  phrase: where do I start
+  command: start
+- id: R06
+  phrase: what can this do for an intake person
+  command: start
+- id: R07
+  phrase: is it okay to put a medical record in here
+  command: before-i-paste
+- id: R08
+  phrase: can I paste the police report
+  command: before-i-paste
+- id: R09
+  phrase: what does this letter from the insurance company mean
+  command: explain-this
+- id: R10
+  phrase: explain this paragraph to me like I'm not a lawyer
+  command: explain-this
+- id: R11
+  phrase: what should I say to the client who called twice
+  command: follow-up
+- id: R12
+  phrase: which clients are waiting on a reply
+  command: follow-up
+- id: R13
+  phrase: turn my notes from the Halvorsen call into a file note
+  command: meeting-notes
+- id: R14
+  phrase: I recorded the consult, can you write it up
+  command: meeting-notes
+- id: R15
+  phrase: we need rules for using AI at the firm
+  command: ai-policy-draft
+- id: R16
+  phrase: do we have to tell clients we use AI
+  command: ai-policy-draft
+- id: R17
+  phrase: show the new paralegal how to use this safely
+  command: ai-training
+- id: R18
+  phrase: how do I bill time when Claude helped with a draft
+  command: ai-training
+- id: R19
+  phrase: the plugin keeps saying not retrieved, who do I tell
+  command: ask-mhsb
+- id: R20
+  phrase: send a note to MHSB about the error
+  command: ask-mhsb
+- id: R21
+  phrase: what's on my plate today
+  command: brief
+- id: R22
+  phrase: which matters have nothing scheduled
+  command: brief
+- id: R23
+  phrase: who has the most open cases
+  command: brief
+- id: R24
+  phrase: are any leads slipping through the cracks
+  command: brief
+- id: R25
+  phrase: get me ready for my two o'clock with the new client
+  command: consult-prep
+- id: R26
+  phrase: what do I need to ask Mrs. Wexford on Thursday
+  command: consult-prep
+- id: R27
+  phrase: hearing tomorrow on the Halvorsen matter, what should I know
+  command: consult-prep
+- id: R28
+  phrase: where are we on the Halvorsen case
+  command: matter-status
+- id: R29
+  phrase: can you tell Mrs. Wexford where her case stands
+  command: matter-status
+- id: R30
+  phrase: give me a client update on the case for Mr. Halvorsen
+  command: matter-status
+- id: R31
+  phrase: who came in overnight
+  command: intake-triage
+- id: R32
+  phrase: which new people should we call first
+  command: intake-triage
+- id: R33
+  phrase: is the new lead a conflict with anyone we represent
+  command: intake-triage
+- id: R34
+  phrase: say no to the dog bite inquiry politely
+  command: letter
+- id: R35
+  phrase: Mrs. Wexford needs the list of papers we need from her
+  command: letter
+- id: R36
+  phrase: we signed Mr. Halvorsen, start his welcome packet
+  command: letter
+- id: R37
+  phrase: what deadlines are coming up on the Halvorsen matter
+  command: dates
+- id: R38
+  phrase: when does the statute run for Mrs. Wexford
+  command: dates
+- id: R39
+  phrase: any court dates next week
+  command: dates
+- id: R40
+  phrase: what's still missing from the Wexford file
+  command: checklist
+- id: R41
+  phrase: do we have the medical records for Halvorsen yet
+  command: checklist
+- id: R42
+  phrase: is the Wexford file ready to settle
+  command: checklist
+- id: R43
+  phrase: which fields does nobody use
+  command: hygiene
+- id: R44
+  phrase: we have two date fields for the accident
+  command: hygiene
+- id: R45
+  phrase: cases with no attorney assigned
+  command: hygiene
+- id: R46
+  phrase: send me the Monday numbers every week
+  command: report
+- id: R47
+  phrase: run the statute report now
+  command: report
+- id: R48
+  phrase: what reports can I get
+  command: report
+- id: R49
+  phrase: how do I get the limitations report emailed to me
+  command: report
+- id: R50
+  phrase: does this email sound like us
+  command: on-brand
+- id: R51
+  phrase: check my letter before it goes out
+  command: on-brand
+- id: R52
+  phrase: is it fine to mention Claude in this email
+  command: on-brand
+- id: R53
+  phrase: why can't I see billing
+  command: check-setup
+- id: R54
+  phrase: did the Monday report go out
+  command: check-setup
+- id: R55
+  phrase: is everything hooked up right
+  command: check-setup
+- id: R56
+  phrase: could a bot fill out our contact form
+  command: form-protections
+- id: R57
+  phrase: are our follow-up emails actually going out
+  command: pipeline-health
+- id: R58
+  phrase: how many hours did the paralegals put in last month
+  command: timekeeper-hours
+- id: R59
+  phrase: how much did we bill in October
+  command: production
+- id: R60
+  phrase: is the Halvorsen flat fee over budget
+  command: budget-vs-actual

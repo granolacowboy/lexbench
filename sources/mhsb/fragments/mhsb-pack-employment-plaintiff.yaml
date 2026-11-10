@@ -1,0 +1,71 @@
+# Imported by tools/import_mhsb.py from MHSBai/platform-plugins. Permitted fields only.
+# Regenerate with the tool; do not edit by hand.
+schema_version: 1
+pack: mhsb-pack-employment-plaintiff
+practice_area: employment_plaintiff
+intake_questions:
+- id: employment_status
+  prompt: Current employment status
+  answer_type: choice
+  choices:
+  - employed
+  - terminated
+  - resigned
+  - on leave
+  - other
+  sensitive: false
+- id: employer_size
+  prompt: Approximate number of employees at the employer
+  answer_type: number
+  sensitive: false
+- id: adverse_action
+  prompt: The adverse action, in the person's words
+  answer_type: text
+  sensitive: false
+- id: adverse_action_date
+  prompt: Date of the adverse action, as stated
+  answer_type: date
+  sensitive: false
+- id: stated_reason
+  prompt: The employer's stated reason
+  answer_type: text
+  sensitive: false
+- id: witnesses
+  prompt: Witnesses
+  answer_type: text
+  sensitive: false
+- id: notice_given
+  prompt: Any complaint or notice the person gave, and when
+  answer_type: text
+  sensitive: false
+- id: pay_hours
+  prompt: Pay and hours
+  answer_type: text
+  sensitive: true
+- id: right_to_sue
+  prompt: Whether a right-to-sue notice exists, and its date
+  answer_type: text
+  sensitive: false
+- id: prior_counsel
+  prompt: Any lawyer already consulted or retained
+  answer_type: text
+  sensitive: false
+- id: protected_activity_or_class
+  prompt: Protected activity or characteristic, recorded as stated
+  answer_type: text
+  sensitive: true
+deadline_categories:
+- id: agency_charge_window
+  name: Agency charge windows
+  kind: statutory
+- id: post_right_to_sue_window
+  name: Ninety-day window after a right-to-sue notice
+  kind: statutory
+- id: wage_claim
+  name: Wage claims
+  kind: statutory
+attorney_review_flags:
+- agency_deadline_question
+- employer_threshold_question
+- conflict_match
+- prior_counsel_of_record

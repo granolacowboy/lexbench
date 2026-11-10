@@ -1,0 +1,55 @@
+# Imported by tools/import_mhsb.py from MHSBai/platform-plugins. Permitted fields only.
+# Regenerate with the tool; do not edit by hand.
+schema_version: 1
+pack: mhsb-pack-workers-compensation
+practice_area: workers_compensation
+intake_questions:
+- id: injury_date_or_onset
+  prompt: Date of injury or onset, as the person states it
+  answer_type: date
+  sensitive: false
+- id: employer_supervisor
+  prompt: Employer and supervisor
+  answer_type: text
+  sensitive: false
+- id: notice_given
+  prompt: Whether notice was given to the employer, and when
+  answer_type: text
+  sensitive: false
+- id: insurer_claim_number
+  prompt: Insurer and claim number
+  answer_type: text
+  sensitive: false
+- id: treating_physician
+  prompt: Treating physician
+  answer_type: text
+  sensitive: true
+- id: wages
+  prompt: Wages before the injury
+  answer_type: text
+  sensitive: true
+- id: prior_injuries_claims
+  prompt: Prior injuries and claims
+  answer_type: text
+  sensitive: true
+- id: prior_attorneys
+  prompt: Any lawyer already consulted or retained
+  answer_type: text
+  sensitive: false
+deadline_categories:
+- id: notice_window
+  name: Notice windows, by state
+  kind: statutory
+- id: claim_window
+  name: Claim filing windows, by state
+  kind: statutory
+- id: reopening_window
+  name: Reopening windows, by state
+  kind: statutory
+- id: appeal_window
+  name: Appeal windows, by state
+  kind: statutory
+attorney_review_flags:
+- notice_or_claim_deadline_question
+- conflict_match
+- outside_jurisdiction

@@ -1,0 +1,84 @@
+# Imported by tools/import_mhsb.py from MHSBai/platform-plugins. Permitted fields only.
+# Regenerate with the tool; do not edit by hand.
+schema_version: 1
+pack: mhsb-pack-criminal-defense
+practice_area: criminal_defense
+intake_questions:
+- id: name_as_charged
+  prompt: Name as charged, and other names used
+  answer_type: person
+  sensitive: false
+- id: case_number
+  prompt: Case number and court
+  answer_type: text
+  sensitive: false
+- id: charges
+  prompt: Charges, as stated on the charging document or citation
+  answer_type: text
+  sensitive: false
+- id: offense_date
+  prompt: Offense date
+  answer_type: date
+  sensitive: false
+- id: arrest_date
+  prompt: Arrest date
+  answer_type: date
+  sensitive: false
+- id: agency
+  prompt: Arresting or charging agency
+  answer_type: text
+  sensitive: false
+- id: release_conditions
+  prompt: Custody status and release conditions
+  answer_type: text
+  sensitive: false
+- id: warrants
+  prompt: Any outstanding warrant
+  answer_type: choice
+  choices:
+  - 'yes'
+  - 'no'
+  - unknown
+  sensitive: false
+- id: next_court_date
+  prompt: Next court date and where it came from
+  answer_type: date
+  sensitive: false
+- id: co_defendants
+  prompt: Co-defendants and their counsel
+  answer_type: text
+  sensitive: false
+- id: complainants
+  prompt: Complainants and named witnesses, for the conflict check
+  answer_type: text
+  sensitive: false
+- id: citizenship
+  prompt: Citizenship, recorded for the attorney's review only
+  answer_type: text
+  sensitive: true
+- id: interpreter_need
+  prompt: Whether an interpreter is needed, and the language
+  answer_type: text
+  sensitive: false
+- id: probation_parole
+  prompt: Probation or parole status
+  answer_type: text
+  sensitive: true
+- id: pending_prior_charges
+  prompt: Pending and prior charges, as stated
+  answer_type: text
+  sensitive: true
+- id: authorized_contacts
+  prompt: People the client authorizes the firm to call to locate the client
+  answer_type: text
+  sensitive: false
+deadline_categories:
+- id: court_date
+  name: Court dates, entered from the court's notice
+  kind: firm_set
+- id: discovery_motion_cutoff
+  name: Discovery and motion cutoffs, entered from the court's order
+  kind: firm_set
+attorney_review_flags:
+- possible_conflict
+- outside_jurisdiction

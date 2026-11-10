@@ -1,0 +1,78 @@
+# LexBench model registry. Models are configuration, never code.
+#
+# Each key under `models` is the entry name that results are filed under. Fields:
+#   provider        adapter name in lexbench/providers (anthropic, openai_compatible, mock)
+#   model           the provider's model identifier
+#   endpoint        optional base URL (required for openai_compatible)
+#   auth            name of the environment variable that holds the credential, never a value
+#   pricing         USD per million input and output tokens; batch_discount is the fraction
+#                   taken off when batch is true; zero prices (self-hosted) count as zero
+#   max_tokens      upper bound on output tokens per request (each family sets a lower bound)
+#   concurrency     parallel requests for synchronous runs
+#   rate_limit_rpm  optional cap on request starts per minute for synchronous runs
+#   batch           true to submit asynchronous batches when the adapter supports them
+#   options         optional adapter settings; options.params is merged into each request
+#
+# Claude identifiers were verified against GET https://api.anthropic.com/v1/models and
+# prices against https://platform.claude.com/docs/en/about-claude/pricing on 2026-11-10;
+# `lexbench models` and `lexbench estimate` repeat both checks.
+schema_version: 1
+
+limits:
+  spend_cap_usd: 60.0
+  max_requests_per_batch: 10000
+
+models:
+  claude-opus-5-5:
+    provider: anthropic
+    model: claude-opus-5-5
+    auth: ANTHROPIC_API_KEY
+    pricing: {input_per_mtok: 4.00, output_per_mtok: 20.00, batch_discount: 0.5}
+    max_tokens: 256
+    concurrency: 4
+    rate_limit_rpm: 50
+    batch: true
+
+  claude-sonnet-5-5:
+    provider: anthropic
+    model: claude-sonnet-5-5
+    auth: ANTHROPIC_API_KEY
+    pricing: {input_per_mtok: 2.00, output_per_mtok: 10.00, batch_discount: 0.5}
+    max_tokens: 256
+    concurrency: 4
+    rate_limit_rpm: 50
+    batch: true
+
+  claude-haiku-5-5:
+    provider: anthropic
+    model: claude-haiku-5-5
+    auth: ANTHROPIC_API_KEY
+    # Prompt-length tier: prices for prompts up to 100,000 tokens; every LexBench prompt is shorter.
+    pricing: {input_per_mtok: 0.10, output_per_mtok: 0.50, batch_discount: 0.5}
+    max_tokens: 256
+    concurrency: 8
+    rate_limit_rpm: 100
+    batch: true
+
+  # Example: a self-hosted model behind an OpenAI-compatible server (vLLM, Ollama,
+  # llama.cpp server, TGI). Remove the comment markers and set the endpoint to use it.
+  # The auth line is only needed when the server requires a bearer token.
+  #
+  # local-llama-3-70b:
+  #   provider: openai_compatible
+  #   model: meta-llama/Llama-3.3-70B-Instruct
+  #   endpoint: http://localhost:8000/v1
+  #   # auth: LOCAL_LLM_TOKEN
+  #   pricing: {input_per_mtok: 0, output_per_mtok: 0}
+  #   max_tokens: 256
+  #   concurrency: 8
+  #   batch: false
+
+  mock:
+    provider: mock
+    model: mock-oracle-1
+    pricing: {input_per_mtok: 0, output_per_mtok: 0}
+    max_tokens: 256
+    concurrency: 1
+    batch: true
+    options: {mode: oracle}

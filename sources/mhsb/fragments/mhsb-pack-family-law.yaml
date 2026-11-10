@@ -1,0 +1,60 @@
+# Imported by tools/import_mhsb.py from MHSBai/platform-plugins. Permitted fields only.
+# Regenerate with the tool; do not edit by hand.
+schema_version: 1
+pack: mhsb-pack-family-law
+practice_area: family_law
+intake_questions:
+- id: parties_children
+  prompt: Parties and any children of the relationship
+  answer_type: text
+  sensitive: false
+- id: key_dates
+  prompt: Key dates such as marriage, separation and filing, each with its source
+  answer_type: text
+  sensitive: false
+- id: prior_pending_cases
+  prompt: Prior or pending cases and orders, including protective orders
+  answer_type: text
+  sensitive: false
+- id: income
+  prompt: Income of each party, if known
+  answer_type: text
+  sensitive: true
+- id: assets_debts
+  prompt: Assets and debts
+  answer_type: text
+  sensitive: true
+- id: goals
+  prompt: What the person wants from the matter
+  answer_type: text
+  sensitive: false
+- id: opposing_party_counsel
+  prompt: Opposing party and counsel
+  answer_type: text
+  sensitive: false
+- id: safety_protocol_followed
+  prompt: Whether the firm's safety protocol was followed by a person speaking with the client alone
+  answer_type: boolean
+  sensitive: false
+- id: contact_rule_status
+  prompt: Status of the resulting contact rule
+  answer_type: choice
+  choices:
+  - verified
+  - not verified
+  - unknown
+  sensitive: false
+deadline_categories:
+- id: response_to_petition
+  name: Response to petition, by state
+  kind: statutory
+- id: disclosure_deadline
+  name: Financial disclosure deadlines, by state
+  kind: statutory
+- id: hearing_date
+  name: Hearings, entered from the court's notice
+  kind: firm_set
+attorney_review_flags:
+- possible_conflict
+- outside_case_types
+- outside_jurisdiction

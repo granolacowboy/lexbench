@@ -1,0 +1,28 @@
+# One-line descriptions of each command, written for LexBench. The routing prompt shows
+# these descriptions; the expected answer is the command name.
+schema_version: 1
+commands:
+  start: Orientation; lists the installed commands, explains what the plugins can do, and answers when no other command fits.
+  before-i-paste: Checks whether a document or text may be pasted into or shared with the assistant under the firm's data rules.
+  explain-this: Explains a document, letter or paragraph in plain language.
+  follow-up: Drafts a follow-up or reply to a client and lists clients who are waiting on a response.
+  meeting-notes: Turns a call, consultation or meeting into a file note with tasks.
+  ai-policy-draft: Drafts the firm's policy on the use of AI, including what clients are told.
+  ai-training: Training material for staff on the safe use of AI tools, including time entry for assisted work.
+  ask-mhsb: Sends a question, a problem report or a note to MHSB support.
+  brief: A brief across all matters; items due, stale matters, caseload by staff and gaps.
+  consult-prep: Prepares the user for a consultation, meeting or hearing on one matter or prospect.
+  matter-status: Reports where one matter stands, for internal use or as a client update.
+  intake-triage: Scores and orders new leads and checks them for conflicts.
+  letter: Drafts standard letters; decline, welcome, document request and closing letters.
+  dates: Deadlines, court dates, limitation dates and day counts for matters.
+  checklist: Compares the documents on file with the document list for a matter.
+  hygiene: Audits the practice-management data; unused or duplicate fields and matters without a responsible attorney.
+  report: Runs, lists and schedules the firm's reports.
+  on-brand: Checks a draft against the firm's voice and communication rules before it is sent.
+  check-setup: Checks sign-in, version and connector status, and why data or a scheduled report is missing.
+  form-protections: Reviews public intake forms for protection against fake or automated submissions.
+  pipeline-health: Reviews automations and templates; which are inactive, never sent or sending duplicates.
+  timekeeper-hours: Hours recorded per timekeeper over a period.
+  production: Billed amounts by billing method over a period.
+  budget-vs-actual: Budgeted hours against recorded hours by matter, including flat-fee matters over budget.
