@@ -1,4 +1,4 @@
-# [draft for Richard] LexBench: a small, reproducible harness for legal-task evaluation
+# [draft for Richard Berman] LexBench: a small, reproducible harness for legal-task evaluation
 
 Most published comparisons of language models on legal work are hard to reproduce. The
 prompts are unpublished, the samples are unstated, and the grading depends on a reader's
@@ -37,7 +37,8 @@ The three models were claude-opus-5-5, claude-sonnet-5-5 and claude-haiku-5-5, e
 through the Message Batches API. Every task is a short classification, so each model ran at
 its lowest thinking setting: thinking disabled on Haiku, no up-front thinking on Sonnet,
 and low effort on Opus, which cannot turn thinking off. The results therefore describe the
-models at those settings, not at their defaults.
+models at those settings, not at their defaults. No temperature was set: the Claude 5.5 models
+reject the parameter, so each ran at the provider's fixed default sampling.
 
 ## Results
 

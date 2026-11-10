@@ -9,6 +9,12 @@ Per pack: two deadline cases per category (expected: category id and kind), two 
 flag with the flag's rule met (expected: that flag), one case with two flags met, two cases
 with no rule met (expected: no flags), padded with further deadline cases to at least
 MIN_CASES. Sensitive intake questions are never shown.
+
+A deadline case lists the categories by id and name only, with a general definition of the
+two kinds, so that the kind is judged rather than read from the prompt. Each case carries
+in meta.choices the answer options the mock adapter's hash mode chooses from: every
+category paired with each kind for a deadline case, and every set of at most two of the
+pack's flags (and the expected set) for an intake case.
 """
 
 from __future__ import annotations
@@ -16,6 +22,7 @@ from __future__ import annotations
 import json
 import random
 from datetime import date, timedelta
+from itertools import combinations
 from pathlib import Path
 from typing import Any
 
@@ -32,6 +39,12 @@ SYSTEM = (
     "Answer with one JSON object and nothing else."
 )
 PREFIX = "mhsb-pack-"
+KINDS = ("statutory", "firm_set")
+KIND_DEFINITIONS = (
+    "Each category has one of two kinds. statutory: a period fixed by statute or court rule. "
+    "firm_set: a date the firm sets itself, or enters from a court notice, an order, a "
+    "contract or another document."
+)
 
 
 class _Draw:
@@ -78,23 +91,36 @@ class _Draw:
 def _deadline_case(
     pack: dict[str, Any], cat: dict[str, Any], template: str, d: _Draw
 ) -> tuple[str, dict[str, Any], str]:
-    lines = "\n".join(
-        f"- {c['id']} ({c['kind']}): {c['name']}" for c in pack["deadline_categories"]
-    )
+    lines = "\n".join(f"- {c['id']}: {c['name']}" for c in pack["deadline_categories"])
     event = template.format(**d.values)
     prompt = (
         f"Practice area: {pack['practice_area'].replace('_', ' ')}\n"
-        f"Deadline categories defined by the fragment (id, kind, name):\n{lines}\n\n"
+        f"Deadline categories defined by the fragment (id: name):\n{lines}\n"
+        f"{KIND_DEFINITIONS}\n\n"
         f"Today's date: {d.today.isoformat()}\n"
         f"Matter for {d.values['client']}.\nEvent: {event}\n\n"
-        "Which deadline category does this event belong to, and what kind is that category "
-        "under the fragment?\n"
+        "Which deadline category does this event belong to, and which kind is that category?\n"
         'Answer with a JSON object: {"category": "<category id>", "kind": "statutory" or '
         '"firm_set"}'
     )
     expected = {"case_kind": "deadline", "category": cat["id"], "deadline_kind": cat["kind"]}
     reference = json.dumps({"category": cat["id"], "kind": cat["kind"]})
     return prompt, expected, reference
+
+
+def _choices(pack: dict[str, Any], kind: str, reference: str) -> list[str]:
+    """Answer options for the mock adapter's hash mode; the reference is one of several."""
+    if kind == "deadline":
+        options = [
+            json.dumps({"category": c["id"], "kind": k})
+            for c in pack["deadline_categories"]
+            for k in KINDS
+        ]
+    else:
+        flags: list[str] = sorted(pack["attorney_review_flags"])
+        sets = [list(c) for n in range(3) for c in combinations(flags, n)]
+        options = [json.dumps({"flags": s}) for s in sets]
+    return options if reference in options else [*options, reference]
 
 
 def _flags_case(
@@ -171,7 +197,7 @@ def build_pack(pack: dict[str, Any], tpl: dict[str, Any], seed: int = SEED) -> l
                 prompt=prompt,
                 max_tokens=MAX_TOKENS,
                 expected=expected,
-                meta={"reference": ref, "choices": [ref]},
+                meta={"reference": ref, "choices": _choices(pack, kind, ref)},
             )
         )
     return rows

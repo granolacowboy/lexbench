@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any
 
@@ -46,6 +46,19 @@ ENTRY_SCHEMA: dict[str, Any] = {
         "rate_limit_rpm": {"type": "integer", "minimum": 1},
         "batch": {"type": "boolean"},
         "options": {"type": "object"},
+        "family_settings": {
+            "type": "object",
+            "propertyNames": {"enum": ["legalbench", "fragments", "routing"]},
+            "additionalProperties": {
+                "type": "object",
+                "additionalProperties": False,
+                "minProperties": 1,
+                "properties": {
+                    "max_tokens": {"type": "integer", "minimum": 1, "maximum": 65536},
+                    "params": {"type": "object"},
+                },
+            },
+        },
     },
 }
 
@@ -97,6 +110,14 @@ class Pricing:
     def is_free(self) -> bool:
         return self.input_per_mtok == 0 and self.output_per_mtok == 0
 
+    def as_dict(self) -> dict[str, float]:
+        """The prices that an estimate depends on, as recorded in results/estimate.json."""
+        return {
+            "input_per_mtok": self.input_per_mtok,
+            "output_per_mtok": self.output_per_mtok,
+            "batch_discount": self.batch_discount,
+        }
+
 
 @dataclass(frozen=True)
 class ModelEntry:
@@ -112,15 +133,43 @@ class ModelEntry:
     rate_limit_rpm: int | None = None
     reasoning_tokens: int = 0
     options: dict[str, Any] = field(default_factory=dict)
+    family_settings: dict[str, dict[str, Any]] = field(default_factory=dict)
+    fixed_output_bound: int | None = None
 
     def output_bound(self, family_max_tokens: int) -> int:
         """Output tokens allowed for one request: the family bound plus reasoning room,
-        never above the entry's max_tokens."""
+        never above the entry's max_tokens, unless a family setting fixes the bound."""
+        if self.fixed_output_bound is not None:
+            return self.fixed_output_bound
         return min(family_max_tokens + self.reasoning_tokens, self.max_tokens)
 
-    def fingerprint(self) -> str:
-        """Hash of every setting that shapes a request; a change permits a new submission."""
-        body = {
+    def for_family(self, family: str) -> ModelEntry:
+        """The entry as it applies to one family.
+
+        A family setting fixes that family's output bound (max_tokens, which replaces the
+        family bound, the reasoning room and the entry ceiling) and replaces options.params
+        (params). Without a family setting the entry applies unchanged.
+        """
+        override = self.family_settings.get(family)
+        if not override:
+            return self
+        options = dict(self.options)
+        if "params" in override:
+            options["params"] = override["params"]
+        return replace(
+            self,
+            options=options,
+            fixed_output_bound=override.get("max_tokens", self.fixed_output_bound),
+            family_settings={},
+        )
+
+    def fingerprint(self, family: str | None = None) -> str:
+        """Hash of every setting that shapes a request; a change permits a new submission.
+
+        With a family, the family's own settings are included when it has any, so that a
+        family setting changes only that family's fingerprint.
+        """
+        body: dict[str, Any] = {
             "provider": self.provider,
             "model": self.model,
             "endpoint": self.endpoint,
@@ -128,6 +177,8 @@ class ModelEntry:
             "reasoning_tokens": self.reasoning_tokens,
             "options": self.options,
         }
+        if family is not None and self.family_settings.get(family):
+            body["family_settings"] = {family: self.family_settings[family]}
         return hashlib.sha256(json.dumps(body, sort_keys=True).encode("utf-8")).hexdigest()
 
 
@@ -195,6 +246,7 @@ def parse_registry(raw: Any, known_providers: set[str] | None = None) -> Registr
             rate_limit_rpm=body.get("rate_limit_rpm"),
             reasoning_tokens=int(body.get("reasoning_tokens", 0)),
             options=dict(body.get("options") or {}),
+            family_settings={k: dict(v) for k, v in (body.get("family_settings") or {}).items()},
         )
     limits = raw.get("limits") or {}
     return Registry(

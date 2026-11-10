@@ -3,7 +3,10 @@
 options.mode selects the behaviour:
   oracle    return the reference answer the family attached to the request (default)
   constant  return options.text for every request
-  hash      return one of the request's answer options, chosen by a hash of the prompt
+  hash      return one of the request's answer options, chosen by a hash of the prompt; the
+            options are the task labels for LegalBench, every category and kind pair or
+            every set of at most two flags for fragment cases, and the command list for
+            routing, so hash mode is not an oracle
 Batches are simulated: submit stores the requests under the cache directory and poll
 reports them as ended at once.
 """

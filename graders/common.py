@@ -33,6 +33,11 @@ def _strip_cues(line: str) -> str:
     return re.sub(r"\s+", " ", line.strip(EDGE)).lower()
 
 
+def normalise_line(line: str) -> str:
+    """One line with answer cues and edge punctuation removed, in lower case."""
+    return _strip_cues(line)
+
+
 def normalise(text: str) -> str:
     """Lower case, first non-empty line, answer cues and edge punctuation removed.
 

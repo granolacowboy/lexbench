@@ -22,3 +22,11 @@ tasks:
   - {task: function_of_decision_section, short: decisionfn, reasoning_type: rhetorical-understanding}
   - {task: oral_argument_question_purpose, short: oralarg, reasoning_type: rhetorical-understanding}
   - {task: overruling, short: overruling, reasoning_type: rhetorical-understanding}
+# Test cases dropped from the sample after it is drawn, each with its reason. The build
+# records them in data/legalbench/LICENSES.md and data/MANIFEST.json.
+exclude:
+  - id: lb-decisionfn-0366
+    reason: >-
+      The test input "For these reasons, we AFFIRM." (label Decree) is also the last
+      demonstration in the upstream base prompt for function_of_decision_section, so the
+      case would test recall of the prompt rather than classification.

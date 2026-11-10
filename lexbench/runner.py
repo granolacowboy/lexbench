@@ -1,9 +1,14 @@
 """`lexbench run`, `poll` and `grade`, with the spend cap and idempotent state.
 
-Every submission is recorded before its results are awaited: batches in state/batches.json
-(batch id, family, model name, request count, estimated USD) and synchronous runs in
-state/runs.json. The cap is enforced before each submission from results/estimate.json and
-the recorded submissions, never after.
+Every submission is recorded before the provider is called: batches in state/batches.json
+and synchronous runs in state/runs.json, each with family, model name, request count,
+estimated USD and the entry's settings fingerprint for the family. A batch is recorded as
+pending, then updated with the provider's batch id once the provider accepts it, or marked
+failed when the provider call raises. A synchronous run is recorded as running, then
+completed or failed. Every recorded submission, failed or pending included, counts toward
+the cap. The cap is enforced before each submission from results/estimate.json and the
+recorded submissions, never after; an estimate made under other entry settings or other
+pricing is refused.
 """
 
 from __future__ import annotations
@@ -29,6 +34,7 @@ from lexbench.registry import Registry
 
 Log = Callable[[str], None]
 SKIP_STATUSES = {"failed"}
+ENDED_STATUSES = {"ended", "completed"}
 
 
 class CapExceeded(RuntimeError):
@@ -45,13 +51,32 @@ def _save(layout: Layout, kind: str, state: dict[str, Any]) -> None:
     write_json(layout.batches if kind == "batches" else layout.runs, state)
 
 
+def _append(layout: Layout, kind: str, record: dict[str, Any]) -> None:
+    state = _load(layout, kind)
+    state[kind].append(record)
+    _save(layout, kind, state)
+
+
+def _update(layout: Layout, kind: str, key: str, value: str, **changes: Any) -> None:
+    state = _load(layout, kind)
+    for r in state[kind]:
+        if r.get(key) == value:
+            r.update(changes)
+    _save(layout, kind, state)
+
+
+def _sid(record: dict[str, Any]) -> str:
+    """The submission's identifier: the provider's batch id, else the local id."""
+    return str(record.get("batch_id") or record.get("submission_id") or record.get("run_id"))
+
+
 def recorded_spend(layout: Layout) -> float:
     total = sum(float(b["estimated_usd"]) for b in _load(layout, "batches")["batches"])
     total += sum(float(r["estimated_usd"]) for r in _load(layout, "runs")["runs"])
     return round(total, 4)
 
 
-def _estimate_for(layout: Layout, family: str, model: str) -> dict[str, Any]:
+def _estimate_for(layout: Layout, registry: Registry, family: str, model: str) -> dict[str, Any]:
     est = read_json(layout.estimate, default=None)
     if not est:
         raise CapExceeded("refused: results/estimate.json is missing; run `lexbench estimate`")
@@ -61,6 +86,17 @@ def _estimate_for(layout: Layout, family: str, model: str) -> dict[str, Any]:
         entry: dict[str, Any] = est["entries"][model][family]
     except KeyError as exc:
         raise CapExceeded(f"refused: no estimate for {family} on {model}") from exc
+    current = registry.get(model)
+    if entry.get("config_sha256") != current.fingerprint(family):
+        raise CapExceeded(
+            f"refused: the estimate for {family} on {model} was made under other entry "
+            "settings; run `lexbench estimate`"
+        )
+    if entry.get("pricing") != current.pricing.as_dict():
+        raise CapExceeded(
+            f"refused: the estimate for {family} on {model} was made under other pricing; "
+            "run `lexbench estimate`"
+        )
     return entry
 
 
@@ -77,7 +113,7 @@ def _records_for(
 ) -> list[dict[str, Any]]:
     """Submissions for this family and entry made with the current data and settings."""
     sha = family_sha(layout, family)
-    config = registry.get(model).fingerprint()
+    config = registry.get(model).fingerprint(family)
 
     def current(r: dict[str, Any]) -> bool:
         return (
@@ -88,13 +124,11 @@ def _records_for(
         )
 
     out = [
-        dict(b, kind="batch", sid=b["batch_id"])
+        dict(b, kind="batch", sid=_sid(b))
         for b in _load(layout, "batches")["batches"]
         if current(b)
     ]
-    out += [
-        dict(r, kind="run", sid=r["run_id"]) for r in _load(layout, "runs")["runs"] if current(r)
-    ]
+    out += [dict(r, kind="run", sid=_sid(r)) for r in _load(layout, "runs")["runs"] if current(r)]
     return sorted(out, key=lambda r: str(r["submitted_at"]))
 
 
@@ -103,27 +137,38 @@ def run(layout: Layout, registry: Registry, family: str, model: str, log: Log = 
     existing = [
         r for r in _records_for(layout, registry, family, model) if r["status"] not in SKIP_STATUSES
     ]
+    pending = [str(r["sid"]) for r in existing if r["status"] == "pending"]
+    if pending:
+        raise CapExceeded(
+            f"refused: {family} on {model} has a submission recorded as pending without a "
+            f"provider id ({', '.join(pending)}); check the provider's batch list, then record "
+            "its batch id or mark it failed in state/batches.json"
+        )
     if any(r["kind"] == "batch" or r["status"] == "completed" for r in existing):
         known = [str(r["sid"]) for r in existing]
         log(f"{family} on {model}: already submitted ({', '.join(known)}); nothing to do")
         return known
     cases = load_cases(layout, family)
     requests = [to_request(c) for c in cases]
-    est = _estimate_for(layout, family, model)
+    est = _estimate_for(layout, registry, family, model)
     per_request = (float(est["usd"]) / len(requests)) if requests and est["paid"] else 0.0
-    provider = make_provider(entry, layout.cache)
+    provider = make_provider(entry.for_family(family), layout.cache)
     sha = family_sha(layout, family)
+    config = entry.fingerprint(family)
+    stamp = utc_now().replace(":", "").replace("-", "")
     ids: list[str] = []
     if entry.batch:
         chunks = list(chunked(requests, registry.max_requests_per_batch))
         for i, chunk in enumerate(chunks, start=1):
             usd = round(per_request * len(chunk), 4)
             check_cap(recorded_spend(layout), usd, registry.spend_cap_usd)
-            batch_id = provider.submit_batch(chunk)
-            state = _load(layout, "batches")
-            state["batches"].append(
+            submission_id = f"sub_{family}_{model}_{stamp}_{i}"
+            _append(
+                layout,
+                "batches",
                 {
-                    "batch_id": batch_id,
+                    "batch_id": None,
+                    "submission_id": submission_id,
                     "family": family,
                     "model": model,
                     "provider": entry.provider,
@@ -131,15 +176,36 @@ def run(layout: Layout, registry: Registry, family: str, model: str, log: Log = 
                     "request_count": len(chunk),
                     "estimated_usd": usd,
                     "data_sha256": sha,
-                    "config_sha256": entry.fingerprint(),
+                    "config_sha256": config,
                     "chunk": f"{i}/{len(chunks)}",
                     "submitted_at": utc_now(),
-                    "status": "in_progress",
+                    "status": "pending",
                     "counts": {},
                     "ended_at": None,
-                }
+                },
             )
-            _save(layout, "batches", state)
+            try:
+                batch_id = provider.submit_batch(chunk)
+            except Exception as exc:
+                _update(
+                    layout,
+                    "batches",
+                    "submission_id",
+                    submission_id,
+                    status="failed",
+                    ended_at=utc_now(),
+                    error=type(exc).__name__,
+                )
+                log(f"{family} on {model}: submission {submission_id} failed, {type(exc).__name__}")
+                raise
+            _update(
+                layout,
+                "batches",
+                "submission_id",
+                submission_id,
+                batch_id=batch_id,
+                status="in_progress",
+            )
             ids.append(batch_id)
             log(
                 f"{family} on {model}: submitted batch {batch_id} ({len(chunk)} requests, "
@@ -148,41 +214,58 @@ def run(layout: Layout, registry: Registry, family: str, model: str, log: Log = 
         return ids
     usd = round(per_request * len(requests), 4)
     check_cap(recorded_spend(layout), usd, registry.spend_cap_usd)
-    run_id = f"run_{family}_{model}_{utc_now().replace(':', '').replace('-', '')}"
-    state = _load(layout, "runs")
-    record = {
-        "run_id": run_id,
-        "family": family,
-        "model": model,
-        "provider": entry.provider,
-        "provider_model": entry.model,
-        "request_count": len(requests),
-        "estimated_usd": usd,
-        "data_sha256": sha,
-        "config_sha256": entry.fingerprint(),
-        "submitted_at": utc_now(),
-        "status": "running",
-        "counts": {},
-        "ended_at": None,
-    }
-    state["runs"].append(record)
-    _save(layout, "runs", state)
+    run_id = f"run_{family}_{model}_{stamp}"
+    _append(
+        layout,
+        "runs",
+        {
+            "run_id": run_id,
+            "family": family,
+            "model": model,
+            "provider": entry.provider,
+            "provider_model": entry.model,
+            "request_count": len(requests),
+            "estimated_usd": usd,
+            "data_sha256": sha,
+            "config_sha256": config,
+            "submitted_at": utc_now(),
+            "status": "running",
+            "counts": {},
+            "ended_at": None,
+        },
+    )
     log(
         f"{family} on {model}: synchronous run {run_id} ({len(requests)} requests, "
         f"concurrency {entry.concurrency}, estimated {usd:.2f} USD)"
     )
-    responses = provider.run_sync(requests)
+    try:
+        responses = provider.run_sync(requests)
+    except BaseException as exc:
+        # Recorded as failed, never left running: a failed run does not block grading.
+        _update(
+            layout,
+            "runs",
+            "run_id",
+            run_id,
+            status="failed",
+            ended_at=utc_now(),
+            error=type(exc).__name__,
+        )
+        log(f"{family} on {model}: synchronous run {run_id} failed, {type(exc).__name__}")
+        raise
     write_jsonl(layout.raw_path(family, model, run_id), [r.to_json() for r in responses])
-    state = _load(layout, "runs")
-    for r in state["runs"]:
-        if r["run_id"] == run_id:
-            r["status"] = "completed"
-            r["ended_at"] = utc_now()
-            r["counts"] = {
-                "succeeded": sum(1 for x in responses if x.error is None),
-                "errored": sum(1 for x in responses if x.error is not None),
-            }
-    _save(layout, "runs", state)
+    _update(
+        layout,
+        "runs",
+        "run_id",
+        run_id,
+        status="completed",
+        ended_at=utc_now(),
+        counts={
+            "succeeded": sum(1 for x in responses if x.error is None),
+            "errored": sum(1 for x in responses if x.error is not None),
+        },
+    )
     grade(layout, registry, family, model, log)
     return [run_id]
 
@@ -191,9 +274,13 @@ def poll(
     layout: Layout, registry: Registry, log: Log = print, do_grade: bool = True
 ) -> dict[str, int]:
     state = _load(layout, "batches")
-    tally = {"in_progress": 0, "ended": 0}
+    tally = {"in_progress": 0, "ended": 0, "pending": 0}
     ended_now: set[tuple[str, str]] = set()
     for b in state["batches"]:
+        if b["status"] == "pending":
+            tally["pending"] += 1
+            log(f"{_sid(b)} ({b['family']} on {b['model']}): pending, no provider batch id")
+            continue
         if b["status"] != "in_progress":
             if b["status"] == "ended":
                 tally["ended"] += 1
@@ -239,7 +326,7 @@ def grade(
     if not live:
         log(f"{family} on {model}: no submissions to grade")
         return None
-    if any(r["status"] not in {"ended", "completed"} for r in live):
+    if any(r["status"] not in ENDED_STATUSES for r in live):
         log(f"{family} on {model}: submissions still in progress; not graded")
         return None
     responses: dict[str, Response] = {}

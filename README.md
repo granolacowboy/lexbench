@@ -8,7 +8,7 @@ responses with deterministic graders, and reports accuracy per task and family.
 
 | Family | Source | Cases | Expected answer | Grader |
 |---|---|---:|---|---|
-| `legalbench` | 12 LegalBench tasks licensed CC BY 4.0 (Guha et al. 2023) | 1,080 | the task label | normalised exact match |
+| `legalbench` | 12 LegalBench tasks licensed CC BY 4.0 (Guha et al. 2023) | 1,079 | the task label | label match over the whole response (see Grading) |
 | `fragments` | synthetic intake and deadline cases from 12 MHSB practice-pack fragments | 197 | deadline category and kind, or the set of attorney-review flags | category and flag match |
 | `routing` | MHSB trigger phrases, routing-suite phrases and written paraphrases | 271 | one command name | command match |
 
@@ -19,14 +19,19 @@ rule application (`hearsay`, `diversity_1`, `personal_jurisdiction`, `ucc_v_comm
 (`function_of_decision_section`, `oral_argument_question_purpose`, `overruling`). Each task
 uses its upstream base prompt, whose in-context examples are upstream's few-shot
 demonstrations from the train split. Each task contributes at most 100 test examples, drawn
-as a fixed random sample (seed 20261110) when the split is larger. The license of every task
-is read from its upstream README at build time and recorded in
-[data/legalbench/LICENSES.md](data/legalbench/LICENSES.md).
+as a fixed random sample (seed 20261110) when the split is larger. One sampled case,
+`lb-decisionfn-0366`, repeats the last demonstration of its base prompt and is excluded, so
+the family has 1,079 cases. The license of every task is read from its upstream README at
+build time and recorded in [data/legalbench/LICENSES.md](data/legalbench/LICENSES.md), with
+the changes made and the excluded cases.
 
 **Fragment cases.** `lexbench/families/fragments.py` generates the cases from each fragment's
 intake questions, deadline categories (kind `statutory` or `firm_set`) and attorney-review
 flags, using the templates in `sources/fragments/templates.yaml`. The seed is 20261110. A
-deadline case describes an event and asks for the category and its kind. An intake case
+deadline case lists the fragment's categories by id and name, defines the two kinds in
+general terms (a period fixed by statute or court rule, or a date the firm sets or enters
+from a notice, order, contract or document), describes an event, and asks for the category
+and its kind; the kind of each category is not shown, so it is judged. An intake case
 gives firm settings, the flag rules and an intake record, and asks for every flag whose
 rule is met (possibly none). Sensitive intake questions are never shown. All names, dates
 and facts are invented.
@@ -35,7 +40,10 @@ and facts are invented.
 installed. The prompt lists the commands with one-line descriptions written for LexBench.
 
 `lexbench build` writes every family to `data/` and records counts and SHA-256 hashes in
-`data/MANIFEST.json`. A run refuses data that does not match the manifest.
+`data/MANIFEST.json`. A run refuses data that does not match the manifest. A rebuild that
+produces the same content leaves the tracked files unchanged: the manifest's `built_at` and
+the license fetch times in `data/legalbench/LICENSES.md` are renewed only when the content or
+the license evidence changes, or with `lexbench build --refresh`.
 
 ## Model registry
 
@@ -58,12 +66,28 @@ models:
       params: {thinking: {type: between_tools}}   # merged into every request
 ```
 
-**Thinking settings.** The Claude 5.5 models think adaptively by default, and thinking
-counts toward `max_tokens`. Every task here is a short classification, so each Claude entry
-runs at its lowest thinking setting. Haiku 5.5 runs with thinking `disabled` and Sonnet 5.5
-with `between_tools` (no up-front thinking). Opus 5.5 accepts no setting that turns thinking
-off, so it runs at effort `low` with `reasoning_tokens: 1024` of extra output room. The
-results therefore measure each model at its lowest thinking setting, not at its defaults.
+**Thinking settings and output bounds.** The Claude 5.5 models think adaptively by default,
+and thinking counts toward `max_tokens`. An entry may set `family_settings` for one family:
+`max_tokens` fixes that family's output bound, and `params` replaces `options.params`.
+
+| Family | Thinking setting, all three Claude entries | Output bound per request |
+|---|---|---|
+| `legalbench` | adaptive thinking at effort `low` | 1,048 tokens on every entry |
+| `fragments` | adaptive thinking at effort `low` | 1,624 tokens on every entry |
+| `routing` | entry level: Opus 5.5 effort `low`; Sonnet 5.5 thinking `between_tools`; Haiku 5.5 thinking `disabled` | Opus 5.5 1,044 tokens (20 plus 1,024 of reasoning room); Sonnet 5.5 and Haiku 5.5 20 tokens |
+
+Adaptive thinking at effort `low` is the one thinking setting that all three models accept:
+Opus 5.5 rejects thinking `disabled`, and Sonnet 5.5 offers `between_tools` as its lowest
+setting. LegalBench and fragment cases therefore give every model the same settings and the
+same output room. The routing results were measured at the entry-level settings and with
+unequal output room, and are reported as such.
+
+**Sampling.** The `anthropic` adapter sends no `temperature`: the pinned SDK uses API
+version 2026-10-21, under which a request that sets `temperature`, `top_p` or `top_k`
+returns an error, and the Claude 5.5 models reject a non-default temperature under every
+API version. Claude entries therefore run at the provider's fixed default sampling, and
+repeated runs need not give identical responses. The `openai_compatible` adapter sends
+`temperature: 0`.
 
 The registry ships three Claude entries (`claude-opus-5-5`, `claude-sonnet-5-5`,
 `claude-haiku-5-5`), a commented example of a self-hosted endpoint, and a `mock` entry.
@@ -107,16 +131,26 @@ support, `submit_batch`, `poll_batch` and `fetch_batch`. Then register the class
 `lexbench estimate` counts tokens per family and entry and writes `results/estimate.json`;
 it submits nothing. Input tokens are estimated as characters divided by three plus 16 per
 request, and output tokens as the family's `max_tokens` plus the entry's
-`reasoning_tokens`, so the estimate is an upper bound.
+`reasoning_tokens`, or a family's fixed bound, so the estimate is an upper bound. The
+estimate records, for every entry and family, the entry's settings fingerprint and its
+pricing; `lexbench run` refuses an estimate whose fingerprint or pricing differs from the
+registry.
 Claude prices are checked against https://platform.claude.com/docs/en/about-claude/pricing
 and the result is recorded with the fetch time. Before each submission, `lexbench run` adds
 the submission's estimate to the estimates already recorded in `state/batches.json` and
 `state/runs.json`. It refuses when the sum would exceed `limits.spend_cap_usd` (USD 60) or
 when the estimate is stale. A batch holds at most 10,000 requests, and entries with zero
 pricing count as zero. Each submission is recorded with its batch or run id, family, model
-name, request count, estimated cost and a fingerprint of the entry's settings. Repeating
-`run` therefore submits nothing new, while a change of settings or data permits a new
-submission. Superseded submissions remain recorded and count toward the cap.
+name, request count, estimated cost and a fingerprint of the entry's settings for the
+family. A batch is recorded as `pending` before the provider is called and updated with the
+provider's batch id afterwards; a submission whose provider call fails is recorded as
+`failed`, and a synchronous run that fails is recorded as `failed` rather than left
+`running`, so that it does not block grading. A `pending` record without a batch id blocks a
+new submission for its family and entry until it is resolved. Repeating `run` therefore
+submits nothing new, while a change of settings or data permits a new submission. Every
+recorded submission, including superseded, failed and pending ones, counts toward the cap.
+The cap applies to submissions made through the harness; the two diagnostic probes of the
+first session were made outside it and were recorded by hand in `state/runs.json`.
 
 ## Results
 
@@ -170,7 +204,7 @@ LexBench results and is not defined here.
 ```bash
 uv sync                                    # Python 3.12, pinned dependencies (uv.lock)
 uv run lexbench models                     # validate the registry, verify identifiers
-uv run lexbench build                      # materialise data/ and data/MANIFEST.json
+uv run lexbench build                      # materialise data/ and data/MANIFEST.json (--refresh renews times)
 uv run lexbench estimate                   # results/estimate.json; submits nothing
 uv run lexbench run --family all --model claude-haiku-5-5
 uv run lexbench poll                       # record batch status; download and grade ended batches
@@ -180,14 +214,30 @@ uv run pytest && uv run ruff check . && uv run mypy
 ```
 
 Credentials are read from the variable each entry names in `auth`. The `mock` entry needs
-no credential and runs every family end to end.
+no credential and runs every family end to end; its `hash` mode chooses among several answer
+options for every family and is not an oracle.
+
+The CLI sets `HF_HOME` (the datasets cache) and `TMPDIR` to `.lexbench-cache/hf` and
+`.lexbench-cache/tmp` in the repository when they are not already set, and the test suite
+places its temporary directories under `.lexbench-cache/pytest`, so that nothing is written
+outside the repository. `uv` keeps its own cache; set `UV_CACHE_DIR` to keep it inside the
+workspace as well.
 
 ## Licenses and attribution
 
-LexBench is licensed under the Apache License 2.0. The LegalBench family uses tasks from
-LegalBench (Guha et al. 2023, arXiv:2308.11462), https://github.com/HazyResearch/legalbench,
-under each task's CC BY 4.0 license. The evidence for each license is in
-data/legalbench/LICENSES.md, and [NOTICE.md](NOTICE.md) gives the full attribution. The
-fragment and routing families draw on trigger phrases, command names, intake questions,
-deadline categories and attorney-review flags from the MHSB Platform Plugins. Their case
-data is synthetic.
+LexBench is licensed under the Apache License 2.0, with two exceptions set out in
+[NOTICE.md](NOTICE.md) and at the head of [LICENSE](LICENSE).
+
+- **MHSB material.** `sources/mhsb/`, `data/fragments/`, `data/routing/` and the results
+  derived from them are MHSB Solutions material, published here by its owner for
+  evaluation under the terms of `LICENSE-SOURCE-AVAILABLE.md` in MHSBai/platform-plugins.
+  They are not licensed under Apache-2.0. The fragment and routing case data is synthetic.
+- **LegalBench.** The LegalBench family uses tasks from LegalBench (Guha et al. 2023,
+  arXiv:2308.11462), https://github.com/HazyResearch/legalbench, under each task's CC BY 4.0
+  license (https://creativecommons.org/licenses/by/4.0/). The evidence for each license is
+  in data/legalbench/LICENSES.md, and NOTICE.md gives the attribution, the task sources,
+  the citations two task READMEs request, and the changes made. The upstream gold labels in
+  `results/legalbench/` remain under CC BY 4.0.
+
+[counsel review] The carve-out of the MHSB material from the Apache-2.0 grant, and the
+Apache-2.0 license for the LexBench code, are items for Richard Berman to confirm.

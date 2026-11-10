@@ -1,4 +1,12 @@
-"""Anthropic adapter: the Messages API for synchronous runs, Message Batches when batch is true."""
+"""Anthropic adapter: the Messages API for synchronous runs, Message Batches when batch is true.
+
+Sampling. The adapter sends no temperature, top_p or top_k. The pinned SDK sends API version
+2026-10-21, from which a request that includes any of them returns a 400 error on every
+model, and the Claude 5.5 models reject a non-default value under every API version
+(https://platform.claude.com/docs/en/build-with-claude/thinking, "Sampling parameters").
+Claude entries therefore run at the provider's fixed sampling; the openai_compatible adapter
+sends temperature 0.
+"""
 
 from __future__ import annotations
 

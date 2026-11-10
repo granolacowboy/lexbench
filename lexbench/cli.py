@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import argparse
+import os
 import sys
+import tempfile
 from collections.abc import Sequence
 
 from lexbench import build as build_mod
@@ -60,7 +62,7 @@ def cmd_models(layout: Layout, args: argparse.Namespace) -> int:
 
 def cmd_build(layout: Layout, args: argparse.Namespace) -> int:
     families = args.family or list(FAMILIES)
-    manifest = build_mod.build(layout, families, args.sample)
+    manifest = build_mod.build(layout, families, args.sample, refresh=args.refresh)
     for f in families:
         entry = manifest["families"][f]
         print(
@@ -95,7 +97,8 @@ def cmd_run(layout: Layout, args: argparse.Namespace) -> int:
 
 def cmd_poll(layout: Layout, args: argparse.Namespace) -> int:
     tally = runner.poll(layout, _registry(layout), do_grade=not args.no_grade)
-    print(f"batches ended {tally['ended']}, in progress {tally['in_progress']}")
+    pending = f", pending {tally['pending']}" if tally.get("pending") else ""
+    print(f"batches ended {tally['ended']}, in progress {tally['in_progress']}{pending}")
     return 0
 
 
@@ -127,6 +130,11 @@ def parser() -> argparse.ArgumentParser:
     s = sub.add_parser("build", help="materialise the task families into data/")
     s.add_argument("--family", action="append", choices=FAMILIES)
     s.add_argument("--sample", type=int, help="LegalBench examples per task (default 100)")
+    s.add_argument(
+        "--refresh",
+        action="store_true",
+        help="renew the manifest built_at and the license fetch times even when unchanged",
+    )
     s = sub.add_parser("estimate", help="token and USD estimate; submits nothing")
     s.add_argument("--model", action="append")
     s.add_argument("--no-fetch", action="store_true", help="skip the pricing page check")
@@ -153,11 +161,26 @@ COMMANDS = {
 }
 
 
+def workspace_env(layout: Layout) -> None:
+    """Keep caches and temporary files inside the workspace.
+
+    HF_HOME (the datasets cache of `lexbench build`) and TMPDIR default to directories under
+    .lexbench-cache in the repository root; a value already set in the environment is kept.
+    """
+    defaults = {"HF_HOME": layout.cache / "hf", "TMPDIR": layout.cache / "tmp"}
+    for var, path in defaults.items():
+        if not os.environ.get(var):
+            path.mkdir(parents=True, exist_ok=True)
+            os.environ[var] = str(path)
+    tempfile.tempdir = None  # re-read TMPDIR on the next call
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     args = parser().parse_args(argv)
     from pathlib import Path
 
     layout = Layout(Path(args.root).resolve() if args.root else default_root())
+    workspace_env(layout)
     try:
         return COMMANDS[args.command](layout, args)
     except runner.CapExceeded as exc:

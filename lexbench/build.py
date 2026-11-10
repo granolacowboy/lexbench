@@ -34,12 +34,22 @@ def _replace_dir(directory: Path, groups: dict[str, list[dict[str, Any]]]) -> li
     return paths
 
 
-def build(layout: Layout, families: list[str], sample_size: int | None = None) -> dict[str, Any]:
+def _unchanged(previous: dict[str, Any], entry: dict[str, Any]) -> bool:
+    return {k: v for k, v in previous.items() if k != "built_at"} == entry
+
+
+def build(
+    layout: Layout, families: list[str], sample_size: int | None = None, refresh: bool = False
+) -> dict[str, Any]:
+    """Build the families. Tracked provenance is kept when the built content is unchanged:
+    the manifest's built_at and the license fetch times are rewritten only when the content
+    or the license evidence changes, or when refresh is true."""
     manifest: dict[str, Any] = read_json(layout.manifest, default=None) or {
         "schema_version": 1,
         "families": {},
     }
     for family in families:
+        previous: dict[str, Any] = manifest["families"].get(family, {})
         target = layout.family_dir(family)
         if family == "legalbench":
             result = legalbench.build(layout.sources, target, sample_size)
@@ -48,9 +58,18 @@ def build(layout: Layout, families: list[str], sample_size: int | None = None) -
                     f"STOP: only {len(result['rows'])} LegalBench tasks have a permitted license"
                 )
             paths = _replace_dir(target, result["rows"])
-            (target / "LICENSES.md").write_text(
+            licenses = target / "LICENSES.md"
+            evidence = result["evidence"]
+            if not refresh and licenses.is_file():
+                evidence = legalbench.keep_fetch_times(
+                    evidence, licenses.read_text(encoding="utf-8")
+                )
+            licenses.write_text(
                 legalbench.licenses_markdown(
-                    result["evidence"], result["provenance"], result["reasoning_types"]
+                    evidence,
+                    result["provenance"],
+                    result["reasoning_types"],
+                    result.get("exclusion_reasons"),
                 ),
                 encoding="utf-8",
             )
@@ -67,7 +86,8 @@ def build(layout: Layout, families: list[str], sample_size: int | None = None) -
             entry = _files_entry(layout, paths)
         else:
             raise ValueError(f"unknown family {family!r}; families: {', '.join(FAMILIES)}")
-        entry["built_at"] = utc_now()
+        keep = not refresh and previous.get("built_at") and _unchanged(previous, entry)
+        entry["built_at"] = previous["built_at"] if keep else utc_now()
         manifest["families"][family] = entry
     write_json(layout.manifest, manifest)
     return manifest

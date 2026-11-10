@@ -5,14 +5,17 @@ HazyResearch/legalbench at a pinned commit, refuses the task unless its license 
 4.0 or more permissive, fetches the upstream base prompt (whose in-context examples are
 upstream's few-shot demonstrations from the train split), loads the test split from the
 Hugging Face dataset at a pinned revision, and keeps a fixed random sample of at most
-sample_size examples (seeded per task) when the split is larger.
+sample_size examples (seeded per task) when the split is larger. Cases listed under
+`exclude` in tasks.yaml are then dropped from the sample, and recorded with their reason in
+data/legalbench/LICENSES.md and data/MANIFEST.json.
 """
 
 from __future__ import annotations
 
 import random
 import re
-from dataclasses import dataclass
+import textwrap
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any
 
@@ -80,6 +83,34 @@ def sample_indices(n: int, size: int, seed: int, task: str) -> list[int]:
     return sorted(random.Random(f"{seed}:{task}").sample(range(n), size))
 
 
+def apply_exclusions(
+    rows: list[dict[str, Any]], excluded: set[str]
+) -> tuple[list[dict[str, Any]], list[str]]:
+    """Rows without the excluded case ids, and the ids that were dropped."""
+    kept = [r for r in rows if r["id"] not in excluded]
+    dropped = [str(r["id"]) for r in rows if r["id"] in excluded]
+    return kept, dropped
+
+
+_ROW = re.compile(
+    r"^\| (?P<task>[^|]+?) \| [^|]*? \| (?P<lic>[^|]+?) \| [^|]+? \| "
+    r"(?P<url>\S+) \| (?P<at>[^|]+?) \|$"
+)
+
+
+def keep_fetch_times(evidence: list[LicenseEvidence], previous: str) -> list[LicenseEvidence]:
+    """Evidence with the fetch time already recorded in a previous LICENSES.md, for every
+    task whose license and evidence URL are unchanged; other tasks keep the new time."""
+    seen: dict[tuple[str, str, str], str] = {}
+    for line in previous.splitlines():
+        m = _ROW.match(line.strip())
+        if m:
+            seen[(m["task"], m["lic"], m["url"])] = m["at"]
+    return [
+        replace(e, fetched_at=seen.get((e.task, e.license, e.url), e.fetched_at)) for e in evidence
+    ]
+
+
 def build(sources: Path, data_dir: Path, sample_size: int | None = None) -> dict[str, Any]:
     """Fetch, verify and materialise the subset. Returns rows per task and provenance."""
     import datasets  # imported here: slow to import and only needed for this family
@@ -87,6 +118,8 @@ def build(sources: Path, data_dir: Path, sample_size: int | None = None) -> dict
     cfg = yaml.safe_load((sources / "legalbench" / "tasks.yaml").read_text(encoding="utf-8"))
     size = int(sample_size or cfg["sample_size"])
     seed = int(cfg["seed"])
+    reasons = {str(e["id"]): " ".join(str(e["reason"]).split()) for e in cfg.get("exclude", [])}
+    excluded: list[str] = []
     with httpx.Client(timeout=60.0, follow_redirects=True) as http:
         gh_sha = (
             cfg.get("upstream_commit")
@@ -135,6 +168,8 @@ def build(sources: Path, data_dir: Path, sample_size: int | None = None) -> dict
                         meta={"reference": answer, "choices": labels},
                     )
                 )
+            out, dropped = apply_exclusions(out, set(reasons))
+            excluded += dropped
             rows[task] = out
     return {
         "rows": rows,
@@ -146,20 +181,27 @@ def build(sources: Path, data_dir: Path, sample_size: int | None = None) -> dict
             "upstream_commit": gh_sha,
             "sample_size": size,
             "seed": seed,
+            "excluded": sorted(excluded),
         },
+        "exclusion_reasons": {i: reasons[i] for i in sorted(excluded)},
         "reasoning_types": {s["task"]: s["reasoning_type"] for s in cfg["tasks"]},
     }
 
 
 def licenses_markdown(
-    evidence: list[LicenseEvidence], provenance: dict[str, Any], reasoning: dict[str, str]
+    evidence: list[LicenseEvidence],
+    provenance: dict[str, Any],
+    reasoning: dict[str, str],
+    exclusion_reasons: dict[str, str] | None = None,
 ) -> str:
     head = [
         "# LegalBench task licenses",
         "",
         "LegalBench tasks carry individual licenses. Each license below was read from the task",
-        "README in the upstream repository at the pinned commit, by `lexbench build`, at the",
-        "time shown. Only tasks licensed CC BY 4.0 or more permissively are included.",
+        "README in the upstream repository at the pinned commit by `lexbench build`. Only tasks",
+        "licensed CC BY 4.0 or more permissively are included. Every build reads each license",
+        "again; the time shown is when the evidence shown was first recorded, and it is renewed",
+        "when the license or URL changes or when the build is run with `--refresh`.",
         "",
         f"- Upstream repository: https://github.com/{provenance['upstream']}, commit "
         f"`{provenance['upstream_commit']}`",
@@ -175,4 +217,27 @@ def licenses_markdown(
         f"{'yes' if e.permitted else 'no'} | {e.url} | {e.fetched_at} |"
         for e in evidence
     ]
-    return "\n".join(head + body) + "\n"
+    excluded = list(provenance.get("excluded") or [])
+    reasons = exclusion_reasons or {}
+    changes = (
+        "LexBench renders each sampled test example into the upstream base prompt without "
+        f"modification. It keeps a fixed random sample of at most {provenance.get('sample_size')} "
+        f"test examples per task (seed {provenance.get('seed')}) and drops the excluded cases "
+        "below from that sample."
+    )
+    tail = [
+        "",
+        "## Changes made to the upstream material",
+        "",
+        *textwrap.wrap(changes, width=90),
+        "",
+        "## Excluded cases",
+        "",
+    ]
+    if excluded:
+        for i in excluded:
+            reason = reasons.get(i, "excluded in sources/legalbench/tasks.yaml")
+            tail += textwrap.wrap(f"- `{i}`: {reason}", width=90, subsequent_indent="  ")
+    else:
+        tail.append("None.")
+    return "\n".join(head + body + tail) + "\n"

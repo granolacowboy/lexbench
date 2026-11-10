@@ -147,4 +147,8 @@ def test_leading_label_is_not_removed_as_a_cue() -> None:
 def test_cue_alone_on_the_first_line() -> None:
     assert grade_legalbench(YESNO, "A:\n\nYes").correct
     assert not grade_legalbench(YESNO, "A:").correct
-    assert not grade_legalbench(YESNO, "Both parties are from one state.\n\nA: Yes").correct
+    # The whole response is read (review finding F13): a label stated after reasoning counts.
+    assert grade_legalbench(YESNO, "Both parties are from one state.\n\nA: Yes").correct
+    assert not grade_legalbench(
+        YESNO, "Both parties are from one state.\n\nNothing follows."
+    ).correct

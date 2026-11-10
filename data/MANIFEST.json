@@ -3,60 +3,60 @@
   "families": {
     "fragments": {
       "count": 197,
-      "sha256": "1d070033593b5199350b1b23776790113ccb9208813991fb07d33db2adcb2d0c",
+      "sha256": "71fa9bc5d37851eebe126d3f5954e02860971a4266bbedad928714d1fe6aee55",
       "files": {
         "data/fragments/mhsb-pack-bankruptcy-consumer.jsonl": {
           "count": 15,
-          "sha256": "e4df809bbdbe5653db7f71c352ca78995f0a54510da1fdde57224f5ad00365f3"
+          "sha256": "03d2d288cad3a6c2387cf18361f10c00d2e7faab1f413b16d05a1b400541f59b"
         },
         "data/fragments/mhsb-pack-business-transactional.jsonl": {
           "count": 17,
-          "sha256": "c6082b9e1471c8fb20b9b6bfa92aaf111f19fd44f84fb43e6a900586e5cf91d9"
+          "sha256": "7291167514ae21c27741d13d317f8cd7db2b90676bbc3520865991a546186b58"
         },
         "data/fragments/mhsb-pack-civil-litigation.jsonl": {
           "count": 17,
-          "sha256": "4f9fd87268a1bab69969a335711be2fce8c6162b2616925a9416a3eb065e167c"
+          "sha256": "f9c3a4eb7fb6f5f296a4433314c02f5bf9f0706ec9f0dfb0b61cdff080df7ecc"
         },
         "data/fragments/mhsb-pack-criminal-defense.jsonl": {
           "count": 12,
-          "sha256": "53a414f441552060cb3a38552aaa17133bc3708b204f770892fafbb88048de74"
+          "sha256": "a083df04801a65e592498d52b6b192c12c26bee4e2d1b5fc92689a79431b0b49"
         },
         "data/fragments/mhsb-pack-employment-plaintiff.jsonl": {
           "count": 17,
-          "sha256": "6fd502f1f64db72d30105abb32c762c8002e6c52e5e19ec846204fc92e150055"
+          "sha256": "87dff49e4cbeb2f03bfe6a7a97143871d63358e7893f1c22f30ded36da69659b"
         },
         "data/fragments/mhsb-pack-estate-probate.jsonl": {
           "count": 17,
-          "sha256": "b35e91628efc1ec0f94465bfe766190f8b0521266c53a4245d36b0293fb4c73d"
+          "sha256": "3a1abf0a2a79c53762da6c947d09d8b6e6bee51e98d5f437f719a3d6eea57235"
         },
         "data/fragments/mhsb-pack-family-law.jsonl": {
           "count": 15,
-          "sha256": "f9e717b79cbfcf7c2789b45b34b63e57a450d48da38c749a4018fcb537b7ed70"
+          "sha256": "129e14a9a607f6ccfdbc9a044b3cd99f3935b7a4fdfd4437f8bd48fe0d73c951"
         },
         "data/fragments/mhsb-pack-immigration.jsonl": {
           "count": 15,
-          "sha256": "0944a61ae96d517637f191ce94fbdcb8a0dbd43b3e1d3f3cd5ac73dce8835ce7"
+          "sha256": "dbde39e7b217976e2fa4d62ff386720db9335b7b134fb6c79811b9ca63d94dfd"
         },
         "data/fragments/mhsb-pack-landlord-tenant-consumer.jsonl": {
           "count": 15,
-          "sha256": "62f38db40b45c8b0f6615ce78859418965817f1ef681ddcb844d848346f9233b"
+          "sha256": "209dc1798e9385ab7db321661f1d1172162e2965ab4e1a22bea4ae908ded179f"
         },
         "data/fragments/mhsb-pack-personal-injury.jsonl": {
           "count": 23,
-          "sha256": "87d0e35d33561e8f1f0daf171f7b8dbc4855d7fa95fb3da6021dad5c8a7f324a"
+          "sha256": "5fa4ac0587dae19f5f546a7afa076f9214ea83e39908b8a0d2c9decedcbc4db9"
         },
         "data/fragments/mhsb-pack-real-estate.jsonl": {
           "count": 17,
-          "sha256": "88487e3d8e8b4518f28ae5914e0ef378f9f427d69dd2595965c1cfb7311686c6"
+          "sha256": "9561cd415621d91138da3345e377b4b000d62e78252b0baa5a5bc837e2b3892c"
         },
         "data/fragments/mhsb-pack-workers-compensation.jsonl": {
           "count": 17,
-          "sha256": "9d59db9f4282bac091970977f99e25b162a05622cb90c43d196f57434bb1562e"
+          "sha256": "45624dab8c19b09a60639496c43239671204b33e4bf9ba0e50fadc3daabca247"
         }
       },
       "seed": 20261110,
       "generator": "lexbench/families/fragments.py",
-      "built_at": "2026-11-10T16:44:13Z"
+      "built_at": "2026-11-10T17:44:43Z"
     },
     "routing": {
       "count": 271,
@@ -70,8 +70,8 @@
       "built_at": "2026-11-10T16:32:55Z"
     },
     "legalbench": {
-      "count": 1080,
-      "sha256": "ddcaa6710bf1e462e09cf1490f0fd98e0af1731b6eb6288873c0ad7d8fad65f4",
+      "count": 1079,
+      "sha256": "36b9ace52e687be250c78ee26e410860a6c8bfd4e517431ec6e9833648c5665c",
       "files": {
         "data/legalbench/corporate_lobbying.jsonl": {
           "count": 100,
@@ -86,8 +86,8 @@
           "sha256": "002fea633c0ee91a87353fa4159d912d3f7eb79631f0e17ceecc16b1c87d90e6"
         },
         "data/legalbench/function_of_decision_section.jsonl": {
-          "count": 100,
-          "sha256": "8853d5e589c75c39597a739606477c05c80b50d406af1483b306ba56f689cd3f"
+          "count": 99,
+          "sha256": "03c20c061ab7e14692ae4cf17f307384992d42515493f608baadb13b50bf3998"
         },
         "data/legalbench/hearsay.jsonl": {
           "count": 94,
@@ -128,7 +128,10 @@
         "upstream": "HazyResearch/legalbench",
         "upstream_commit": "b46bf4ffae90524b2b72aaa30e7745fe9db64481",
         "sample_size": 100,
-        "seed": 20261110
+        "seed": 20261110,
+        "excluded": [
+          "lb-decisionfn-0366"
+        ]
       },
       "tasks": {
         "corporate_lobbying": "issue-spotting",
@@ -144,7 +147,7 @@
         "oral_argument_question_purpose": "rhetorical-understanding",
         "overruling": "rhetorical-understanding"
       },
-      "built_at": "2026-11-10T16:27:50Z"
+      "built_at": "2026-11-10T17:45:52Z"
     }
   }
 }

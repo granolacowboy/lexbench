@@ -2,8 +2,9 @@
 
 Scanned: every text file in the repository. Not scanned: version-control and tool
 directories, the third-party LegalBench records and prompts (materialised by
-`lexbench build`, excluded from version control), and model output (results/raw and the
-graded per-case records), which are data rather than LexBench text.
+`lexbench build`, excluded from version control), and model output (results/raw, the
+graded per-case records and the superseded per-case records), which are data rather than
+LexBench text.
 """
 
 from __future__ import annotations
@@ -22,7 +23,7 @@ SKIP_DIRS = {
     ".pytest_cache",
     "__pycache__",
 }
-SKIP_PREFIXES = ("data/legalbench/prompts/", "results/raw/")
+SKIP_PREFIXES = ("data/legalbench/prompts/", "results/raw/", "results/superseded/")
 SUFFIXES = {".py", ".md", ".yaml", ".yml", ".json", ".jsonl", ".toml", ".txt", ".cfg", ""}
 
 

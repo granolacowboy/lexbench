@@ -16,6 +16,15 @@ from lexbench.records import read_json, write_json, write_jsonl
 
 REPO = Path(__file__).resolve().parents[1]
 
+
+def pytest_configure(config: pytest.Config) -> None:
+    """Temporary test directories default to .lexbench-cache/pytest inside the repository,
+    so that a test run writes nothing outside the workspace; --basetemp overrides."""
+    if not config.option.basetemp:
+        (REPO / ".lexbench-cache").mkdir(exist_ok=True)
+        config.option.basetemp = str(REPO / ".lexbench-cache" / "pytest")
+
+
 REGISTRY: dict[str, Any] = {
     "schema_version": 1,
     "limits": {"spend_cap_usd": 60.0, "max_requests_per_batch": 10000},
