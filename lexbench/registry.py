@@ -7,6 +7,8 @@ bounded message that names the entry and the first problem found.
 
 from __future__ import annotations
 
+import hashlib
+import json
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -39,6 +41,7 @@ ENTRY_SCHEMA: dict[str, Any] = {
         "auth": {"type": "string", "pattern": "^[A-Z][A-Z0-9_]*$"},
         "pricing": PRICING_SCHEMA,
         "max_tokens": {"type": "integer", "minimum": 1, "maximum": 65536},
+        "reasoning_tokens": {"type": "integer", "minimum": 0, "maximum": 65536},
         "concurrency": {"type": "integer", "minimum": 1, "maximum": 256},
         "rate_limit_rpm": {"type": "integer", "minimum": 1},
         "batch": {"type": "boolean"},
@@ -107,7 +110,25 @@ class ModelEntry:
     endpoint: str | None = None
     auth: str | None = None
     rate_limit_rpm: int | None = None
+    reasoning_tokens: int = 0
     options: dict[str, Any] = field(default_factory=dict)
+
+    def output_bound(self, family_max_tokens: int) -> int:
+        """Output tokens allowed for one request: the family bound plus reasoning room,
+        never above the entry's max_tokens."""
+        return min(family_max_tokens + self.reasoning_tokens, self.max_tokens)
+
+    def fingerprint(self) -> str:
+        """Hash of every setting that shapes a request; a change permits a new submission."""
+        body = {
+            "provider": self.provider,
+            "model": self.model,
+            "endpoint": self.endpoint,
+            "max_tokens": self.max_tokens,
+            "reasoning_tokens": self.reasoning_tokens,
+            "options": self.options,
+        }
+        return hashlib.sha256(json.dumps(body, sort_keys=True).encode("utf-8")).hexdigest()
 
 
 @dataclass(frozen=True)
@@ -172,6 +193,7 @@ def parse_registry(raw: Any, known_providers: set[str] | None = None) -> Registr
             endpoint=body.get("endpoint"),
             auth=body.get("auth"),
             rate_limit_rpm=body.get("rate_limit_rpm"),
+            reasoning_tokens=int(body.get("reasoning_tokens", 0)),
             options=dict(body.get("options") or {}),
         )
     limits = raw.get("limits") or {}

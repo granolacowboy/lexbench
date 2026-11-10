@@ -48,7 +48,9 @@ class MockProvider(Provider):
         return [self._respond(r) for r in requests]
 
     def submit_batch(self, requests: Sequence[Request]) -> str:
-        ids = json.dumps([r.custom_id for r in requests]).encode("utf-8")
+        ids = json.dumps([self.entry.fingerprint(), *(r.custom_id for r in requests)]).encode(
+            "utf-8"
+        )
         batch_id = "mockbatch_" + hashlib.sha256(ids).hexdigest()[:16]
         rows = [
             {

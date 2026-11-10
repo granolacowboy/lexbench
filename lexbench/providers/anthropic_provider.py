@@ -28,7 +28,7 @@ class AnthropicProvider(Provider):
     def _params(self, req: Request) -> dict[str, Any]:
         params: dict[str, Any] = {
             "model": self.entry.model,
-            "max_tokens": min(req.max_tokens, self.entry.max_tokens),
+            "max_tokens": self.entry.output_bound(req.max_tokens),
             "messages": [{"role": "user", "content": req.prompt}],
         }
         if req.system:
@@ -89,7 +89,10 @@ class AnthropicProvider(Provider):
 
     def fetch_batch(self, batch_id: str) -> list[Response]:
         out: list[Response] = []
-        for item in self._client().messages.batches.results(batch_id):
+        # Hold the client for the whole download: the results stream is read lazily, and a
+        # client that is garbage collected mid-stream closes the connection.
+        client = self._client()
+        for item in client.messages.batches.results(batch_id):
             result = item.result
             if result.type == "succeeded":
                 msg = result.message

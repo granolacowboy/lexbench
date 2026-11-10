@@ -26,7 +26,7 @@ from lexbench.families import case_record
 FAMILY = "fragments"
 SEED = 20261110
 MIN_CASES = 12
-MAX_TOKENS = 120
+MAX_TOKENS = 600
 SYSTEM = (
     "You apply a practice-area fragment to synthetic case data for a law firm. "
     "Answer with one JSON object and nothing else."

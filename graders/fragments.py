@@ -17,24 +17,39 @@ def _norm(value: Any) -> str:
 
 
 def parse_object(response: str) -> dict[str, Any] | None:
-    """The first JSON object in the response, with or without a code fence."""
-    fenced = _FENCE.search(response)
-    text = fenced.group(1) if fenced else response
-    start = text.find("{")
-    while start != -1:
-        depth = 0
-        for i in range(start, len(text)):
-            if text[i] == "{":
-                depth += 1
-            elif text[i] == "}":
-                depth -= 1
-                if depth == 0:
-                    try:
-                        obj = json.loads(text[start : i + 1])
-                    except json.JSONDecodeError:
-                        break
-                    return obj if isinstance(obj, dict) else None
-        start = text.find("{", start + 1)
+    """The last JSON object in the response, with or without a code fence.
+
+    The last object is taken because a model that explains its reasoning states its answer
+    at the end; a response that is only the object is read the same way.
+    """
+    found: dict[str, Any] | None = None
+    blocks = _FENCE.findall(response) or [response]
+    for text in blocks:
+        start = text.find("{")
+        while start != -1:
+            end = _matching_brace(text, start)
+            if end is not None:
+                try:
+                    obj = json.loads(text[start : end + 1])
+                except json.JSONDecodeError:
+                    obj = None
+                if isinstance(obj, dict):
+                    found = obj
+                    start = text.find("{", end + 1)
+                    continue
+            start = text.find("{", start + 1)
+    return found
+
+
+def _matching_brace(text: str, start: int) -> int | None:
+    depth = 0
+    for i in range(start, len(text)):
+        if text[i] == "{":
+            depth += 1
+        elif text[i] == "}":
+            depth -= 1
+            if depth == 0:
+                return i
     return None
 
 

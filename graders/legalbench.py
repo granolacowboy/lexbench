@@ -6,7 +6,7 @@ import re
 from collections.abc import Mapping
 from typing import Any
 
-from graders.common import Verdict, clip, normalise
+from graders.common import EDGE, Verdict, clip, first_line, normalise
 
 
 def grade_legalbench(expected: Mapping[str, Any], response: str | None) -> Verdict:
@@ -20,11 +20,15 @@ def grade_legalbench(expected: Mapping[str, Any], response: str | None) -> Verdi
         return Verdict(True, "exact match")
     if got in labels:
         return Verdict(False, f"predicted {got!r}, expected {gold!r}")
-    prefixed = [lab for lab in labels if re.match(rf"{re.escape(lab)}(?:\W|$)", got)]
-    if prefixed:
-        # The longest label wins when one label is a prefix of another.
-        pick = max(prefixed, key=lambda lab: (len(lab), lab))
-        if pick == gold:
-            return Verdict(True, "label read from response prefix")
-        return Verdict(False, f"predicted {pick!r} (prefix), expected {gold!r}")
+    # A label at the start of the line, before or after removing a cue, is read as the answer;
+    # the unstripped line is tried first so that a leading label is never removed as a cue.
+    raw = re.sub(r"\s+", " ", first_line(response).strip(EDGE)).lower()
+    for text in (raw, got):
+        prefixed = [lab for lab in labels if re.match(rf"{re.escape(lab)}(?:\W|$)", text)]
+        if prefixed:
+            # The longest label wins when one label is a prefix of another.
+            pick = max(prefixed, key=lambda lab: (len(lab), lab))
+            if pick == gold:
+                return Verdict(True, "label read from response prefix")
+            return Verdict(False, f"predicted {pick!r} (prefix), expected {gold!r}")
     return Verdict(False, f"no label in response: {clip(response)!r}")

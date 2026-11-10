@@ -105,7 +105,7 @@ def cmd_grade(layout: Layout, args: argparse.Namespace) -> int:
     models = args.model or list(reg.entries)
     for f in families:
         for m in models:
-            runner.grade(layout, f, m, log=lambda _s: None)
+            runner.grade(layout, reg, f, m, log=lambda _s: None)
             path = layout.graded_path(f, m)
             if path.is_file():
                 print(f"graded {f} on {m}: {path.relative_to(layout.root)}")

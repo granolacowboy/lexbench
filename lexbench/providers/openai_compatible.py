@@ -53,7 +53,7 @@ class OpenAICompatibleProvider(Provider):
         body: dict[str, Any] = {
             "model": self.entry.model,
             "messages": messages,
-            "max_tokens": min(req.max_tokens, self.entry.max_tokens),
+            "max_tokens": self.entry.output_bound(req.max_tokens),
             "temperature": 0,
         }
         body.update(self.entry.options.get("params", {}))

@@ -49,11 +49,21 @@ models:
     model: claude-sonnet-5-5       # the provider's identifier
     auth: ANTHROPIC_API_KEY        # name of an environment variable, never a value
     pricing: {input_per_mtok: 2.00, output_per_mtok: 10.00, batch_discount: 0.5}
-    max_tokens: 256                # output bound; each family sets a lower bound
+    max_tokens: 1024               # output ceiling; each family sets a lower bound
+    reasoning_tokens: 0            # optional room added to the family bound for reasoning
     concurrency: 4                 # parallel requests for synchronous runs
     rate_limit_rpm: 50             # optional
     batch: true                    # use the provider's batch mode when it has one
+    options:
+      params: {thinking: {type: between_tools}}   # merged into every request
 ```
+
+**Thinking settings.** The Claude 5.5 models think adaptively by default, and thinking
+counts toward `max_tokens`. Every task here is a short classification, so each Claude entry
+runs at its lowest thinking setting. Haiku 5.5 runs with thinking `disabled` and Sonnet 5.5
+with `between_tools` (no up-front thinking). Opus 5.5 accepts no setting that turns thinking
+off, so it runs at effort `low` with `reasoning_tokens: 1024` of extra output room. The
+results therefore measure each model at its lowest thinking setting, not at its defaults.
 
 The registry ships three Claude entries (`claude-opus-5-5`, `claude-sonnet-5-5`,
 `claude-haiku-5-5`), a commented example of a self-hosted endpoint, and a `mock` entry.
@@ -73,7 +83,7 @@ llama.cpp server, TGI or any other OpenAI-compatible server:
     endpoint: http://localhost:8000/v1   # base URL serving /chat/completions and /models
     # auth: LOCAL_LLM_TOKEN              # only when the server needs a bearer token
     pricing: {input_per_mtok: 0, output_per_mtok: 0}   # self-hosted counts as zero
-    max_tokens: 256
+    max_tokens: 1024
     concurrency: 8
     batch: false
 ```
@@ -96,23 +106,55 @@ support, `submit_batch`, `poll_batch` and `fetch_batch`. Then register the class
 
 `lexbench estimate` counts tokens per family and entry and writes `results/estimate.json`;
 it submits nothing. Input tokens are estimated as characters divided by three plus 16 per
-request, and output tokens as the family's `max_tokens`, so the estimate is an upper bound.
+request, and output tokens as the family's `max_tokens` plus the entry's
+`reasoning_tokens`, so the estimate is an upper bound.
 Claude prices are checked against https://platform.claude.com/docs/en/about-claude/pricing
 and the result is recorded with the fetch time. Before each submission, `lexbench run` adds
 the submission's estimate to the estimates already recorded in `state/batches.json` and
 `state/runs.json`. It refuses when the sum would exceed `limits.spend_cap_usd` (USD 60) or
 when the estimate is stale. A batch holds at most 10,000 requests, and entries with zero
 pricing count as zero. Each submission is recorded with its batch or run id, family, model
-name, request count and estimated cost, so repeating `run` submits nothing new.
+name, request count, estimated cost and a fingerprint of the entry's settings. Repeating
+`run` therefore submits nothing new, while a change of settings or data permits a new
+submission. Superseded submissions remain recorded and count toward the cap.
 
 ## Results
 
 <!-- results:start -->
-Results pending.
+| Family | Task or group | n | claude-opus-5-5 | claude-sonnet-5-5 | claude-haiku-5-5 |
+|---|---|---:|---:|---:|---:|
+| LegalBench | corporate_lobbying (issue-spotting) | 100 | 0.810 | 0.750 | 0.800 |
+| LegalBench | cuad_audit_rights (interpretation) | 100 | 0.990 | 0.990 | 0.990 |
+| LegalBench | diversity_1 (rule-application) | 100 | 0.980 | 1.000 | 1.000 |
+| LegalBench | function_of_decision_section (rhetorical-understanding) | 100 | 0.510 | 0.560 | 0.450 |
+| LegalBench | hearsay (rule-application) | 94 | 0.904 | 0.702 | 0.670 |
+| LegalBench | insurance_policy_interpretation (interpretation) | 100 | 0.660 | 0.560 | 0.520 |
+| LegalBench | oral_argument_question_purpose (rhetorical-understanding) | 100 | 0.470 | 0.480 | 0.320 |
+| LegalBench | overruling (rhetorical-understanding) | 100 | 0.970 | 0.950 | 0.980 |
+| LegalBench | personal_jurisdiction (rule-application) | 50 | 1.000 | 0.940 | 0.800 |
+| LegalBench | proa (interpretation) | 95 | 0.926 | 0.958 | 0.905 |
+| LegalBench | telemarketing_sales_rule (rule-application) | 47 | 0.957 | 0.596 | 0.723 |
+| LegalBench | ucc_v_common_law (rule-application) | 94 | 0.989 | 1.000 | 1.000 |
+| LegalBench | mean of task accuracies | 1080 | 0.847 | 0.790 | 0.763 |
+| Fragment cases | deadline cases | 87 | 1.000 | 1.000 | 0.977 |
+| Fragment cases | flags cases | 110 | 1.000 | 1.000 | 0.936 |
+| Fragment cases | all, bar 0.90 | 197 | 1.000 (pass) | 1.000 (pass) | 0.954 (pass) |
+| Routing | manifest trigger | 141 | 0.894 | 0.872 | 0.879 |
+| Routing | paraphrase | 72 | 1.000 | 1.000 | 1.000 |
+| Routing | routing suite | 58 | 0.931 | 0.966 | 0.897 |
+| Routing | all, bar 0.95 | 271 | 0.930 (below bar) | 0.926 (below bar) | 0.915 (below bar) |
 <!-- results:end -->
 
+First results, 2026-11-10: each family was submitted through the Message Batches API to
+each Claude entry at the thinking settings described above. An earlier submission at the
+default thinking settings is recorded in `state/batches.json` as superseded and is not
+reported. In that submission, thinking used up the output bound and left most responses
+empty.
+
 Accuracy is the share of cases graded correct. A missing, empty, malformed or errored
-response counts as incorrect. The LegalBench row "mean of task accuracies" weights each
+response counts as incorrect, and so does a response that does not begin with an answer
+within the family's output bound. `results/summary.json` reports the number of such format
+failures per task and model. The LegalBench row "mean of task accuracies" weights each
 task equally; balanced accuracy per task is in `results/summary.json`. Per-case verdicts
 are in `results/<family>/<model name>.jsonl`.
 

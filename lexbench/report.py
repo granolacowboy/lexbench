@@ -18,10 +18,27 @@ END = "<!-- results:end -->"
 PASS_BAR = Path(__file__).resolve().parents[1] / "graders" / "pass_bar.yaml"
 
 
+FORMAT_FAILURES = (
+    "empty response",
+    "no label",
+    "malformed",
+    "no command",
+    "provider error",
+    "no response",
+)
+
+
 def _acc(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    """Accuracy, with the number of responses that could not be read as an answer."""
     n = len(rows)
     c = sum(1 for r in rows if r["correct"])
-    return {"n": n, "correct": c, "accuracy": round(c / n, 4) if n else 0.0}
+    unread = sum(1 for r in rows if str(r["reason"]).startswith(FORMAT_FAILURES))
+    return {
+        "n": n,
+        "correct": c,
+        "accuracy": round(c / n, 4) if n else 0.0,
+        "format_failures": unread,
+    }
 
 
 def _balanced(rows: list[dict[str, Any]]) -> float:
@@ -98,6 +115,11 @@ def table(summary: dict[str, Any]) -> str:
         if not fam.get("overall"):
             continue
         bar = fam.get("pass_bar")
+        if family == "routing":
+            for group, stats in fam.get("groups", {}).items():
+                n = next((stats[m]["n"] for m in models if m in stats), 0)
+                cells = " | ".join(_cell(stats.get(m)) for m in models)
+                lines.append(f"| {label} | {group.replace('_', ' ')} | {n} | {cells} |")
         if family == "fragments":
             for kind in ("deadline", "flags"):
                 per = {

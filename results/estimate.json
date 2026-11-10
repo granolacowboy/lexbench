@@ -1,15 +1,15 @@
 {
-  "generated_at": "2026-11-10T16:32:57Z",
+  "generated_at": "2026-11-10T16:44:50Z",
   "method": "input tokens: characters / 3 plus 16 per request; output tokens: max_tokens",
   "spend_cap_usd": 60.0,
   "data": {
     "legalbench": "ddcaa6710bf1e462e09cf1490f0fd98e0af1731b6eb6288873c0ad7d8fad65f4",
-    "fragments": "93ab266110ff59af8da25b78b4bf4a3eea6e6957d445b00e04dca69f9f974719",
+    "fragments": "1d070033593b5199350b1b23776790113ccb9208813991fb07d33db2adcb2d0c",
     "routing": "fc9ba25cca7572b2789a6a899d9bd22d598bb812ce340e13e7277fcfeae3d9d5"
   },
   "pricing_check": {
     "url": "https://platform.claude.com/docs/en/about-claude/pricing",
-    "fetched_at": "2026-11-10T16:32:57Z",
+    "fetched_at": "2026-11-10T16:44:51Z",
     "entries": {
       "claude-opus-5-5": {
         "page_name": "Claude Opus 5.5",
@@ -64,24 +64,24 @@
       "legalbench": {
         "requests": 1080,
         "input_tokens": 969121,
-        "output_tokens": 25920,
-        "usd": 2.1974,
+        "output_tokens": 1131840,
+        "usd": 13.2566,
         "batch": true,
         "paid": true
       },
       "fragments": {
         "requests": 197,
         "input_tokens": 83074,
-        "output_tokens": 23640,
-        "usd": 0.4025,
+        "output_tokens": 319928,
+        "usd": 3.3654,
         "batch": true,
         "paid": true
       },
       "routing": {
         "requests": 271,
         "input_tokens": 228036,
-        "output_tokens": 5420,
-        "usd": 0.5103,
+        "output_tokens": 282924,
+        "usd": 3.2853,
         "batch": true,
         "paid": true
       }
@@ -98,8 +98,8 @@
       "fragments": {
         "requests": 197,
         "input_tokens": 83074,
-        "output_tokens": 23640,
-        "usd": 0.2013,
+        "output_tokens": 118200,
+        "usd": 0.6741,
         "batch": true,
         "paid": true
       },
@@ -124,8 +124,8 @@
       "fragments": {
         "requests": 197,
         "input_tokens": 83074,
-        "output_tokens": 23640,
-        "usd": 0.0101,
+        "output_tokens": 118200,
+        "usd": 0.0337,
         "batch": true,
         "paid": true
       },
@@ -150,7 +150,7 @@
       "fragments": {
         "requests": 197,
         "input_tokens": 83074,
-        "output_tokens": 23640,
+        "output_tokens": 118200,
         "usd": 0.0,
         "batch": true,
         "paid": false
@@ -166,11 +166,11 @@
     }
   },
   "totals_usd": {
-    "claude-opus-5-5": 3.1102,
-    "claude-sonnet-5-5": 1.5551,
-    "claude-haiku-5-5": 0.0778,
+    "claude-opus-5-5": 19.9073,
+    "claude-sonnet-5-5": 2.0279,
+    "claude-haiku-5-5": 0.1014,
     "mock": 0.0
   },
-  "total_usd": 4.7431,
+  "total_usd": 22.0366,
   "within_cap": true
 }

@@ -83,7 +83,7 @@ class Provider(ABC):
             estimate_tokens(r.system) + estimate_tokens(r.prompt) + MESSAGE_OVERHEAD_TOKENS
             for r in requests
         )
-        out = sum(min(r.max_tokens, self.entry.max_tokens) for r in requests)
+        out = sum(self.entry.output_bound(r.max_tokens) for r in requests)
         usd = self.entry.pricing.usd(inp, out, batch=self.entry.batch)
         return Estimate(len(requests), inp, out, round(usd, 4))
 

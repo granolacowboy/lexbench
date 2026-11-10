@@ -8,10 +8,17 @@
 #   pricing         USD per million input and output tokens; batch_discount is the fraction
 #                   taken off when batch is true; zero prices (self-hosted) count as zero
 #   max_tokens      upper bound on output tokens per request (each family sets a lower bound)
+#   reasoning_tokens  optional output room added to each family bound for a model that may
+#                   reason before it answers; the sum never exceeds max_tokens
 #   concurrency     parallel requests for synchronous runs
 #   rate_limit_rpm  optional cap on request starts per minute for synchronous runs
 #   batch           true to submit asynchronous batches when the adapter supports them
 #   options         optional adapter settings; options.params is merged into each request
+#
+# Thinking. The Claude 5.5 models think adaptively by default, and thinking counts toward
+# max_tokens. Each Claude entry therefore runs at its lowest thinking setting: disabled on
+# Haiku 5.5, between_tools (no up-front thinking) on Sonnet 5.5, and effort low on Opus 5.5,
+# which accepts no setting that turns thinking off; Opus 5.5 gets reasoning room instead.
 #
 # Claude identifiers were verified against GET https://api.anthropic.com/v1/models and
 # prices against https://platform.claude.com/docs/en/about-claude/pricing on 2026-11-10;
@@ -28,20 +35,25 @@ models:
     model: claude-opus-5-5
     auth: ANTHROPIC_API_KEY
     pricing: {input_per_mtok: 4.00, output_per_mtok: 20.00, batch_discount: 0.5}
-    max_tokens: 256
+    max_tokens: 2048
+    reasoning_tokens: 1024
     concurrency: 4
     rate_limit_rpm: 50
     batch: true
+    options:
+      params: {output_config: {effort: low}}
 
   claude-sonnet-5-5:
     provider: anthropic
     model: claude-sonnet-5-5
     auth: ANTHROPIC_API_KEY
     pricing: {input_per_mtok: 2.00, output_per_mtok: 10.00, batch_discount: 0.5}
-    max_tokens: 256
+    max_tokens: 1024
     concurrency: 4
     rate_limit_rpm: 50
     batch: true
+    options:
+      params: {thinking: {type: between_tools}}
 
   claude-haiku-5-5:
     provider: anthropic
@@ -49,10 +61,12 @@ models:
     auth: ANTHROPIC_API_KEY
     # Prompt-length tier: prices for prompts up to 100,000 tokens; every LexBench prompt is shorter.
     pricing: {input_per_mtok: 0.10, output_per_mtok: 0.50, batch_discount: 0.5}
-    max_tokens: 256
+    max_tokens: 1024
     concurrency: 8
     rate_limit_rpm: 100
     batch: true
+    options:
+      params: {thinking: {type: disabled}}
 
   # Example: a self-hosted model behind an OpenAI-compatible server (vLLM, Ollama,
   # llama.cpp server, TGI). Remove the comment markers and set the endpoint to use it.
@@ -64,7 +78,7 @@ models:
   #   endpoint: http://localhost:8000/v1
   #   # auth: LOCAL_LLM_TOKEN
   #   pricing: {input_per_mtok: 0, output_per_mtok: 0}
-  #   max_tokens: 256
+  #   max_tokens: 1024
   #   concurrency: 8
   #   batch: false
 
@@ -72,7 +86,7 @@ models:
     provider: mock
     model: mock-oracle-1
     pricing: {input_per_mtok: 0, output_per_mtok: 0}
-    max_tokens: 256
+    max_tokens: 1024
     concurrency: 1
     batch: true
     options: {mode: oracle}

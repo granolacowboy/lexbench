@@ -72,24 +72,37 @@ def check_cap(spent: float, new_usd: float, cap: float) -> None:
         )
 
 
-def _records_for(layout: Layout, family: str, model: str) -> list[dict[str, Any]]:
+def _records_for(
+    layout: Layout, registry: Registry, family: str, model: str
+) -> list[dict[str, Any]]:
+    """Submissions for this family and entry made with the current data and settings."""
     sha = family_sha(layout, family)
+    config = registry.get(model).fingerprint()
+
+    def current(r: dict[str, Any]) -> bool:
+        return (
+            r["family"] == family
+            and r["model"] == model
+            and r["data_sha256"] == sha
+            and r.get("config_sha256") == config
+        )
+
     out = [
         dict(b, kind="batch", sid=b["batch_id"])
         for b in _load(layout, "batches")["batches"]
-        if b["family"] == family and b["model"] == model and b["data_sha256"] == sha
+        if current(b)
     ]
     out += [
-        dict(r, kind="run", sid=r["run_id"])
-        for r in _load(layout, "runs")["runs"]
-        if r["family"] == family and r["model"] == model and r["data_sha256"] == sha
+        dict(r, kind="run", sid=r["run_id"]) for r in _load(layout, "runs")["runs"] if current(r)
     ]
     return sorted(out, key=lambda r: str(r["submitted_at"]))
 
 
 def run(layout: Layout, registry: Registry, family: str, model: str, log: Log = print) -> list[str]:
     entry = registry.get(model)
-    existing = [r for r in _records_for(layout, family, model) if r["status"] not in SKIP_STATUSES]
+    existing = [
+        r for r in _records_for(layout, registry, family, model) if r["status"] not in SKIP_STATUSES
+    ]
     if any(r["kind"] == "batch" or r["status"] == "completed" for r in existing):
         known = [str(r["sid"]) for r in existing]
         log(f"{family} on {model}: already submitted ({', '.join(known)}); nothing to do")
@@ -118,6 +131,7 @@ def run(layout: Layout, registry: Registry, family: str, model: str, log: Log = 
                     "request_count": len(chunk),
                     "estimated_usd": usd,
                     "data_sha256": sha,
+                    "config_sha256": entry.fingerprint(),
                     "chunk": f"{i}/{len(chunks)}",
                     "submitted_at": utc_now(),
                     "status": "in_progress",
@@ -145,6 +159,7 @@ def run(layout: Layout, registry: Registry, family: str, model: str, log: Log = 
         "request_count": len(requests),
         "estimated_usd": usd,
         "data_sha256": sha,
+        "config_sha256": entry.fingerprint(),
         "submitted_at": utc_now(),
         "status": "running",
         "counts": {},
@@ -168,7 +183,7 @@ def run(layout: Layout, registry: Registry, family: str, model: str, log: Log = 
                 "errored": sum(1 for x in responses if x.error is not None),
             }
     _save(layout, "runs", state)
-    grade(layout, family, model, log)
+    grade(layout, registry, family, model, log)
     return [run_id]
 
 
@@ -184,11 +199,19 @@ def poll(
                 tally["ended"] += 1
             continue
         provider = make_provider(registry.get(b["model"]), layout.cache)
-        status = provider.poll_batch(b["batch_id"])
+        try:
+            status = provider.poll_batch(b["batch_id"])
+            responses = provider.fetch_batch(b["batch_id"]) if status.status == "ended" else []
+        except Exception as exc:  # one unreachable batch must not stop the others
+            log(
+                f"{b['batch_id']} ({b['family']} on {b['model']}): poll failed, "
+                f"{type(exc).__name__}; retried at the next poll"
+            )
+            tally["in_progress"] += 1
+            continue
         b["counts"] = status.counts
         b["polled_at"] = utc_now()
         if status.status == "ended":
-            responses = provider.fetch_batch(b["batch_id"])
             write_jsonl(
                 layout.raw_path(b["family"], b["model"], b["batch_id"]),
                 [r.to_json() for r in responses],
@@ -204,12 +227,14 @@ def poll(
     _save(layout, "batches", state)
     if do_grade:
         for family, model in sorted(ended_now):
-            grade(layout, family, model, log)
+            grade(layout, registry, family, model, log)
     return tally
 
 
-def grade(layout: Layout, family: str, model: str, log: Log = print) -> dict[str, Any] | None:
-    records = _records_for(layout, family, model)
+def grade(
+    layout: Layout, registry: Registry, family: str, model: str, log: Log = print
+) -> dict[str, Any] | None:
+    records = _records_for(layout, registry, family, model)
     live = [r for r in records if r["status"] not in SKIP_STATUSES]
     if not live:
         log(f"{family} on {model}: no submissions to grade")

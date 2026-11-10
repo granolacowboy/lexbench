@@ -113,3 +113,38 @@ def test_routing(response: str | None, ok: bool) -> None:
 def test_routing_hyphenated() -> None:
     assert grade_routing({"command": "before-i-paste"}, "/before-i-paste").correct
     assert not grade_routing({"command": "before-i-paste"}, "before").correct
+
+
+def test_final_answer_prefix() -> None:
+    assert grade_legalbench(YESNO, "FINAL ANSWER: YES").correct
+    assert not grade_legalbench(YESNO, "FINAL ANSWER: NO").correct
+
+
+def test_fragment_answer_after_reasoning() -> None:
+    response = (
+        "Checking each flag against the record:\n- conflict_match: the opposing party is on "
+        "the list.\n- outside_jurisdiction: events in another state.\n\n"
+        '{"flags": ["conflict_match", "outside_jurisdiction"]}'
+    )
+    assert grade_fragment(FLAGS, response).correct
+    truncated = "Checking each flag against the record:\n- conflict_match: the opposing"
+    assert not grade_fragment(FLAGS, truncated).correct
+
+
+def test_repeated_answer_cue() -> None:
+    ucc = {"label": "Common Law", "labels": ["Common Law", "UCC"]}
+    assert grade_legalbench(ucc, "Governed by: Common Law").correct
+    assert not grade_legalbench(ucc, "Governed by: UCC").correct
+    assert grade_legalbench(YESNO, "Answer: Yes").correct
+    assert not grade_legalbench(YESNO, "Under 16 C.F.R. 310.3(a), the seller must").correct
+
+
+def test_leading_label_is_not_removed_as_a_cue() -> None:
+    rule = {"label": "Rule", "labels": ["Analysis", "Facts", "Rule"]}
+    assert grade_legalbench(rule, "Rule: the court states the governing standard").correct
+
+
+def test_cue_alone_on_the_first_line() -> None:
+    assert grade_legalbench(YESNO, "A:\n\nYes").correct
+    assert not grade_legalbench(YESNO, "A:").correct
+    assert not grade_legalbench(YESNO, "Both parties are from one state.\n\nA: Yes").correct

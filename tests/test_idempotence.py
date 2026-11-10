@@ -27,6 +27,7 @@ def test_recorded_batch_is_not_resubmitted(layout: Layout, monkeypatch: pytest.M
     (layout.models_yaml).write_text(
         layout.models_yaml.read_text(encoding="utf-8") + "\n", encoding="utf-8"
     )
+    fingerprint = load_registry(layout.models_yaml).get("mock-paid").fingerprint()
     raw = read_json(layout.batches, default=None) or {"schema_version": 1, "batches": []}
     raw["batches"].append(
         {
@@ -38,6 +39,7 @@ def test_recorded_batch_is_not_resubmitted(layout: Layout, monkeypatch: pytest.M
             "request_count": 1,
             "estimated_usd": 0.01,
             "data_sha256": family_sha(layout, "routing"),
+            "config_sha256": fingerprint,
             "chunk": "1/1",
             "submitted_at": "2026-11-10T00:00:00Z",
             "status": "in_progress",
@@ -84,3 +86,22 @@ def test_changed_data_allows_a_new_submission(layout: Layout) -> None:
     estimate(layout, reg, ["mock"], fetch_prices=False)
     ids = run(layout, reg, "routing", "mock", log=lambda _s: None)
     assert ids != ["old"]
+
+
+def test_changed_settings_allow_a_new_submission_and_keep_spend(layout: Layout) -> None:
+    reg = load_registry(layout.models_yaml)
+    estimate(layout, reg, ["mock-paid"], fetch_prices=False)
+    first = run(layout, reg, "routing", "mock-paid", log=lambda _s: None)
+    spent = read_json(layout.batches)["batches"][0]["estimated_usd"]
+    text = layout.models_yaml.read_text(encoding="utf-8")
+    marker = "  mock-paid:\n"
+    assert marker in text
+    text = text.replace(marker, marker + "    reasoning_tokens: 64\n")
+    layout.models_yaml.write_text(text, encoding="utf-8")
+    reg = load_registry(layout.models_yaml)
+    estimate(layout, reg, ["mock-paid"], fetch_prices=False)
+    second = run(layout, reg, "routing", "mock-paid", log=lambda _s: None)
+    assert second != first
+    batches = read_json(layout.batches)["batches"]
+    assert len(batches) == 2
+    assert batches[1]["estimated_usd"] > spent  # the reasoning room is priced
