@@ -107,17 +107,30 @@ def cmd_grade(layout: Layout, args: argparse.Namespace) -> int:
     reg = _registry(layout)
     families = args.family or list(FAMILIES)
     models = args.model or list(reg.entries)
+    refused = 0
     for f in families:
         for m in models:
-            runner.grade(layout, reg, f, m, log=lambda _s: None)
+            said: list[str] = []
+            result = runner.grade(layout, reg, f, m, log=said.append)
+            if result is None:
+                # Nothing was graded; an existing results file is not current and is not
+                # reported as graded (`lexbench report` excludes it).
+                refused += 1
+                reason = said[-1] if said else f"{f} on {m}: not graded"
+                print(f"not graded: {reason}", file=sys.stderr)
+                continue
             path = layout.graded_path(f, m)
-            if path.is_file():
-                print(f"graded {f} on {m}: {path.relative_to(layout.root)}")
-    return 0
+            print(
+                f"graded {f} on {m}: {path.relative_to(layout.root)} "
+                f"({result['correct']}/{result['n']} correct)"
+            )
+    return 1 if refused else 0
 
 
 def cmd_report(layout: Layout, args: argparse.Namespace) -> int:
     summary = report_mod.report(layout, _registry(layout))
+    for x in summary.get("excluded", []):
+        print(f"excluded {x['family']} on {x['model']}: {x['reason']}", file=sys.stderr)
     print(report_mod.table(summary), end="")
     return 0
 

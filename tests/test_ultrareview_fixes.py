@@ -6,6 +6,7 @@ which failed there. Every test runs through the mock provider or without a netwo
 
 from __future__ import annotations
 
+import json
 import os
 import subprocess
 import sys
@@ -16,7 +17,7 @@ from typing import Any
 import pytest
 import yaml
 
-from lexbench import runner
+from lexbench import cli, runner
 from lexbench.build import family_sha
 from lexbench.estimate import estimate
 from lexbench.paths import Layout
@@ -443,3 +444,51 @@ def test_l7_poll_survives_a_renamed_model_entry(layout: Layout) -> None:
     assert "renamed-away" in batches["msgbatch_orphan"]["error"]
     assert tally["ended"] == 1 and tally["error"] == 1
     assert read_jsonl(layout.graded_path("routing", "mock"))
+
+
+# L8: grade reports a refusal, and report publishes only results grade produced.
+
+
+def test_l8_grade_without_current_submissions_fails_and_report_skips_stale(
+    layout: Layout, capsys: pytest.CaptureFixture[str]
+) -> None:
+    root = ["--root", str(layout.root)]
+    assert cli.main([*root, "estimate", "--no-fetch", "--model", "mock"]) == 0
+    assert cli.main([*root, "run", "--family", "routing", "--model", "mock"]) == 0
+    assert cli.main([*root, "poll"]) == 0
+    assert layout.graded_path("routing", "mock").is_file()
+    _edit_registry(layout, {"mock": {"reasoning_tokens": 8}})  # no current submission now
+    capsys.readouterr()
+    assert cli.main([*root, "grade", "--family", "routing", "--model", "mock"]) != 0
+    out = capsys.readouterr()
+    assert "graded routing" not in out.out
+    assert "no submissions" in out.err
+    assert cli.main([*root, "report"]) == 0
+    summary = read_json(layout.summary)
+    assert "mock" not in summary["families"]["routing"]["overall"]
+    assert summary["excluded"][0]["family"] == "routing"
+
+
+def test_l8_report_skips_a_results_file_not_written_by_grade(layout: Layout) -> None:
+    root = ["--root", str(layout.root)]
+    assert cli.main([*root, "estimate", "--no-fetch", "--model", "mock"]) == 0
+    assert cli.main([*root, "run", "--family", "routing", "--model", "mock"]) == 0
+    assert cli.main([*root, "poll"]) == 0
+    path = layout.graded_path("routing", "mock")
+    rows = read_jsonl(path)
+    path.write_text("".join(json.dumps(r) + "\n" for r in rows[:5]), encoding="utf-8")
+    assert cli.main([*root, "report"]) == 0
+    assert "mock" not in read_json(layout.summary)["families"]["routing"]["overall"]
+
+
+def test_l8_grade_markers_of_record_match_the_results_of_record() -> None:
+    """Every recorded results file for the Claude entries has a grade marker whose hash
+    matches the file, so `lexbench report` keeps publishing the results of record."""
+    from lexbench.records import sha256_file
+
+    grades = read_json(REPO / "state" / "grades.json")
+    marks = {(g["family"], g["model"]): g for g in grades["grades"]}
+    for family in ("legalbench", "fragments", "routing"):
+        for model in ("claude-opus-5-5", "claude-sonnet-5-5", "claude-haiku-5-5"):
+            path = REPO / "results" / family / f"{model}.jsonl"
+            assert marks[(family, model)]["results_sha256"] == sha256_file(path)

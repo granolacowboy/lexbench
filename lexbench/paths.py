@@ -66,6 +66,10 @@ class Layout:
         return self.state / "runs.json"
 
     @property
+    def grades(self) -> Path:
+        return self.state / "grades.json"
+
+    @property
     def cache(self) -> Path:
         return self.root / ".lexbench-cache"
 

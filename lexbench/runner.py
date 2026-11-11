@@ -32,6 +32,7 @@ from lexbench.records import (
     chunked,
     read_json,
     read_jsonl,
+    sha256_file,
     utc_now,
     write_json,
     write_jsonl,
@@ -585,7 +586,22 @@ def grade(
                 "output_tokens": resp.output_tokens if resp else 0,
             }
         )
-    write_jsonl(layout.graded_path(family, model), out)
+    path = layout.graded_path(family, model)
+    write_jsonl(path, out)
+    _record_grade(
+        layout,
+        {
+            "family": family,
+            "model": model,
+            "submissions": sorted(str(r["sid"]) for r in live),
+            "data_sha256": family_sha(layout, family),
+            "config_sha256": registry.get(model).fingerprint(family),
+            "results_sha256": sha256_file(path),
+            "n": len(out),
+            "correct": correct,
+            "graded_at": utc_now(),
+        },
+    )
     summary = {
         "family": family,
         "model": model,
@@ -595,3 +611,49 @@ def grade(
     }
     log(f"graded {family} on {model}: {correct}/{len(out)} correct")
     return summary
+
+
+def _record_grade(layout: Layout, marker: dict[str, Any]) -> None:
+    """Record, in state/grades.json, which submissions a results file was graded from and
+    the file's hash; one marker per family and entry, replaced by each grade."""
+    with _STATE_LOCK:
+        state = read_json(layout.grades, default=None) or {"schema_version": 1, "grades": []}
+        state["grades"] = [
+            g
+            for g in state["grades"]
+            if (g.get("family"), g.get("model")) != (marker["family"], marker["model"])
+        ]
+        state["grades"].append(marker)
+        state["grades"].sort(key=lambda g: (str(g["family"]), str(g["model"])))
+        write_json(layout.grades, state)
+
+
+def results_current(layout: Layout, registry: Registry, family: str, model: str) -> str | None:
+    """None when results/<family>/<model>.jsonl is what grade produced from the current
+    submissions; otherwise the reason it is not.
+
+    The file must match the hash in its grade marker, and the marker's submissions must be
+    the current live submissions for the family and entry, all ended.
+    """
+    path = layout.graded_path(family, model)
+    if not path.is_file():
+        return "no results file"
+    grades = read_json(layout.grades, default=None) or {"grades": []}
+    marker = next(
+        (g for g in grades["grades"] if (g.get("family"), g.get("model")) == (family, model)),
+        None,
+    )
+    if marker is None:
+        return "no grade marker in state/grades.json"
+    if marker.get("results_sha256") != sha256_file(path):
+        return "the results file is not the one grade wrote"
+    live = [
+        r for r in _records_for(layout, registry, family, model) if r["status"] not in SKIP_STATUSES
+    ]
+    if not live:
+        return "no current submissions (data or entry settings changed)"
+    if any(r["status"] not in ENDED_STATUSES for r in live):
+        return "current submissions not ended"
+    if sorted(str(r["sid"]) for r in live) != marker.get("submissions"):
+        return "graded from other submissions than the current ones"
+    return None

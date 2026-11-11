@@ -1,4 +1,8 @@
-"""`lexbench report`: results/summary.json and the README results table."""
+"""`lexbench report`: results/summary.json and the README results table.
+
+Only results that `lexbench grade` produced from the current submissions are reported:
+each results file must match the grade marker in state/grades.json (runner.results_current).
+"""
 
 from __future__ import annotations
 
@@ -9,6 +13,7 @@ from typing import Any
 
 import yaml
 
+from lexbench import runner
 from lexbench.paths import FAMILIES, Layout
 from lexbench.records import read_json, read_jsonl, utc_now, write_json
 from lexbench.registry import Registry
@@ -53,16 +58,29 @@ def summarise(layout: Layout, registry: Registry, pass_bar_path: Path = PASS_BAR
     bars = yaml.safe_load(pass_bar_path.read_text(encoding="utf-8"))["families"]
     manifest = read_json(layout.manifest, default=None) or {"families": {}}
     reasoning = manifest["families"].get("legalbench", {}).get("tasks", {})
-    models = [
-        m for m in registry.entries if any(layout.graded_path(f, m).is_file() for f in FAMILIES)
-    ]
+    # Only results that grade produced from the current submissions are reported; a
+    # results file that is stale or was not written by grade is listed as excluded.
+    current: set[tuple[str, str]] = set()
+    excluded: list[dict[str, str]] = []
+    for m in registry.entries:
+        for f in FAMILIES:
+            if not layout.graded_path(f, m).is_file():
+                continue
+            reason = runner.results_current(layout, registry, f, m)
+            if reason is None:
+                current.add((f, m))
+            else:
+                excluded.append({"family": f, "model": m, "reason": reason})
+    models = [m for m in registry.entries if any((f, m) in current for f in FAMILIES)]
     summary: dict[str, Any] = {"generated_at": utc_now(), "models": models, "families": {}}
+    if excluded:
+        summary["excluded"] = excluded
     for family in FAMILIES:
         bar = bars.get(family, {}).get("pass_at_or_above")
         fam: dict[str, Any] = {"pass_bar": bar, "groups": {}, "overall": {}}
         for m in models:
             path = layout.graded_path(family, m)
-            if not path.is_file():
+            if (family, m) not in current:
                 continue
             rows = read_jsonl(path)
             groups: dict[str, list[dict[str, Any]]] = defaultdict(list)
