@@ -6,6 +6,7 @@ which failed there. Every test runs through the mock provider or without a netwo
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -16,8 +17,10 @@ from lexbench.build import family_sha
 from lexbench.estimate import estimate
 from lexbench.paths import Layout
 from lexbench.providers import ProviderError
+from lexbench.providers.anthropic_provider import AnthropicProvider
 from lexbench.providers.mock import MockProvider
-from lexbench.records import read_json, read_jsonl, write_json
+from lexbench.providers.openai_compatible import OpenAICompatibleProvider
+from lexbench.records import Request, read_json, read_jsonl, write_json
 from lexbench.registry import load_registry, parse_registry
 from tests.conftest import REPO
 
@@ -152,3 +155,60 @@ def test_l2_recorded_estimate_of_record_remains_accepted() -> None:
     for name in ("claude-opus-5-5", "claude-sonnet-5-5", "claude-haiku-5-5"):
         for family, recorded in est["entries"][name].items():
             runner.check_estimate_entry(recorded, reg.get(name), family, name)
+
+
+# L3: params cannot raise the output bound or add an unpriced thinking budget.
+
+
+@pytest.mark.parametrize(
+    "params",
+    [
+        {"max_tokens": 100000},
+        {"thinking": {"type": "enabled", "budget_tokens": 32000}},
+    ],
+)
+def test_l3_anthropic_params_cannot_exceed_the_priced_bound(params: dict[str, Any]) -> None:
+    entry = _entry(provider="anthropic", options={"params": params})
+    provider = AnthropicProvider(entry, Path("unused"))
+    req = Request("c1", "s", "p", 24)
+    with pytest.raises(ProviderError, match="output bound"):
+        provider._params(req)
+    with pytest.raises(ProviderError, match="output bound"):
+        provider.estimate([req])
+
+
+@pytest.mark.parametrize("key", ["max_tokens", "max_completion_tokens"])
+def test_l3_openai_params_cannot_exceed_the_priced_bound(key: str) -> None:
+    entry = _entry(
+        provider="openai_compatible",
+        endpoint="http://127.0.0.1:9/v1",
+        options={"params": {key: 100000}},
+    )
+    provider = OpenAICompatibleProvider(entry, Path("unused"))
+    req = Request("c1", "s", "p", 24)
+    with pytest.raises(ProviderError, match="output bound"):
+        provider._body(req)
+    with pytest.raises(ProviderError, match="output bound"):
+        provider.estimate([req])
+
+
+def test_l3_family_settings_params_are_checked_too() -> None:
+    entry = _entry(
+        provider="anthropic",
+        family_settings={"routing": {"params": {"max_tokens": 5000}}},
+    ).for_family("routing")
+    with pytest.raises(ProviderError, match="output bound"):
+        AnthropicProvider(entry, Path("unused"))._params(Request("c1", "s", "p", 20))
+
+
+def test_l3_params_within_the_bound_and_the_registry_of_record_pass() -> None:
+    entry = _entry(provider="anthropic", options={"params": {"max_tokens": 16}})
+    assert (
+        AnthropicProvider(entry, Path("unused"))._params(Request("c", "s", "p", 24))["max_tokens"]
+        == 16
+    )
+    reg = load_registry(REPO / "models.yaml")
+    for name in ("claude-opus-5-5", "claude-sonnet-5-5", "claude-haiku-5-5"):
+        for family, bound in (("legalbench", 24), ("fragments", 600), ("routing", 20)):
+            provider = AnthropicProvider(reg.get(name).for_family(family), Path("unused"))
+            provider._params(Request("c", "s", "p", bound))

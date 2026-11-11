@@ -17,7 +17,13 @@ from typing import Any
 
 import anthropic
 
-from lexbench.providers.base import BatchStatus, Provider, ProviderError, RateLimiter
+from lexbench.providers.base import (
+    BatchStatus,
+    Provider,
+    ProviderError,
+    RateLimiter,
+    checked_params,
+)
 from lexbench.records import Request, Response
 
 
@@ -34,14 +40,15 @@ class AnthropicProvider(Provider):
         return anthropic.Anthropic(api_key=key, max_retries=4)
 
     def _params(self, req: Request) -> dict[str, Any]:
+        bound = self.entry.output_bound(req.max_tokens)
         params: dict[str, Any] = {
             "model": self.entry.model,
-            "max_tokens": self.entry.output_bound(req.max_tokens),
+            "max_tokens": bound,
             "messages": [{"role": "user", "content": req.prompt}],
         }
         if req.system:
             params["system"] = req.system
-        params.update(self.entry.options.get("params", {}))
+        params.update(checked_params(self.entry, bound))
         return params
 
     @staticmethod

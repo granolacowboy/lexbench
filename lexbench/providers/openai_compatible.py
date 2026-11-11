@@ -16,7 +16,7 @@ from typing import Any
 
 import httpx
 
-from lexbench.providers.base import Provider, ProviderError, RateLimiter
+from lexbench.providers.base import Provider, ProviderError, RateLimiter, checked_params
 from lexbench.records import Request, Response
 
 RETRY_STATUS = {408, 409, 429, 500, 502, 503, 504}
@@ -50,13 +50,14 @@ class OpenAICompatibleProvider(Provider):
         if req.system:
             messages.append({"role": "system", "content": req.system})
         messages.append({"role": "user", "content": req.prompt})
+        bound = self.entry.output_bound(req.max_tokens)
         body: dict[str, Any] = {
             "model": self.entry.model,
             "messages": messages,
-            "max_tokens": self.entry.output_bound(req.max_tokens),
+            "max_tokens": bound,
             "temperature": 0,
         }
-        body.update(self.entry.options.get("params", {}))
+        body.update(checked_params(self.entry, bound))
         return body
 
     def run_sync(self, requests: Sequence[Request]) -> list[Response]:

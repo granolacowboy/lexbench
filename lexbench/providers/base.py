@@ -16,15 +16,24 @@ import math
 import threading
 import time
 from abc import ABC, abstractmethod
-from collections.abc import Sequence
+from collections.abc import Iterator, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any
 
 from lexbench.records import Request, Response
 from lexbench.registry import ModelEntry
 
 CHARS_PER_TOKEN = 3.0
 MESSAGE_OVERHEAD_TOKENS = 16
+MAX_MESSAGE = 240
+
+# Request fields that bound billed output tokens, at any depth of options.params: the
+# output bound itself (Anthropic max_tokens; OpenAI max_tokens or max_completion_tokens;
+# max_output_tokens) and a thinking budget (Anthropic thinking.budget_tokens).
+OUTPUT_FIELDS = frozenset(
+    {"max_tokens", "max_completion_tokens", "max_output_tokens", "budget_tokens"}
+)
 
 
 class ProviderError(RuntimeError):
@@ -44,6 +53,41 @@ class BatchStatus:
     batch_id: str
     status: str  # in_progress, ended, failed
     counts: dict[str, int] = field(default_factory=dict)
+
+
+def _output_fields(value: Any, path: str) -> Iterator[tuple[str, Any]]:
+    if isinstance(value, dict):
+        for key, item in value.items():
+            where = f"{path}.{key}"
+            if key in OUTPUT_FIELDS:
+                yield where, item
+            yield from _output_fields(item, where)
+    elif isinstance(value, list):
+        for i, item in enumerate(value):
+            yield from _output_fields(item, f"{path}[{i}]")
+
+
+def checked_params(entry: ModelEntry, bound: int) -> dict[str, Any]:
+    """options.params (or the family's params) after the output-bound rule.
+
+    The estimate prices each request at its output bound. params may lower an output field
+    but may not set one above the bound or to a value that is not an integer: such an
+    override is refused with a bounded message, so that it can neither raise max_tokens
+    above what the estimate priced nor add a thinking budget the estimate did not price.
+    """
+    params = entry.options.get("params", {})
+    if not isinstance(params, dict):
+        raise ProviderError(f"entry {entry.name!r}: options.params must be a mapping")
+    for where, value in _output_fields(params, "params"):
+        if isinstance(value, bool) or not isinstance(value, int) or value > bound:
+            shown = value if isinstance(value, int) else type(value).__name__
+            message = (
+                f"entry {entry.name!r} refused: {where} {shown} exceeds the output bound "
+                f"{bound} that the estimate prices; set max_tokens, reasoning_tokens or "
+                "family_settings.max_tokens instead"
+            )
+            raise ProviderError(message[:MAX_MESSAGE])
+    return dict(params)
 
 
 def estimate_tokens(text: str) -> int:
@@ -83,7 +127,10 @@ class Provider(ABC):
             estimate_tokens(r.system) + estimate_tokens(r.prompt) + MESSAGE_OVERHEAD_TOKENS
             for r in requests
         )
-        out = sum(self.entry.output_bound(r.max_tokens) for r in requests)
+        bounds = [self.entry.output_bound(r.max_tokens) for r in requests]
+        for bound in set(bounds):
+            checked_params(self.entry, bound)
+        out = sum(bounds)
         usd = self.entry.pricing.usd(inp, out, batch=self.entry.batch)
         return Estimate(len(requests), inp, out, round(usd, 4))
 
