@@ -26,7 +26,7 @@ from graders import GRADERS
 from lexbench.build import family_sha, load_cases
 from lexbench.families import to_request
 from lexbench.paths import Layout
-from lexbench.providers import make_provider
+from lexbench.providers import ProviderError, make_provider
 from lexbench.records import (
     Response,
     chunked,
@@ -36,7 +36,7 @@ from lexbench.records import (
     write_json,
     write_jsonl,
 )
-from lexbench.registry import ModelEntry, Registry
+from lexbench.registry import MAX_MESSAGE, ModelEntry, Registry, RegistryError
 
 Log = Callable[[str], None]
 SKIP_STATUSES = {"failed"}
@@ -478,18 +478,32 @@ def poll(
     layout: Layout, registry: Registry, log: Log = print, do_grade: bool = True
 ) -> dict[str, int]:
     state = _load(layout, "batches")
-    tally = {"in_progress": 0, "ended": 0, "pending": 0}
+    tally = {"in_progress": 0, "ended": 0, "pending": 0, "error": 0}
     ended_now: set[tuple[str, str]] = set()
     for b in state["batches"]:
         if _unresolved(b):
             tally["pending"] += 1
             log(f"{_sid(b)} ({b['family']} on {b['model']}): pending, no provider batch id")
             continue
-        if b["status"] not in ("in_progress", "pending"):
+        # A record in status error (its model entry could not be resolved at an earlier
+        # poll) is retried, so that restoring the entry recovers the batch.
+        if b["status"] not in ("in_progress", "pending", "error"):
             if b["status"] == "ended":
                 tally["ended"] += 1
             continue
-        provider = make_provider(registry.get(b["model"]), layout.cache)
+        try:
+            provider = make_provider(registry.get(b["model"]), layout.cache)
+        except (RegistryError, ProviderError) as exc:  # entry renamed or removed
+            b["status"] = "error"
+            b["error"] = (
+                f"model entry unavailable: {exc}; restore the entry in models.yaml to poll "
+                "this batch"
+            )[:MAX_MESSAGE]
+            b["polled_at"] = utc_now()
+            tally["error"] += 1
+            log(f"{_sid(b)} ({b['family']} on {b['model']}): error, {b['error']}")
+            _save(layout, "batches", state)
+            continue
         try:
             status = provider.poll_batch(b["batch_id"])
             responses = provider.fetch_batch(b["batch_id"]) if status.status == "ended" else []
@@ -498,8 +512,12 @@ def poll(
                 f"{b['batch_id']} ({b['family']} on {b['model']}): poll failed, "
                 f"{type(exc).__name__}; retried at the next poll"
             )
-            tally["in_progress"] += 1
+            if b["status"] != "error":
+                tally["in_progress"] += 1
+            else:
+                tally["error"] += 1
             continue
+        b.pop("error", None)
         b["counts"] = status.counts
         b["polled_at"] = utc_now()
         if status.status == "ended":
@@ -532,8 +550,9 @@ def grade(
     if not live:
         log(f"{family} on {model}: no submissions to grade")
         return None
-    if any(r["status"] not in ENDED_STATUSES for r in live):
-        log(f"{family} on {model}: submissions still in progress; not graded")
+    open_ = [f"{r['sid']} {r['status']}" for r in live if r["status"] not in ENDED_STATUSES]
+    if open_:
+        log(f"{family} on {model}: submissions still in progress ({', '.join(open_)}); not graded")
         return None
     responses: dict[str, Response] = {}
     for r in live:

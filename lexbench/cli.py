@@ -98,7 +98,8 @@ def cmd_run(layout: Layout, args: argparse.Namespace) -> int:
 def cmd_poll(layout: Layout, args: argparse.Namespace) -> int:
     tally = runner.poll(layout, _registry(layout), do_grade=not args.no_grade)
     pending = f", pending {tally['pending']}" if tally.get("pending") else ""
-    print(f"batches ended {tally['ended']}, in progress {tally['in_progress']}{pending}")
+    error = f", error {tally['error']}" if tally.get("error") else ""
+    print(f"batches ended {tally['ended']}, in progress {tally['in_progress']}{pending}{error}")
     return 0
 
 

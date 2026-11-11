@@ -422,3 +422,24 @@ def test_l6_refusal_describes_the_recovery_that_works(
         runner.run(layout, reg, "routing", "mock", log=QUIET)
     message = str(refused.value)
     assert "batch_id" in message and "status" in message and "failed" in message
+
+
+# L7: a batch whose model entry is gone is marked error; the other batches are polled.
+
+
+def test_l7_poll_survives_a_renamed_model_entry(layout: Layout) -> None:
+    reg = load_registry(layout.models_yaml)
+    estimate(layout, reg, ["mock"], fetch_prices=False)
+    runner.run(layout, reg, "routing", "mock", log=QUIET)
+    state = read_json(layout.batches)
+    orphan = dict(state["batches"][0], batch_id="msgbatch_orphan", model="renamed-away")
+    orphan["submission_id"] = "sub_orphan"
+    state["batches"].insert(0, orphan)
+    write_json(layout.batches, state)
+    said: list[str] = []
+    tally = runner.poll(layout, reg, log=said.append)
+    batches = {b["batch_id"]: b for b in read_json(layout.batches)["batches"]}
+    assert batches["msgbatch_orphan"]["status"] == "error"
+    assert "renamed-away" in batches["msgbatch_orphan"]["error"]
+    assert tally["ended"] == 1 and tally["error"] == 1
+    assert read_jsonl(layout.graded_path("routing", "mock"))
