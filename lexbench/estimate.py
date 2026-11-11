@@ -1,8 +1,9 @@
 """`lexbench estimate`: token counts and USD per family and model entry. Submits nothing.
 
-Each family estimate records the entry's settings fingerprint for that family and its
-pricing; `lexbench run` refuses an estimate whose fingerprint or pricing differs from the
-registry, so that the cap is never checked against an estimate made under other settings.
+Each family estimate records the entry's settings fingerprint for that family, its pricing
+and its batch flag; `lexbench run` refuses an estimate whose fingerprint, pricing or batch
+flag differs from the registry, so that the cap is never checked against an estimate made
+under other settings or priced with a batch discount that no longer applies.
 """
 
 from __future__ import annotations

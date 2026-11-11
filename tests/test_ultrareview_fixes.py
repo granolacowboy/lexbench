@@ -19,6 +19,7 @@ from lexbench.providers import ProviderError
 from lexbench.providers.mock import MockProvider
 from lexbench.records import read_json, read_jsonl, write_json
 from lexbench.registry import load_registry, parse_registry
+from tests.conftest import REPO
 
 
 def QUIET(_s: str) -> None:
@@ -128,3 +129,26 @@ def test_l1_no_nothing_to_do_while_a_chunk_is_unrecorded(layout: Layout) -> None
     ids = runner.run(layout, reg, "routing", "mock", log=said.append)
     assert len(ids) == 2
     assert not any("nothing to do" in s for s in said)
+
+
+# L2: an estimate priced with the batch discount is refused for a synchronous entry.
+
+
+def test_l2_batch_priced_estimate_refused_after_switch_to_synchronous(layout: Layout) -> None:
+    reg = load_registry(layout.models_yaml)
+    estimate(layout, reg, ["mock-paid"], fetch_prices=False)
+    _edit_registry(layout, {"mock-paid": {"batch": False}})
+    reg = load_registry(layout.models_yaml)
+    with pytest.raises(runner.CapExceeded, match="batch"):
+        runner.run(layout, reg, "routing", "mock-paid", log=QUIET)
+    assert read_json(layout.runs) is None
+
+
+def test_l2_recorded_estimate_of_record_remains_accepted() -> None:
+    """The estimate of record (results/estimate.json) passes the extended comparison for
+    every Claude entry and family, so the change orphans no recorded estimate."""
+    reg = load_registry(REPO / "models.yaml")
+    est = read_json(REPO / "results" / "estimate.json")
+    for name in ("claude-opus-5-5", "claude-sonnet-5-5", "claude-haiku-5-5"):
+        for family, recorded in est["entries"][name].items():
+            runner.check_estimate_entry(recorded, reg.get(name), family, name)

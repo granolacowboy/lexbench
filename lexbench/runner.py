@@ -7,8 +7,8 @@ pending, then updated with the provider's batch id once the provider accepts it,
 failed when the provider call raises. A synchronous run is recorded as running, then
 completed or failed. Every recorded submission, failed or pending included, counts toward
 the cap. The cap is enforced before each submission from results/estimate.json and the
-recorded submissions, never after; an estimate made under other entry settings or other
-pricing is refused.
+recorded submissions, never after; an estimate made under other entry settings, other
+pricing or another batch setting is refused.
 """
 
 from __future__ import annotations
@@ -31,7 +31,7 @@ from lexbench.records import (
     write_json,
     write_jsonl,
 )
-from lexbench.registry import Registry
+from lexbench.registry import ModelEntry, Registry
 
 Log = Callable[[str], None]
 SKIP_STATUSES = {"failed"}
@@ -87,18 +87,37 @@ def _estimate_for(layout: Layout, registry: Registry, family: str, model: str) -
         entry: dict[str, Any] = est["entries"][model][family]
     except KeyError as exc:
         raise CapExceeded(f"refused: no estimate for {family} on {model}") from exc
-    current = registry.get(model)
-    if entry.get("config_sha256") != current.fingerprint(family):
+    check_estimate_entry(entry, registry.get(model), family, model)
+    return entry
+
+
+def check_estimate_entry(
+    recorded: dict[str, Any], current: ModelEntry, family: str, model: str
+) -> None:
+    """Refuse an estimate made under other request settings, other pricing or another
+    submission mode than the entry now has.
+
+    The request fingerprint (config_sha256) identifies submissions in state/ and does not
+    include the batch flag, so that the recorded submissions stay current; the batch flag,
+    which decides whether the batch discount applies, is compared here as a field of its
+    own.
+    """
+    if recorded.get("config_sha256") != current.fingerprint(family):
         raise CapExceeded(
             f"refused: the estimate for {family} on {model} was made under other entry "
             "settings; run `lexbench estimate`"
         )
-    if entry.get("pricing") != current.pricing.as_dict():
+    if recorded.get("pricing") != current.pricing.as_dict():
         raise CapExceeded(
             f"refused: the estimate for {family} on {model} was made under other pricing; "
             "run `lexbench estimate`"
         )
-    return entry
+    if recorded.get("batch") is not current.batch:
+        raise CapExceeded(
+            f"refused: the estimate for {family} on {model} was made with batch "
+            f"{str(recorded.get('batch')).lower()}; the entry now has batch "
+            f"{str(current.batch).lower()}; run `lexbench estimate`"
+        )
 
 
 def check_cap(spent: float, new_usd: float, cap: float) -> None:
