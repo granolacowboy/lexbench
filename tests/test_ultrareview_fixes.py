@@ -359,3 +359,66 @@ def test_l5_run_records_pid_and_refreshes_the_heartbeat(
     runner.run(layout, reg, "routing", "mock-sync", log=QUIET)
     assert seen[0]["pid"] == os.getpid()
     assert seen[0]["heartbeat_at"] and seen[1]["heartbeat_at"] != seen[0]["heartbeat_at"]
+
+
+# L6: a pending record that has a batch id is polled; the refusal names a working recovery.
+
+
+def test_l6_pending_record_with_batch_id_is_polled_and_does_not_block(layout: Layout) -> None:
+    reg = load_registry(layout.models_yaml)
+    estimate(layout, reg, ["mock"], fetch_prices=False)
+    from lexbench.build import load_cases
+    from lexbench.families import to_request
+
+    requests = [to_request(c) for c in load_cases(layout, "routing")]
+    batch_id = MockProvider(reg.get("mock"), layout.cache).submit_batch(requests)
+    write_json(
+        layout.batches,
+        {
+            "schema_version": 1,
+            "batches": [
+                {
+                    "batch_id": batch_id,
+                    "submission_id": "sub_routing_mock_1",
+                    "family": "routing",
+                    "model": "mock",
+                    "provider": "mock",
+                    "provider_model": "mock-oracle-1",
+                    "request_count": len(requests),
+                    "estimated_usd": 0.0,
+                    "data_sha256": family_sha(layout, "routing"),
+                    "config_sha256": reg.get("mock").fingerprint("routing"),
+                    "chunk": "1/1",
+                    "submitted_at": "2026-11-11T00:00:00Z",
+                    "status": "pending",
+                    "counts": {},
+                    "ended_at": None,
+                }
+            ],
+        },
+    )
+    said: list[str] = []
+    assert runner.run(layout, reg, "routing", "mock", log=said.append) == [batch_id]
+    assert "nothing to do" in said[-1]
+    tally = runner.poll(layout, reg, log=QUIET)
+    assert tally["ended"] == 1 and tally["pending"] == 0
+    assert read_json(layout.batches)["batches"][0]["status"] == "ended"
+    assert len(read_jsonl(layout.graded_path("routing", "mock"))) == len(requests)
+
+
+def test_l6_refusal_describes_the_recovery_that_works(
+    layout: Layout, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    reg = load_registry(layout.models_yaml)
+    estimate(layout, reg, ["mock"], fetch_prices=False)
+
+    def crash(*_a: object, **_k: object) -> str:
+        raise KeyboardInterrupt
+
+    monkeypatch.setattr(MockProvider, "submit_batch", crash)
+    with pytest.raises(KeyboardInterrupt):
+        runner.run(layout, reg, "routing", "mock", log=QUIET)
+    with pytest.raises(runner.CapExceeded) as refused:
+        runner.run(layout, reg, "routing", "mock", log=QUIET)
+    message = str(refused.value)
+    assert "batch_id" in message and "status" in message and "failed" in message

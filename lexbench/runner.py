@@ -164,6 +164,12 @@ class _Heartbeat:
         self._thread.join()
 
 
+def _unresolved(record: dict[str, Any]) -> bool:
+    """A batch recorded as pending that has no provider batch id. A pending record whose
+    batch_id has been filled in (by hand, after a crash) is treated as in progress."""
+    return record.get("status") == "pending" and not record.get("batch_id")
+
+
 def _sid(record: dict[str, Any]) -> str:
     """The submission's identifier: the provider's batch id, else the local id."""
     return str(record.get("batch_id") or record.get("submission_id") or record.get("run_id"))
@@ -320,12 +326,13 @@ def run(layout: Layout, registry: Registry, family: str, model: str, log: Log = 
             f"refused: {family} on {model} has a synchronous run recorded as running with a "
             f"live process and a recent heartbeat ({', '.join(running)}); wait for it to end"
         )
-    pending = [str(r["sid"]) for r in existing if r["status"] == "pending"]
+    pending = [str(r["sid"]) for r in existing if _unresolved(r)]
     if pending:
         raise CapExceeded(
             f"refused: {family} on {model} has a submission recorded as pending without a "
-            f"provider id ({', '.join(pending)}); check the provider's batch list, then record "
-            "its batch id or mark it failed in state/batches.json"
+            f"provider batch id ({', '.join(pending)}). Check the provider's batch list; in "
+            "state/batches.json either set its batch_id, after which poll treats it as in "
+            "progress, or, if the provider holds no such batch, set its status to failed"
         )
     batches = [r for r in existing if r["kind"] == "batch"]
     known = [str(r["sid"]) for r in existing]
@@ -474,11 +481,11 @@ def poll(
     tally = {"in_progress": 0, "ended": 0, "pending": 0}
     ended_now: set[tuple[str, str]] = set()
     for b in state["batches"]:
-        if b["status"] == "pending":
+        if _unresolved(b):
             tally["pending"] += 1
             log(f"{_sid(b)} ({b['family']} on {b['model']}): pending, no provider batch id")
             continue
-        if b["status"] != "in_progress":
+        if b["status"] not in ("in_progress", "pending"):
             if b["status"] == "ended":
                 tally["ended"] += 1
             continue
@@ -505,6 +512,7 @@ def poll(
             ended_now.add((b["family"], b["model"]))
             tally["ended"] += 1
         else:
+            b["status"] = "in_progress"
             tally["in_progress"] += 1
         log(f"{b['batch_id']} ({b['family']} on {b['model']}): {b['status']} {b['counts']}")
         _save(layout, "batches", state)
