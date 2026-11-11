@@ -8,6 +8,7 @@ from typing import Any
 
 import yaml
 
+from graders.routing import check_command_names
 from lexbench.families import case_record
 
 FAMILY = "routing"
@@ -28,6 +29,7 @@ def build(sources: Path) -> dict[str, list[dict[str, Any]]]:
     written = yaml.safe_load((sources / "routing" / "paraphrases.yaml").read_text(encoding="utf-8"))
     descriptions: dict[str, str] = described["commands"]
     names = [c["command"] for c in imported["commands"]]
+    check_command_names(names)
     if set(names) != set(descriptions):
         raise ValueError("routing: command descriptions do not match the imported commands")
     if set(written["paraphrases"]) != set(names):

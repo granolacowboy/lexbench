@@ -3,12 +3,31 @@
 from __future__ import annotations
 
 import re
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping
 from typing import Any
 
 from graders.common import Verdict, clip, first_line
 
-_COMMAND = re.compile(r"/?([a-z][a-z0-9]*(?:-[a-z0-9]+)*)")
+COMMAND_NAME = r"[a-z][a-z0-9]*(?:-[a-z0-9]+)*"
+_COMMAND = re.compile(rf"/?({COMMAND_NAME})")
+_NAME = re.compile(COMMAND_NAME)
+
+
+def check_command_names(names: Iterable[str]) -> None:
+    """Refuse a command name that grade_routing cannot match.
+
+    The grader reads the first command-shaped token of a response (lower-case letters and
+    digits, in hyphen-separated parts, starting with a letter). A gold command of another
+    shape (an underscore, a plugin:command namespace, a dot or a leading digit) could never
+    be matched, and every case for it would be graded wrong.
+    """
+    bad = sorted({str(n) for n in names if not _NAME.fullmatch(str(n).lower())})
+    if bad:
+        shown = ", ".join(repr(n) for n in bad[:5])
+        raise ValueError(
+            f"routing: command name {shown} cannot be matched by the routing grader "
+            f"(pattern {COMMAND_NAME})"
+        )
 
 
 def grade_routing(expected: Mapping[str, Any], response: str | None) -> Verdict:

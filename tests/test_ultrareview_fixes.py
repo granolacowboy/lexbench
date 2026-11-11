@@ -540,3 +540,34 @@ def test_l9_rule_keeps_the_phrases_of_record_except_the_invented_surnames() -> N
     known = tool.vocabulary(phrases)
     assert [tool.scrub(p, known) for p in phrases] == phrases
     assert set(tool._assigned) == {"Wexford", "Halvorsen"}
+
+
+# L10: a command name the routing grader cannot match is refused at build time.
+
+
+@pytest.mark.parametrize("name", ["plugin:start", "start_now", "2fa", "v1.2"])
+def test_l10_unmatchable_command_name_is_refused(name: str) -> None:
+    from graders.routing import check_command_names, grade_routing
+
+    assert not grade_routing({"command": name}, name).correct  # the defect being guarded
+    with pytest.raises(ValueError, match="command name"):
+        check_command_names(["start", name])
+
+
+def test_l10_build_refuses_an_unmatchable_command(tmp_path: Path) -> None:
+    from lexbench.families import routing
+
+    sources = tmp_path / "sources"
+    for rel in ("mhsb/routing.yaml", "routing/commands.yaml", "routing/paraphrases.yaml"):
+        (sources / rel).parent.mkdir(parents=True, exist_ok=True)
+        text = (REPO / "sources" / rel).read_text(encoding="utf-8")
+        (sources / rel).write_text(text.replace("ai-training", "ai:training"), encoding="utf-8")
+    with pytest.raises(ValueError, match="command name"):
+        routing.build(sources)
+
+
+def test_l10_command_names_of_record_are_matchable() -> None:
+    from graders.routing import check_command_names
+
+    rows = read_jsonl(REPO / "data" / "routing" / "cases.jsonl")
+    check_command_names(sorted({r["expected"]["command"] for r in rows}))

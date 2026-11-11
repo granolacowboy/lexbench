@@ -22,6 +22,8 @@ from typing import Any
 
 import yaml
 
+from graders.routing import check_command_names
+
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "sources" / "mhsb"
 SKILLS_REF = "origin/cloud/pp8-skills-evals"
@@ -177,6 +179,10 @@ def import_routing(repo: Path) -> None:
         for p in suite["phrases"]
     ]
     names = {c["command"] for c in commands}
+    try:
+        check_command_names(names)
+    except ValueError as exc:
+        sys.exit(f"import stopped: {exc}")
     unknown = sorted({p["command"] for p in phrases} - names)
     if unknown:
         sys.exit(f"import stopped: phrases name unknown commands {unknown}")
