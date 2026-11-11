@@ -165,3 +165,63 @@ Step 1. Failing tests (tests/test_ultrareview_fixes.py, written before any fix).
   and a file not written by grade; no grade marker exists.
   L9 scrub replaces "Draft", "NDA", "LLC", "Please", "PI", "What".
   L10 no check of command names against the grader's pattern exists.
+
+Step 2. Fixes, one commit per finding, each test run before and after its fix.
+
+- L1 9ad390d, L2 9b55b54, L3 e50b2af, L4 508ee3d, L5 1475318, L6 5563b3f, L7 b0b5c3b,
+  L8 5a95f8b, L9 da97318, L10 5a6f98b. All ten Applied; none Not applied.
+- L1: the first fix left one test failing: the rerun's submission id equalled the failed
+  record's (same second), so the failed record was updated too. Identifiers now take a
+  random suffix. Second run of the tests: passed.
+- L2: the batch flag is compared as a field of its own (check_estimate_entry), not added
+  to config_sha256, which identifies the recorded submissions; adding it would leave none
+  of the 24 recorded batches current. The estimate of record passes the new comparison.
+- L4: a synchronous entry is priced at retries + 1 attempts; a batch entry at one. The
+  default retries are 3, the schema ceiling 3; the Anthropic client's max_retries went
+  from 4 to the entry's retries.
+- L8: state/grades.json holds the markers of the nine results of record, written by the
+  new `lexbench grade` in a scratch copy of the working tree with the rebuilt LegalBench
+  data: 902, 903, 856 of 1,079 (legalbench), 185, 186, 184 of 197 (fragments), 252, 251,
+  248 of 271 (routing) for Opus, Sonnet and Haiku, as recorded. All 42 tracked files
+  under results/, state/batches.json and state/runs.json came out byte-identical; a
+  scratch `lexbench report` gave results/table.md and the README table unchanged and
+  results/summary.json unchanged apart from generated_at.
+- L9, check of the data of record: 201 imported routing phrases; the capitalised tokens
+  are AI, Claude, Halvorsen, I, I'm, MHSB, Monday, Mr, Mrs, October, Thursday, Wexford.
+  The replacement surnames Wexford (7) and Halvorsen (9) occur only after Mr. or Mrs. or
+  in "the ... matter/file/case/call"; the two sentence-initial capitals are "I" and
+  "Mrs."; the only all-capital tokens are AI and MHSB. No phrase is corrupted. The rule
+  keeps a sentence-initial word only when it is a common opener or occurs in lower case
+  in the imported phrases, so that a name opening a phrase is still replaced; on the
+  phrases of record it changes nothing.
+- L10, check of the data of record: the 24 command names in sources/mhsb/routing.yaml and
+  the 24 distinct gold commands of the 271 cases in data/routing/cases.jsonl all match
+  the grader's pattern in full. No case is affected.
+
+Step 3. CHECKPOINT A at 5a6f98b.
+
+- `uv run pytest -q`: 144 passed. `ruff check .`: all checks passed. `ruff format
+  --check .`: 43 files already formatted. `mypy` (strict): no issues in 37 source files.
+- CLI, in a scratch copy of 5a6f98b with the rebuilt LegalBench data:
+  `lexbench models --offline` exit 0 (registry valid: 4 entries, cap 60.00 USD).
+  `lexbench models` exit 1: the three Claude entries "unreachable: environment variable
+  ANTHROPIC_API_KEY is EMPTY", mock verified. Expected without a key; verifying the
+  identifiers online remains a step for Richard Berman.
+  `lexbench estimate` exit 0: pricing check match (fetched 2026-11-11T22:50:33Z); Opus
+  19.90, Sonnet 8.56, Haiku 0.43, mock 0.00; total 28.90 USD against the 60.00 USD cap.
+  Mock end to end: `run --family all --model mock` submitted one batch per family
+  (1,079, 197, 271 requests); `poll` ended all, graded 1079/1079, 197/197, 271/271;
+  `grade --model mock` exit 0; a repeated `run` printed "nothing to do" for every family;
+  `report` exit 0 with nothing excluded.
+  `run --family all` for each Claude entry against the recorded state: "already
+  submitted; nothing to do" for every family, no provider call; `grade` for the three
+  Claude entries exit 0 with the figures above, per-case and raw records unchanged.
+- `git status --short -- data results` and `git diff --stat e235f92 -- data results`:
+  empty. The dash grep over lexbench, graders, tests, tools, docs, README.md, NOTICE.md
+  and state (U+2014, U+2013, U+2012): no match. `git grep -n "Rich Berman"`: no match.
+- README.md: Request parameters (params rule), Spend control (retry bound and pricing,
+  batch flag, chunks, heartbeat), Recovering a pending batch, and Grade and report.
+
+Step 4. Push of lexbench/harness-v1 (no force) and one comment on #1, "Response to the
+ultrareview comment (harness code subset)". The licence carve-out remains Richard
+Berman's counsel item.

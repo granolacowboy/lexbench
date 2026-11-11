@@ -70,6 +70,13 @@ models:
 and thinking counts toward `max_tokens`. An entry may set `family_settings` for one family:
 `max_tokens` fixes that family's output bound, and `params` replaces `options.params`.
 
+**Request parameters.** `options.params`, or a family's `params`, is merged into each
+request but may not raise what the estimate prices: a `max_tokens`, `max_completion_tokens`,
+`max_output_tokens` or thinking `budget_tokens` value above the request's output bound, or
+one that is not an integer, is refused with a short message by `lexbench estimate` and by
+both adapters before anything is sent. A lower value is permitted. The output bound is set
+only by `max_tokens`, `reasoning_tokens` and `family_settings.max_tokens`.
+
 | Family | Thinking setting, all three Claude entries | Output bound per request |
 |---|---|---|
 | `legalbench` | adaptive thinking at effort `low` | 1,048 tokens on every entry |
@@ -131,10 +138,16 @@ support, `submit_batch`, `poll_batch` and `fetch_batch`. Then register the class
 `lexbench estimate` counts tokens per family and entry and writes `results/estimate.json`;
 it submits nothing. Input tokens are estimated as characters divided by three plus 16 per
 request, and output tokens as the family's `max_tokens` plus the entry's
-`reasoning_tokens`, or a family's fixed bound, so the estimate is an upper bound. The
-estimate records, for every entry and family, the entry's settings fingerprint and its
-pricing; `lexbench run` refuses an estimate whose fingerprint or pricing differs from the
-registry.
+`reasoning_tokens`, or a family's fixed bound, so the estimate is an upper bound. A
+synchronous entry is priced at `retries + 1` attempts per request, since a retried attempt
+(after a timeout or a server error) may itself be billed; `options.retries` is an integer
+from 0 to 3 (default 3), the `openai_compatible` adapter makes at most `retries + 1`
+attempts, and the `anthropic` adapter sets the client's `max_retries` to the same figure.
+A batch entry is priced at one attempt per request. The estimate records, for every entry
+and family, the entry's settings fingerprint, its pricing, its batch flag and the attempts
+priced per request; `lexbench run` refuses an estimate in which any of these differs from
+the registry, so that an estimate priced with the batch discount is refused once the entry
+is switched to `batch: false`.
 Claude prices are checked against https://platform.claude.com/docs/en/about-claude/pricing
 and the result is recorded with the fetch time. Before each submission, `lexbench run` adds
 the submission's estimate to the estimates already recorded in `state/batches.json` and
@@ -142,15 +155,28 @@ the submission's estimate to the estimates already recorded in `state/batches.js
 when the estimate is stale. A batch holds at most 10,000 requests, and entries with zero
 pricing count as zero. Each submission is recorded with its batch or run id, family, model
 name, request count, estimated cost and a fingerprint of the entry's settings for the
-family. A batch is recorded as `pending` before the provider is called and updated with the
-provider's batch id afterwards; a submission whose provider call fails is recorded as
-`failed`, and a synchronous run that fails is recorded as `failed` rather than left
-`running`, so that it does not block grading. A `pending` record without a batch id blocks a
-new submission for its family and entry until it is resolved. Repeating `run` therefore
-submits nothing new, while a change of settings or data permits a new submission. Every
-recorded submission, including superseded, failed and pending ones, counts toward the cap.
-The cap applies to submissions made through the harness; the two diagnostic probes of the
-first session were made outside it and were recorded by hand in `state/runs.json`.
+family. A family larger than one batch is split into chunks, and each chunk is recorded
+with its index and the chunk total (`chunk_index`, `chunk_total`) as `pending` before the
+provider is called, then updated with the provider's batch id; a chunk whose provider call
+fails is recorded as `failed`. A rerun submits only the chunks that have no live record and
+reports "nothing to do" only when every chunk is recorded. A synchronous run is recorded as
+`running` with its process id and a heartbeat refreshed every 30 s; one that fails is
+recorded as `failed`, and a `running` record whose process is gone or whose heartbeat is
+older than 300 s is recorded as `failed` by the next `run` or `grade`, so that a killed
+process does not block grading. A `running` record with a live process and a recent
+heartbeat blocks a second run. Repeating `run` therefore submits nothing new, while a change
+of settings or data permits a new submission. Every recorded submission, including
+superseded, failed, pending and error ones, counts toward the cap. The cap applies to
+submissions made through the harness; the two diagnostic probes of the first session were
+made outside it and were recorded by hand in `state/runs.json`.
+
+**Recovering a pending batch.** A `pending` record without a batch id (the process ended
+between the record and the provider's answer) blocks a new submission for its family and
+entry. Check the provider's batch list; then, in `state/batches.json`, either set the
+record's `batch_id`, after which `lexbench poll` treats it as in progress and `run` no
+longer counts it as pending, or set its `status` to `failed` if the provider holds no such
+batch. A batch whose model entry has been renamed or removed is marked `error` by `poll`,
+with the reason, while the other batches are polled; restoring the entry recovers it.
 
 ## Results
 
@@ -264,6 +290,15 @@ uv run lexbench grade                      # re-grade recorded responses
 uv run lexbench report                     # results/summary.json and the table above
 uv run pytest && uv run ruff check . && uv run mypy
 ```
+
+**Grade and report.** `lexbench grade` grades a family and entry only when every current
+submission (current data and entry settings) has ended. It then writes
+`results/<family>/<model name>.jsonl` and a marker in `state/grades.json` that records the
+submissions graded and the SHA-256 of that file. When there is nothing to grade, or a
+submission has not ended, it prints the reason and exits 1, and an existing results file is
+not reported as graded. `lexbench report` publishes only results whose file matches its
+marker and whose marker names the current, ended submissions; any other results file is
+listed under `excluded` in `results/summary.json` and is not reported.
 
 Credentials are read from the variable each entry names in `auth`. The `mock` entry needs
 no credential and runs every family end to end; its `hash` mode chooses among several answer
