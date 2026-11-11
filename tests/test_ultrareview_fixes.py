@@ -6,6 +6,10 @@ which failed there. Every test runs through the mock provider or without a netwo
 
 from __future__ import annotations
 
+import os
+import subprocess
+import sys
+import time
 from pathlib import Path
 from typing import Any
 
@@ -20,7 +24,7 @@ from lexbench.providers import ProviderError, make_provider
 from lexbench.providers.anthropic_provider import AnthropicProvider
 from lexbench.providers.mock import MockProvider
 from lexbench.providers.openai_compatible import OpenAICompatibleProvider
-from lexbench.records import Request, read_json, read_jsonl, write_json
+from lexbench.records import Request, read_json, read_jsonl, utc_now, write_json
 from lexbench.registry import RegistryError, load_registry, parse_registry
 from tests.conftest import REPO
 
@@ -267,3 +271,91 @@ def test_l4_estimate_without_the_attempt_count_is_refused_for_a_sync_entry(
     write_json(layout.estimate, est)
     with pytest.raises(runner.CapExceeded, match="attempts"):
         runner.run(layout, reg, "routing", "mock-paid", log=QUIET)
+
+
+# L5: a synchronous run left 'running' by a dead process does not block for ever.
+
+
+def _running_record(layout: Layout, reg: Any, family: str, model: str, **extra: Any) -> None:
+    record = {
+        "run_id": "run_fabricated",
+        "family": family,
+        "model": model,
+        "provider": "mock",
+        "provider_model": "mock-oracle-1",
+        "request_count": 1,
+        "estimated_usd": 0.0,
+        "data_sha256": family_sha(layout, family),
+        "config_sha256": reg.get(model).fingerprint(family),
+        "submitted_at": utc_now(),
+        "status": "running",
+        "counts": {},
+        "ended_at": None,
+    }
+    record.update(extra)
+    write_json(layout.runs, {"schema_version": 1, "runs": [record]})
+
+
+def _dead_pid() -> int:
+    proc = subprocess.Popen([sys.executable, "-c", "pass"])
+    proc.wait()
+    return proc.pid
+
+
+def test_l5_running_record_of_a_dead_process_is_failed_and_run_proceeds(layout: Layout) -> None:
+    reg = load_registry(layout.models_yaml)
+    estimate(layout, reg, ["mock-sync"], fetch_prices=False)
+    _running_record(layout, reg, "routing", "mock-sync", pid=_dead_pid(), heartbeat_at=utc_now())
+    ids = runner.run(layout, reg, "routing", "mock-sync", log=QUIET)
+    runs = read_json(layout.runs)["runs"]
+    assert runs[0]["status"] == "failed" and "not running" in runs[0]["error"]
+    assert runs[1]["run_id"] == ids[0] and runs[1]["status"] == "completed"
+    assert read_jsonl(layout.graded_path("routing", "mock-sync"))
+
+
+def test_l5_grade_fails_a_running_record_with_an_old_heartbeat(layout: Layout) -> None:
+    reg = load_registry(layout.models_yaml)
+    _running_record(
+        layout, reg, "routing", "mock-sync", pid=os.getpid(), heartbeat_at="2026-01-01T00:00:00Z"
+    )
+    said: list[str] = []
+    assert runner.grade(layout, reg, "routing", "mock-sync", log=said.append) is None
+    run = read_json(layout.runs)["runs"][0]
+    assert run["status"] == "failed" and "heartbeat" in run["error"]
+    assert not any("in progress" in s for s in said)
+
+
+def test_l5_live_running_record_blocks_a_second_run(layout: Layout) -> None:
+    reg = load_registry(layout.models_yaml)
+    estimate(layout, reg, ["mock-sync"], fetch_prices=False)
+    _running_record(layout, reg, "routing", "mock-sync", pid=os.getpid(), heartbeat_at=utc_now())
+    with pytest.raises(runner.CapExceeded, match="running"):
+        runner.run(layout, reg, "routing", "mock-sync", log=QUIET)
+    assert len(read_json(layout.runs)["runs"]) == 1
+
+
+def test_l5_run_records_pid_and_refreshes_the_heartbeat(
+    layout: Layout, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    reg = load_registry(layout.models_yaml)
+    estimate(layout, reg, ["mock-sync"], fetch_prices=False)
+    ticks = iter(range(10**6))
+    monkeypatch.setattr(runner, "HEARTBEAT_SECONDS", 0.02)
+    monkeypatch.setattr(
+        runner,
+        "utc_now",
+        lambda: (lambda n: f"2026-11-11T00:{n // 60 % 60:02d}:{n % 60:02d}Z")(next(ticks)),
+    )
+    seen: list[dict[str, Any]] = []
+    real = MockProvider.run_sync
+
+    def slow(self: MockProvider, requests: Any) -> Any:
+        seen.append(dict(read_json(layout.runs)["runs"][-1]))
+        time.sleep(0.3)
+        seen.append(dict(read_json(layout.runs)["runs"][-1]))
+        return real(self, requests)
+
+    monkeypatch.setattr(MockProvider, "run_sync", slow)
+    runner.run(layout, reg, "routing", "mock-sync", log=QUIET)
+    assert seen[0]["pid"] == os.getpid()
+    assert seen[0]["heartbeat_at"] and seen[1]["heartbeat_at"] != seen[0]["heartbeat_at"]

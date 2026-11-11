@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
+import threading
 from collections.abc import Iterable, Iterator
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -81,10 +83,14 @@ def read_json(path: Path, default: Any = None) -> Any:
 
 
 def write_json(path: Path, obj: Any) -> None:
+    """Write through a temporary file and a rename, so that a reader (another process, or
+    the heartbeat of a synchronous run) never sees a partly written file."""
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
+    tmp = path.with_name(f".{path.name}.{os.getpid()}.{threading.get_ident()}.tmp")
+    tmp.write_text(
         json.dumps(obj, indent=2, ensure_ascii=False, sort_keys=False) + "\n", encoding="utf-8"
     )
+    os.replace(tmp, path)
 
 
 def sha256_file(path: Path) -> str:

@@ -4,8 +4,10 @@ Every submission is recorded before the provider is called: batches in state/bat
 and synchronous runs in state/runs.json, each with family, model name, request count,
 estimated USD and the entry's settings fingerprint for the family. A batch is recorded as
 pending, then updated with the provider's batch id once the provider accepts it, or marked
-failed when the provider call raises. A synchronous run is recorded as running, then
-completed or failed. Every recorded submission, failed or pending included, counts toward
+failed when the provider call raises. A synchronous run is recorded as running, with its
+process id and a heartbeat refreshed during the run, then completed or failed; a running
+record whose process is gone or whose heartbeat is stale is recorded as failed by the
+next run or grade. Every recorded submission, failed or pending included, counts toward
 the cap. The cap is enforced before each submission from results/estimate.json and the
 recorded submissions, never after; an estimate made under other entry settings, other
 pricing or another batch setting is refused.
@@ -13,8 +15,11 @@ pricing or another batch setting is refused.
 
 from __future__ import annotations
 
+import os
 import secrets
+import threading
 from collections.abc import Callable
+from datetime import UTC, datetime
 from typing import Any
 
 from graders import GRADERS
@@ -36,6 +41,14 @@ from lexbench.registry import ModelEntry, Registry
 Log = Callable[[str], None]
 SKIP_STATUSES = {"failed"}
 ENDED_STATUSES = {"ended", "completed"}
+# A synchronous run refreshes heartbeat_at every HEARTBEAT_SECONDS. A running record whose
+# process is gone, or whose heartbeat is older than STALE_AFTER_SECONDS, is recorded as
+# failed by the next run or grade.
+HEARTBEAT_SECONDS = 30.0
+STALE_AFTER_SECONDS = 300.0
+# Serialises the read-modify-write of state files between the heartbeat thread and the
+# main thread of one process.
+_STATE_LOCK = threading.RLock()
 
 
 class CapExceeded(RuntimeError):
@@ -53,17 +66,102 @@ def _save(layout: Layout, kind: str, state: dict[str, Any]) -> None:
 
 
 def _append(layout: Layout, kind: str, record: dict[str, Any]) -> None:
-    state = _load(layout, kind)
-    state[kind].append(record)
-    _save(layout, kind, state)
+    with _STATE_LOCK:
+        state = _load(layout, kind)
+        state[kind].append(record)
+        _save(layout, kind, state)
 
 
 def _update(layout: Layout, kind: str, key: str, value: str, **changes: Any) -> None:
-    state = _load(layout, kind)
-    for r in state[kind]:
-        if r.get(key) == value:
-            r.update(changes)
-    _save(layout, kind, state)
+    with _STATE_LOCK:
+        state = _load(layout, kind)
+        for r in state[kind]:
+            if r.get(key) == value:
+                r.update(changes)
+        _save(layout, kind, state)
+
+
+def _pid_alive(pid: int) -> bool:
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:  # the process exists under another user
+        return True
+    except OSError:
+        return False
+    return True
+
+
+def _age_seconds(stamp: Any) -> float | None:
+    try:
+        then = datetime.strptime(str(stamp), "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=UTC)
+    except ValueError:
+        return None
+    return (datetime.now(UTC) - then).total_seconds()
+
+
+def _stale_reason(record: dict[str, Any]) -> str | None:
+    """Why a running record can no longer be running, or None when it may be.
+
+    A record written before pid and heartbeat_at were recorded is judged by submitted_at.
+    """
+    pid = record.get("pid")
+    if isinstance(pid, int) and not isinstance(pid, bool) and not _pid_alive(pid):
+        return f"process {pid} is not running"
+    age = _age_seconds(record.get("heartbeat_at") or record.get("submitted_at"))
+    if age is None:
+        return "no readable heartbeat"
+    if age > STALE_AFTER_SECONDS:
+        return f"no heartbeat for {int(age)} s (limit {int(STALE_AFTER_SECONDS)} s)"
+    return None
+
+
+def fail_stale_runs(layout: Layout, log: Log = print) -> list[str]:
+    """Record as failed every running record whose process is gone or whose heartbeat is
+    older than STALE_AFTER_SECONDS; returns their run ids."""
+    failed: list[str] = []
+    with _STATE_LOCK:
+        if not layout.runs.is_file():
+            return failed
+        state = _load(layout, "runs")
+        for r in state["runs"]:
+            if r.get("status") != "running":
+                continue
+            reason = _stale_reason(r)
+            if reason is None:
+                continue
+            r.update(status="failed", ended_at=utc_now(), error=f"stale: {reason}")
+            failed.append(str(r.get("run_id")))
+            log(f"{r.get('run_id')} ({r.get('family')} on {r.get('model')}): {r['error']}")
+        if failed:
+            _save(layout, "runs", state)
+    return failed
+
+
+class _Heartbeat:
+    """Refreshes heartbeat_at of one running record until stopped."""
+
+    def __init__(self, layout: Layout, run_id: str) -> None:
+        self._layout = layout
+        self._run_id = run_id
+        self._stop = threading.Event()
+        self._thread = threading.Thread(target=self._beat, name="lexbench-heartbeat", daemon=True)
+
+    def _beat(self) -> None:
+        while not self._stop.wait(HEARTBEAT_SECONDS):
+            try:
+                _update(self._layout, "runs", "run_id", self._run_id, heartbeat_at=utc_now())
+            except OSError:  # a missed beat is retried at the next interval
+                continue
+
+    def __enter__(self) -> _Heartbeat:
+        self._thread.start()
+        return self
+
+    def __exit__(self, *_exc: object) -> None:
+        self._stop.set()
+        self._thread.join()
 
 
 def _sid(record: dict[str, Any]) -> str:
@@ -212,9 +310,16 @@ def run(layout: Layout, registry: Registry, family: str, model: str, log: Log = 
     is not live), and reports "nothing to do" only when every chunk is recorded.
     """
     entry = registry.get(model)
+    fail_stale_runs(layout, log)
     existing = [
         r for r in _records_for(layout, registry, family, model) if r["status"] not in SKIP_STATUSES
     ]
+    running = [str(r["sid"]) for r in existing if r["kind"] == "run" and r["status"] == "running"]
+    if running:
+        raise CapExceeded(
+            f"refused: {family} on {model} has a synchronous run recorded as running with a "
+            f"live process and a recent heartbeat ({', '.join(running)}); wait for it to end"
+        )
     pending = [str(r["sid"]) for r in existing if r["status"] == "pending"]
     if pending:
         raise CapExceeded(
@@ -317,6 +422,8 @@ def run(layout: Layout, registry: Registry, family: str, model: str, log: Log = 
             "config_sha256": config,
             "submitted_at": utc_now(),
             "status": "running",
+            "pid": os.getpid(),
+            "heartbeat_at": utc_now(),
             "counts": {},
             "ended_at": None,
         },
@@ -326,9 +433,13 @@ def run(layout: Layout, registry: Registry, family: str, model: str, log: Log = 
         f"concurrency {entry.concurrency}, estimated {usd:.2f} USD)"
     )
     try:
-        responses = provider.run_sync(requests)
+        with _Heartbeat(layout, run_id):
+            responses = provider.run_sync(requests)
+            write_jsonl(layout.raw_path(family, model, run_id), [r.to_json() for r in responses])
     except BaseException as exc:
-        # Recorded as failed, never left running: a failed run does not block grading.
+        # Recorded as failed, never left running: a failed run does not block grading. A
+        # process that ends without an exception (SIGKILL, power loss) leaves the record
+        # running; its pid and heartbeat let the next run or grade record it as failed.
         _update(
             layout,
             "runs",
@@ -340,7 +451,6 @@ def run(layout: Layout, registry: Registry, family: str, model: str, log: Log = 
         )
         log(f"{family} on {model}: synchronous run {run_id} failed, {type(exc).__name__}")
         raise
-    write_jsonl(layout.raw_path(family, model, run_id), [r.to_json() for r in responses])
     _update(
         layout,
         "runs",
@@ -408,6 +518,7 @@ def poll(
 def grade(
     layout: Layout, registry: Registry, family: str, model: str, log: Log = print
 ) -> dict[str, Any] | None:
+    fail_stale_runs(layout, log)
     records = _records_for(layout, registry, family, model)
     live = [r for r in records if r["status"] not in SKIP_STATUSES]
     if not live:
