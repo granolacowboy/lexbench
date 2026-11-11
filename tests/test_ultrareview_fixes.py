@@ -6,12 +6,14 @@ which failed there. Every test runs through the mock provider or without a netwo
 
 from __future__ import annotations
 
+import importlib.util
 import json
 import os
 import subprocess
 import sys
 import time
 from pathlib import Path
+from types import ModuleType
 from typing import Any
 
 import pytest
@@ -492,3 +494,49 @@ def test_l8_grade_markers_of_record_match_the_results_of_record() -> None:
         for model in ("claude-opus-5-5", "claude-sonnet-5-5", "claude-haiku-5-5"):
             path = REPO / "results" / family / f"{model}.jsonl"
             assert marks[(family, model)]["results_sha256"] == sha256_file(path)
+
+
+# L9: scrub keeps sentence-initial common words and acronyms; names are still replaced.
+
+
+def _import_tool() -> ModuleType:
+    spec = importlib.util.spec_from_file_location("import_mhsb", REPO / "tools" / "import_mhsb.py")
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+@pytest.mark.parametrize(
+    "phrase",
+    [
+        "Draft an NDA for the new LLC",
+        "Please check the PI intake",
+        "What is due this week? Draft the letter",
+    ],
+)
+def test_l9_scrub_keeps_sentence_initial_words_and_acronyms(phrase: str) -> None:
+    tool = _import_tool()
+    vocabulary = tool.vocabulary(["draft the reply", "please send it", "what is due"])
+    assert tool.scrub(phrase, vocabulary) == phrase
+
+
+def test_l9_scrub_still_replaces_names() -> None:
+    tool = _import_tool()
+    vocabulary = tool.vocabulary(["draft the reply"])
+    assert tool.scrub("write to Mrs. Quillfeather", vocabulary) == "write to Mrs. Wexford"
+    assert tool.scrub("Quillfeather needs the papers", vocabulary) == "Wexford needs the papers"
+    assert tool.scrub("Ormsby. Draft it", vocabulary) == "Halvorsen. Draft it"
+
+
+def test_l9_rule_keeps_the_phrases_of_record_except_the_invented_surnames() -> None:
+    """On the imported phrases of record, the new rule replaces exactly the two invented
+    surnames already there (each by itself) and keeps every other capitalised word."""
+    tool = _import_tool()
+    tool._assigned.update({"Wexford": "Wexford", "Halvorsen": "Halvorsen"})
+    data = yaml.safe_load((REPO / "sources" / "mhsb" / "routing.yaml").read_text("utf-8"))
+    phrases = [t for c in data["commands"] for t in c["triggers"]]
+    phrases += [p["phrase"] for p in data["phrases"]]
+    known = tool.vocabulary(phrases)
+    assert [tool.scrub(p, known) for p in phrases] == phrases
+    assert set(tool._assigned) == {"Wexford", "Halvorsen"}

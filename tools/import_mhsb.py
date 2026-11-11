@@ -4,8 +4,10 @@ Only these fields are copied, and nothing else: trigger phrases and command name
 catalog/manifest.yaml and evals/routing/phrases.yaml on cloud/pp8-skills-evals), and the
 intake questions, deadline categories (id, name, kind) and attorney-review flags of each
 pack fragment (plugins/mhsb-pack-*/fragment/fragment.yaml on cloud/pp9-pack-fragments).
-Every capitalised word in a routing phrase outside a short allowlist of common words is
-treated as a name and replaced with an invented surname, so that no name can pass.
+Every capitalised word in a routing phrase that may be a name is replaced with an invented
+surname, so that no name can pass. Kept are a short allowlist, acronyms (two or more
+capitals), and a sentence-initial word that is a common opener or occurs in lower case in
+the imported phrases; see scrub.
 
 Usage: python tools/import_mhsb.py /path/to/platform-plugins
 """
@@ -83,10 +85,53 @@ def show(repo: Path, ref: str, path: str) -> Any:
     return yaml.safe_load(text)
 
 
-def scrub(phrase: str) -> str:
+# Words that commonly open a request. A capitalised word at the start of a sentence is kept
+# when it is one of these, or when the same word occurs in lower case in the imported
+# phrases (vocabulary); any other sentence-initial capitalised word is treated as a name.
+COMMON_OPENERS = {
+    "a", "an", "are", "ask", "can", "check", "could", "create", "do", "does", "draft",
+    "explain", "find", "get", "give", "help", "how", "i", "is", "let", "list", "make",
+    "my", "need", "our", "please", "prepare", "review", "run", "send", "set", "show",
+    "start", "summarise", "summarize", "tell", "the", "turn", "update", "we", "what",
+    "when", "where", "which", "who", "why", "will", "would", "write",
+}  # fmt: skip
+HONORIFICS = {"Mr", "Mrs", "Ms", "Dr", "Mx"}
+_WORD = re.compile(r"[A-Z][A-Za-z']*")
+_ACRONYM = re.compile(r"[A-Z]{2,}s?")
+
+
+def vocabulary(phrases: list[str]) -> frozenset[str]:
+    """Words that occur in lower case anywhere in the phrases."""
+    return frozenset(w for p in phrases for w in re.findall(r"\b[a-z][a-z']*\b", p))
+
+
+def _sentence_initial(phrase: str, start: int) -> bool:
+    """True at the start of the phrase or after a sentence end (., ! or ?), except after an
+    honorific such as "Mrs.", where a name follows."""
+    before = phrase[:start].rstrip()
+    if not before:
+        return True
+    if before[-1] not in ".!?":
+        return False
+    words = re.findall(r"[A-Za-z]+", before)
+    return not (before[-1] == "." and words and words[-1] in HONORIFICS)
+
+
+def scrub(phrase: str, known: frozenset[str] = frozenset()) -> str:
+    """Replace every capitalised word that may be a name with an invented surname.
+
+    Kept: words in ALLOWED_CAPITALS; all-capital tokens of two or more letters (acronyms
+    such as NDA, LLC or PI); and a sentence-initial word whose lower-case form is a common
+    opener or occurs in lower case in the imported phrases (known). Every other capitalised
+    word, sentence-initial or not, is replaced.
+    """
+
     def replace(match: re.Match[str]) -> str:
         word = match.group(0)
-        if word in ALLOWED_CAPITALS:
+        if word in ALLOWED_CAPITALS or _ACRONYM.fullmatch(word):
+            return word
+        lower = word.lower()
+        if _sentence_initial(phrase, match.start()) and (lower in COMMON_OPENERS or lower in known):
             return word
         if word not in _assigned:
             if len(_assigned) == len(INVENTED):
@@ -94,7 +139,7 @@ def scrub(phrase: str) -> str:
             _assigned[word] = INVENTED[len(_assigned)]
         return _assigned[word]
 
-    return re.sub(r"[A-Z][A-Za-z']*", replace, phrase)
+    return _WORD.sub(replace, phrase)
 
 
 def dump(path: Path, obj: Any) -> None:
@@ -105,13 +150,21 @@ def dump(path: Path, obj: Any) -> None:
 
 def import_routing(repo: Path) -> None:
     manifest = show(repo, SKILLS_REF, "catalog/manifest.yaml")
+    suite = show(repo, SKILLS_REF, "evals/routing/phrases.yaml")
+    raw = [str(p["phrase"]) for p in suite["phrases"]]
+    for plugin in manifest["plugins"]:
+        for cmd in plugin.get("commands") or []:
+            raw += [str(t) for t in cmd.get("triggers", [])]
+    known = vocabulary(raw)
     commands: list[dict[str, Any]] = []
     for plugin in manifest["plugins"]:
         for cmd in plugin.get("commands") or []:
             commands.append(
-                {"command": cmd["name"], "triggers": [scrub(t) for t in cmd.get("triggers", [])]}
+                {
+                    "command": cmd["name"],
+                    "triggers": [scrub(t, known) for t in cmd.get("triggers", [])],
+                }
             )
-    suite = show(repo, SKILLS_REF, "evals/routing/phrases.yaml")
     for ref in (SKILLS_REF, FRAGMENTS_REF):
         for word in INVENTED:
             found = subprocess.run(
@@ -120,7 +173,7 @@ def import_routing(repo: Path) -> None:
             if found.returncode == 0:
                 sys.exit("import stopped: an invented replacement name occurs upstream")
     phrases = [
-        {"id": p["id"], "phrase": scrub(p["phrase"]), "command": p["intended"]}
+        {"id": p["id"], "phrase": scrub(p["phrase"], known), "command": p["intended"]}
         for p in suite["phrases"]
     ]
     names = {c["command"] for c in commands}
