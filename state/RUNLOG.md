@@ -125,3 +125,43 @@ Step 3. Grading and documents.
 - The private exposure grep (35 identifiers from the private specification) is not
   available in this workspace; the substitute check of LEXBENCH-1 was repeated (see the
   pull request comment). The private grep remains a step for Richard Berman.
+
+## FIX-ULTRA-LEX, 2026-11-11
+
+Response to the ultrareview comment on pull request #1 (harness code subset), head
+e235f92, with the operator's reading note: L1 to L8 standing, L9 and L10 conditional on
+upstream data. Local headless run; no API key; every test through the mock provider.
+
+Step 0. Inputs and baseline.
+
+- `git fetch origin`; lexbench/harness-v1 checked out at e235f92 (equal to the remote
+  head; nothing to merge). No earlier FIX-ULTRA-LEX entry in this log.
+- Baseline at e235f92: `uv run pytest -q` 106 passed; `ruff check` and `ruff format
+  --check` clean; `mypy` (strict) no issues in 36 source files.
+- Scratch copy of e235f92 outside the repository: `lexbench build --family legalbench`
+  gave 1,079 cases, sha256 36b9ace52e687be2, as recorded; data/MANIFEST.json and
+  data/legalbench/LICENSES.md unchanged. `lexbench grade` for the three Claude entries
+  there reproduced all 42 tracked files under results/ byte for byte, so grading of the
+  recorded responses is deterministic.
+
+Step 1. Failing tests (tests/test_ultrareview_fixes.py, written before any fix).
+
+- Against e235f92: 36 failed, 1 passed (the passing test guards the registry of record
+  against the new params rule and must keep passing). Failure per finding:
+  L1 resubmission after a failed second of three chunks: record has no chunk_index, and
+  with chunk 1/3 recorded the rerun submits nothing (1 == 2).
+  L2 estimate priced as batch accepted after `batch: false`: DID NOT RAISE CapExceeded.
+  L3 options.params max_tokens 100000, budget_tokens 32000, max_completion_tokens and
+  family_settings.params max_tokens 5000 all sent: DID NOT RAISE ProviderError (both
+  adapters, request and estimate).
+  L4 options.retries 4, 10, -1 and "3" accepted by the schema; Anthropic client
+  max_retries 4; Estimate has no attempt count; an estimate without it is not refused.
+  L5 a running record of a dead process and one with a heartbeat from 2026-01-01 stay
+  running; a live running record does not block a second run; no heartbeat.
+  L6 a pending record with a batch id is skipped by poll and blocks run; the refusal
+  names neither batch_id nor status.
+  L7 RegistryError "unknown model entry 'renamed-away'" aborts poll.
+  L8 `lexbench grade` exits 0 with no current submission; report publishes a stale file
+  and a file not written by grade; no grade marker exists.
+  L9 scrub replaces "Draft", "NDA", "LLC", "Please", "PI", "What".
+  L10 no check of command names against the grader's pattern exists.
