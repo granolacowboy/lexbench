@@ -17,6 +17,11 @@ import jsonschema
 import yaml
 
 MAX_MESSAGE = 240
+# Retries after a failed attempt in synchronous runs. Each retry may be billed (a timed-out
+# or 5xx attempt may have been generated upstream), so the estimate prices retries + 1
+# attempts per synchronous request, and the schema bounds the figure.
+DEFAULT_RETRIES = 3
+MAX_RETRIES = 3
 
 PRICING_SCHEMA: dict[str, Any] = {
     "type": "object",
@@ -45,7 +50,13 @@ ENTRY_SCHEMA: dict[str, Any] = {
         "concurrency": {"type": "integer", "minimum": 1, "maximum": 256},
         "rate_limit_rpm": {"type": "integer", "minimum": 1},
         "batch": {"type": "boolean"},
-        "options": {"type": "object"},
+        "options": {
+            "type": "object",
+            "properties": {
+                "retries": {"type": "integer", "minimum": 0, "maximum": MAX_RETRIES},
+                "params": {"type": "object"},
+            },
+        },
         "family_settings": {
             "type": "object",
             "propertyNames": {"enum": ["legalbench", "fragments", "routing"]},
@@ -135,6 +146,16 @@ class ModelEntry:
     options: dict[str, Any] = field(default_factory=dict)
     family_settings: dict[str, dict[str, Any]] = field(default_factory=dict)
     fixed_output_bound: int | None = None
+
+    @property
+    def retries(self) -> int:
+        """Retries after a failed attempt: options.retries, at most MAX_RETRIES."""
+        return int(self.options.get("retries", DEFAULT_RETRIES))
+
+    def billed_attempts(self) -> int:
+        """Attempts the estimate prices per request: retries + 1 for a synchronous entry;
+        one for a batch entry, whose requests are billed once per created batch."""
+        return 1 if self.batch else self.retries + 1
 
     def output_bound(self, family_max_tokens: int) -> int:
         """Output tokens allowed for one request: the family bound plus reasoning room,

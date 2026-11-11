@@ -94,8 +94,8 @@ def _estimate_for(layout: Layout, registry: Registry, family: str, model: str) -
 def check_estimate_entry(
     recorded: dict[str, Any], current: ModelEntry, family: str, model: str
 ) -> None:
-    """Refuse an estimate made under other request settings, other pricing or another
-    submission mode than the entry now has.
+    """Refuse an estimate made under other request settings, other pricing, another
+    submission mode or another attempt count than the entry now has.
 
     The request fingerprint (config_sha256) identifies submissions in state/ and does not
     include the batch flag, so that the recorded submissions stay current; the batch flag,
@@ -117,6 +117,13 @@ def check_estimate_entry(
             f"refused: the estimate for {family} on {model} was made with batch "
             f"{str(recorded.get('batch')).lower()}; the entry now has batch "
             f"{str(current.batch).lower()}; run `lexbench estimate`"
+        )
+    # Estimates written before the attempt count was recorded priced one attempt.
+    if int(recorded.get("attempts", 1)) != current.billed_attempts():
+        raise CapExceeded(
+            f"refused: the estimate for {family} on {model} priced "
+            f"{int(recorded.get('attempts', 1))} attempts per request; the entry permits "
+            f"{current.billed_attempts()}; run `lexbench estimate`"
         )
 
 

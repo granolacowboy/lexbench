@@ -35,9 +35,13 @@ class AnthropicProvider(Provider):
         key = os.environ.get(var, "")
         if not key:
             raise ProviderError(f"environment variable {var} is EMPTY")
+        # max_retries is the entry's retries (at most MAX_RETRIES), the figure that the
+        # estimate prices for synchronous runs.
         if self.entry.endpoint:
-            return anthropic.Anthropic(api_key=key, max_retries=4, base_url=self.entry.endpoint)
-        return anthropic.Anthropic(api_key=key, max_retries=4)
+            return anthropic.Anthropic(
+                api_key=key, max_retries=self.entry.retries, base_url=self.entry.endpoint
+            )
+        return anthropic.Anthropic(api_key=key, max_retries=self.entry.retries)
 
     def _params(self, req: Request) -> dict[str, Any]:
         bound = self.entry.output_bound(req.max_tokens)

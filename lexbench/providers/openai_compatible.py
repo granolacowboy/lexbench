@@ -62,7 +62,7 @@ class OpenAICompatibleProvider(Provider):
 
     def run_sync(self, requests: Sequence[Request]) -> list[Response]:
         limiter = RateLimiter(self.entry.rate_limit_rpm)
-        attempts = int(self.entry.options.get("retries", 3)) + 1
+        attempts = self.entry.retries + 1  # the figure the estimate prices
 
         with self._client() as client:
 

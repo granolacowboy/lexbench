@@ -16,12 +16,12 @@ from lexbench import runner
 from lexbench.build import family_sha
 from lexbench.estimate import estimate
 from lexbench.paths import Layout
-from lexbench.providers import ProviderError
+from lexbench.providers import ProviderError, make_provider
 from lexbench.providers.anthropic_provider import AnthropicProvider
 from lexbench.providers.mock import MockProvider
 from lexbench.providers.openai_compatible import OpenAICompatibleProvider
 from lexbench.records import Request, read_json, read_jsonl, write_json
-from lexbench.registry import load_registry, parse_registry
+from lexbench.registry import RegistryError, load_registry, parse_registry
 from tests.conftest import REPO
 
 
@@ -212,3 +212,58 @@ def test_l3_params_within_the_bound_and_the_registry_of_record_pass() -> None:
         for family, bound in (("legalbench", 24), ("fragments", 600), ("routing", 20)):
             provider = AnthropicProvider(reg.get(name).for_family(family), Path("unused"))
             provider._params(Request("c", "s", "p", bound))
+
+
+# L4: billed attempts are bounded by the schema and priced by the estimate.
+
+
+@pytest.mark.parametrize("retries", [4, 10, -1, "3"])
+def test_l4_retries_have_a_schema_ceiling(retries: Any) -> None:
+    with pytest.raises(RegistryError, match="retries"):
+        _entry(options={"retries": retries})
+
+
+def test_l4_anthropic_client_max_retries_matches_the_bound(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("LEXBENCH_TEST_CREDENTIAL", "placeholder-not-a-credential")
+    default = _entry(provider="anthropic", auth="LEXBENCH_TEST_CREDENTIAL")
+    assert AnthropicProvider(default, Path("unused"))._client().max_retries == 3
+    one = _entry(provider="anthropic", auth="LEXBENCH_TEST_CREDENTIAL", options={"retries": 1})
+    assert AnthropicProvider(one, Path("unused"))._client().max_retries == 1
+
+
+def test_l4_estimate_prices_every_permitted_attempt() -> None:
+    paid = {"input_per_mtok": 3.0, "output_per_mtok": 15.0}
+    reqs = [Request(f"c{i}", "system", "prompt " * 20, 64) for i in range(5)]
+    once = make_provider(_entry(pricing=paid, options={"retries": 0}), Path("u")).estimate(reqs)
+    assert once.attempts == 1
+    for retries, options in (
+        (1, {"retries": 1}),
+        (2, {"retries": 2}),
+        (3, {"retries": 3}),
+        (3, {}),
+    ):
+        entry = _entry(pricing=paid, options=options)
+        est = make_provider(entry, Path("u")).estimate(reqs)
+        assert est.attempts == retries + 1
+        assert (est.input_tokens, est.output_tokens) == (once.input_tokens, once.output_tokens)
+        single = entry.pricing.usd(once.input_tokens, once.output_tokens, batch=False)
+        assert est.usd == round(single * (retries + 1), 4)
+    batch = _entry(pricing=paid, batch=True, options={"retries": 3})
+    est = make_provider(batch, Path("u")).estimate(reqs)
+    assert est.attempts == 1
+    assert est.usd == round(batch.pricing.usd(once.input_tokens, once.output_tokens, True), 4)
+
+
+def test_l4_estimate_without_the_attempt_count_is_refused_for_a_sync_entry(
+    layout: Layout,
+) -> None:
+    _edit_registry(layout, {"mock-paid": {"batch": False}})
+    reg = load_registry(layout.models_yaml)
+    estimate(layout, reg, ["mock-paid"], fetch_prices=False)
+    est = read_json(layout.estimate)
+    del est["entries"]["mock-paid"]["routing"]["attempts"]
+    write_json(layout.estimate, est)
+    with pytest.raises(runner.CapExceeded, match="attempts"):
+        runner.run(layout, reg, "routing", "mock-paid", log=QUIET)

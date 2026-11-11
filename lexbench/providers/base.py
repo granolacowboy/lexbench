@@ -1,6 +1,7 @@
 """The provider interface. Every adapter implements the same five operations.
 
-estimate(requests)        token and USD estimate for a list of requests; never calls a model
+estimate(requests)        token and USD estimate for a list of requests; never calls a model;
+                          a synchronous entry is priced at retries + 1 attempts per request
 run_sync(requests)        run the requests now, with bounded concurrency; returns responses
 submit_batch(requests)    submit one asynchronous batch; returns the provider's batch id
 poll_batch(batch_id)      report the batch status and request counts
@@ -46,6 +47,7 @@ class Estimate:
     input_tokens: int
     output_tokens: int
     usd: float
+    attempts: int = 1  # attempts priced per request; tokens are those of one attempt
 
 
 @dataclass(frozen=True)
@@ -131,8 +133,9 @@ class Provider(ABC):
         for bound in set(bounds):
             checked_params(self.entry, bound)
         out = sum(bounds)
-        usd = self.entry.pricing.usd(inp, out, batch=self.entry.batch)
-        return Estimate(len(requests), inp, out, round(usd, 4))
+        attempts = self.entry.billed_attempts()
+        usd = self.entry.pricing.usd(inp, out, batch=self.entry.batch) * attempts
+        return Estimate(len(requests), inp, out, round(usd, 4), attempts)
 
     def list_models(self) -> list[str]:
         """Identifiers the provider reports as available; empty when it has no listing."""

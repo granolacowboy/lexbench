@@ -1,9 +1,10 @@
 """`lexbench estimate`: token counts and USD per family and model entry. Submits nothing.
 
-Each family estimate records the entry's settings fingerprint for that family, its pricing
-and its batch flag; `lexbench run` refuses an estimate whose fingerprint, pricing or batch
-flag differs from the registry, so that the cap is never checked against an estimate made
-under other settings or priced with a batch discount that no longer applies.
+Each family estimate records the entry's settings fingerprint for that family, its
+pricing, its batch flag and the attempts priced per request; `lexbench run` refuses an
+estimate whose fingerprint, pricing, batch flag or attempt count differs from the
+registry, so that the cap is never checked against an estimate made under other settings,
+priced with a batch discount that no longer applies, or priced for fewer attempts.
 """
 
 from __future__ import annotations
@@ -30,7 +31,8 @@ def estimate(
         "generated_at": utc_now(),
         "method": (
             "input tokens: characters / 3 plus 16 per request; output tokens: the output "
-            "bound of each request"
+            "bound of each request; USD for a synchronous entry: retries + 1 attempts per "
+            "request"
         ),
         "spend_cap_usd": registry.spend_cap_usd,
         "data": {f: family_sha(layout, f) for f in families},
@@ -50,6 +52,7 @@ def estimate(
                 "output_tokens": est.output_tokens,
                 "usd": est.usd,
                 "batch": entry.batch,
+                "attempts": est.attempts,
                 "paid": not entry.pricing.is_free,
                 "config_sha256": entry.fingerprint(family),
                 "pricing": entry.pricing.as_dict(),
