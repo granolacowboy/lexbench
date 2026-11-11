@@ -1,0 +1,130 @@
+"""Regression tests for the ultrareview findings L1 to L10 on pull request #1.
+
+Each test was written before its fix and run against head e235f92; state/RUNLOG.md records
+which failed there. Every test runs through the mock provider or without a network call.
+"""
+
+from __future__ import annotations
+
+from typing import Any
+
+import pytest
+import yaml
+
+from lexbench import runner
+from lexbench.build import family_sha
+from lexbench.estimate import estimate
+from lexbench.paths import Layout
+from lexbench.providers import ProviderError
+from lexbench.providers.mock import MockProvider
+from lexbench.records import read_json, read_jsonl, write_json
+from lexbench.registry import load_registry, parse_registry
+
+
+def QUIET(_s: str) -> None:
+    return None
+
+
+def _edit_registry(
+    layout: Layout,
+    models: dict[str, dict[str, Any]] | None = None,
+    limits: dict[str, Any] | None = None,
+) -> None:
+    raw = yaml.safe_load(layout.models_yaml.read_text(encoding="utf-8"))
+    for name, extra in (models or {}).items():
+        raw["models"][name].update(extra)
+    raw["limits"].update(limits or {})
+    layout.models_yaml.write_text(yaml.safe_dump(raw), encoding="utf-8")
+
+
+def _entry(**body: Any) -> Any:
+    base: dict[str, Any] = {
+        "provider": "mock",
+        "model": "m",
+        "pricing": {"input_per_mtok": 0, "output_per_mtok": 0},
+        "max_tokens": 256,
+        "concurrency": 1,
+        "batch": False,
+    }
+    base.update(body)
+    return parse_registry({"schema_version": 1, "models": {"e": base}}).get("e")
+
+
+# L1: a family split into chunks is completed by a rerun after a failed chunk.
+
+
+def test_l1_failed_middle_chunk_is_resubmitted_on_rerun(
+    layout: Layout, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _edit_registry(layout, limits={"max_requests_per_batch": 100})
+    reg = load_registry(layout.models_yaml)
+    estimate(layout, reg, ["mock"], fetch_prices=False)
+    real = MockProvider.submit_batch
+    calls: list[int] = []
+
+    def second_fails(self: MockProvider, requests: Any) -> str:
+        calls.append(len(requests))
+        recorded = read_json(layout.batches)["batches"][-1]
+        assert recorded["status"] == "pending"
+        assert (recorded["chunk_index"], recorded["chunk_total"]) == (len(calls), 3)
+        if len(calls) == 2:
+            raise ProviderError("simulated refusal of the second chunk")
+        return real(self, requests)
+
+    monkeypatch.setattr(MockProvider, "submit_batch", second_fails)
+    with pytest.raises(ProviderError):
+        runner.run(layout, reg, "routing", "mock", log=QUIET)
+    batches = read_json(layout.batches)["batches"]
+    assert [(b["chunk_index"], b["status"]) for b in batches] == [(1, "in_progress"), (2, "failed")]
+
+    monkeypatch.setattr(MockProvider, "submit_batch", real)
+    resubmitted = runner.run(layout, reg, "routing", "mock", log=QUIET)
+    assert len(resubmitted) == 2
+    live = [b for b in read_json(layout.batches)["batches"] if b["status"] != "failed"]
+    assert sorted(b["chunk_index"] for b in live) == [1, 2, 3]
+    assert sum(b["request_count"] for b in live) == 271
+
+    said: list[str] = []
+    runner.run(layout, reg, "routing", "mock", log=said.append)
+    assert "already submitted" in said[-1] and "nothing to do" in said[-1]
+    assert len(read_json(layout.batches)["batches"]) == 4
+
+    runner.poll(layout, reg, log=QUIET)
+    rows = read_jsonl(layout.graded_path("routing", "mock"))
+    assert len(rows) == 271 and all(r["correct"] for r in rows)
+
+
+def test_l1_no_nothing_to_do_while_a_chunk_is_unrecorded(layout: Layout) -> None:
+    """A family with one of three chunks recorded is not reported as complete."""
+    _edit_registry(layout, limits={"max_requests_per_batch": 100})
+    reg = load_registry(layout.models_yaml)
+    estimate(layout, reg, ["mock"], fetch_prices=False)
+    write_json(
+        layout.batches,
+        {
+            "schema_version": 1,
+            "batches": [
+                {
+                    "batch_id": "mockbatch_recorded",
+                    "submission_id": "sub_recorded_1",
+                    "family": "routing",
+                    "model": "mock",
+                    "provider": "mock",
+                    "provider_model": "mock-oracle-1",
+                    "request_count": 100,
+                    "estimated_usd": 0.0,
+                    "data_sha256": family_sha(layout, "routing"),
+                    "config_sha256": reg.get("mock").fingerprint("routing"),
+                    "chunk": "1/3",
+                    "submitted_at": "2026-11-11T00:00:00Z",
+                    "status": "in_progress",
+                    "counts": {},
+                    "ended_at": None,
+                }
+            ],
+        },
+    )
+    said: list[str] = []
+    ids = runner.run(layout, reg, "routing", "mock", log=said.append)
+    assert len(ids) == 2
+    assert not any("nothing to do" in s for s in said)

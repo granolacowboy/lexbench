@@ -13,6 +13,7 @@ pricing is refused.
 
 from __future__ import annotations
 
+import secrets
 from collections.abc import Callable
 from typing import Any
 
@@ -132,7 +133,58 @@ def _records_for(
     return sorted(out, key=lambda r: str(r["submitted_at"]))
 
 
+def _chunk_of(record: dict[str, Any]) -> tuple[int, int] | None:
+    """The chunk index and total of a batch record; None when the record carries neither.
+
+    Records written before chunk_index and chunk_total were added carry only the string
+    chunk ("i/n"), which is read instead.
+    """
+    if "chunk_index" in record and "chunk_total" in record:
+        return int(record["chunk_index"]), int(record["chunk_total"])
+    text = str(record.get("chunk") or "")
+    if "/" in text:
+        index, total = text.split("/", 1)
+        if index.isdigit() and total.isdigit():
+            return int(index), int(total)
+    return None
+
+
+def _missing_chunks(
+    batches: list[dict[str, Any]], total: int, family: str, model: str
+) -> list[int]:
+    """Chunk indexes (from 1) of the current chunking that have no live batch record.
+
+    A record without chunk information covers the whole family. Records made under another
+    chunk total cover the family only when they are complete; a partial family under
+    another chunk total is refused, since its chunks do not align with the current ones.
+    """
+    by_total: dict[int, set[int]] = {}
+    for b in batches:
+        chunk = _chunk_of(b)
+        if chunk is None:
+            return []
+        by_total.setdefault(chunk[1], set()).add(chunk[0])
+    for other, indexes in by_total.items():
+        if other != total and indexes >= set(range(1, other + 1)):
+            return []
+    if any(other != total for other in by_total):
+        raise CapExceeded(
+            f"refused: {family} on {model} was partly submitted in chunks of another size "
+            f"({', '.join(str(t) for t in sorted(by_total))} chunks; now {total}); restore "
+            "limits.max_requests_per_batch to complete it"
+        )
+    covered = by_total.get(total, set())
+    return [i for i in range(1, total + 1) if i not in covered]
+
+
 def run(layout: Layout, registry: Registry, family: str, model: str, log: Log = print) -> list[str]:
+    """Submit what is not yet submitted for one family and entry.
+
+    In batch mode the family is split into chunks of at most limits.max_requests_per_batch
+    requests; each chunk is recorded with its index and the chunk total before it is
+    submitted. A rerun submits only the chunks that have no live record (a failed record
+    is not live), and reports "nothing to do" only when every chunk is recorded.
+    """
     entry = registry.get(model)
     existing = [
         r for r in _records_for(layout, registry, family, model) if r["status"] not in SKIP_STATUSES
@@ -144,22 +196,29 @@ def run(layout: Layout, registry: Registry, family: str, model: str, log: Log = 
             f"provider id ({', '.join(pending)}); check the provider's batch list, then record "
             "its batch id or mark it failed in state/batches.json"
         )
-    if any(r["kind"] == "batch" or r["status"] == "completed" for r in existing):
-        known = [str(r["sid"]) for r in existing]
+    batches = [r for r in existing if r["kind"] == "batch"]
+    known = [str(r["sid"]) for r in existing]
+    if any(r["status"] == "completed" for r in existing) or (batches and not entry.batch):
         log(f"{family} on {model}: already submitted ({', '.join(known)}); nothing to do")
         return known
     cases = load_cases(layout, family)
     requests = [to_request(c) for c in cases]
+    chunks = list(chunked(requests, registry.max_requests_per_batch)) if entry.batch else []
+    missing = _missing_chunks(batches, len(chunks), family, model) if entry.batch else []
+    if entry.batch and not missing:
+        log(f"{family} on {model}: already submitted ({', '.join(known)}); nothing to do")
+        return known
     est = _estimate_for(layout, registry, family, model)
     per_request = (float(est["usd"]) / len(requests)) if requests and est["paid"] else 0.0
     provider = make_provider(entry.for_family(family), layout.cache)
     sha = family_sha(layout, family)
     config = entry.fingerprint(family)
-    stamp = utc_now().replace(":", "").replace("-", "")
+    # The random part keeps identifiers unique when two invocations share a second.
+    stamp = utc_now().replace(":", "").replace("-", "") + "_" + secrets.token_hex(3)
     ids: list[str] = []
     if entry.batch:
-        chunks = list(chunked(requests, registry.max_requests_per_batch))
-        for i, chunk in enumerate(chunks, start=1):
+        for i in missing:
+            chunk = chunks[i - 1]
             usd = round(per_request * len(chunk), 4)
             check_cap(recorded_spend(layout), usd, registry.spend_cap_usd)
             submission_id = f"sub_{family}_{model}_{stamp}_{i}"
@@ -178,6 +237,8 @@ def run(layout: Layout, registry: Registry, family: str, model: str, log: Log = 
                     "data_sha256": sha,
                     "config_sha256": config,
                     "chunk": f"{i}/{len(chunks)}",
+                    "chunk_index": i,
+                    "chunk_total": len(chunks),
                     "submitted_at": utc_now(),
                     "status": "pending",
                     "counts": {},
@@ -208,8 +269,8 @@ def run(layout: Layout, registry: Registry, family: str, model: str, log: Log = 
             )
             ids.append(batch_id)
             log(
-                f"{family} on {model}: submitted batch {batch_id} ({len(chunk)} requests, "
-                f"estimated {usd:.2f} USD)"
+                f"{family} on {model}: submitted batch {batch_id} (chunk {i}/{len(chunks)}, "
+                f"{len(chunk)} requests, estimated {usd:.2f} USD)"
             )
         return ids
     usd = round(per_request * len(requests), 4)
