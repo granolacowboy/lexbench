@@ -1,0 +1,87 @@
+# Imported by tools/import_mhsb.py from MHSBai/platform-plugins. Permitted fields only.
+# Regenerate with the tool; do not edit by hand.
+schema_version: 1
+pack: mhsb-pack-immigration
+practice_area: immigration
+intake_questions:
+- id: country_of_birth
+  prompt: Country of birth
+  answer_type: text
+  sensitive: true
+- id: current_status
+  prompt: Current immigration status, as the person states it
+  answer_type: text
+  sensitive: true
+- id: status_document_type
+  prompt: Which document shows the status or its expiry
+  answer_type: multi_choice
+  choices:
+  - EAD
+  - I-94
+  - visa
+  - period of authorized stay
+  - other
+  - unknown
+  sensitive: true
+- id: status_expiry_date
+  prompt: Expiry date shown on that document
+  answer_type: date
+  sensitive: true
+- id: a_number
+  prompt: A-number, if any
+  answer_type: text
+  sensitive: true
+- id: entry_date
+  prompt: Date of last entry
+  answer_type: date
+  sensitive: true
+- id: entry_manner
+  prompt: Manner of last entry, as the person states it
+  answer_type: text
+  sensitive: true
+- id: travel_history
+  prompt: Travel history
+  answer_type: text
+  sensitive: true
+- id: relatives_status
+  prompt: Status of close relatives
+  answer_type: text
+  sensitive: true
+- id: prior_applications
+  prompt: Prior applications and any denials
+  answer_type: text
+  sensitive: true
+- id: proceedings_detention
+  prompt: Any removal proceedings or detention
+  answer_type: choice
+  choices:
+  - 'yes'
+  - 'no'
+  - unknown
+  sensitive: true
+- id: criminal_history
+  prompt: Any arrests, charges or citations, including traffic tickets
+  answer_type: text
+  sensitive: true
+- id: language
+  prompt: Preferred language
+  answer_type: text
+  sensitive: false
+- id: sponsor
+  prompt: Prospective sponsor or petitioner, if any
+  answer_type: text
+  sensitive: false
+deadline_categories:
+- id: status_expiration
+  name: Status expiration, entered from the person's document
+  kind: firm_set
+- id: one_year_asylum_window
+  name: One-year asylum filing window
+  kind: statutory
+- id: response_window
+  name: Response windows on agency notices
+  kind: statutory
+attorney_review_flags:
+- possible_conflict
+- outside_case_types
+- eligibility_question

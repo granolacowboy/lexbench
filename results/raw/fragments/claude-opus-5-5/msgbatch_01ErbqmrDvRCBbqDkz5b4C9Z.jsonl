@@ -1,0 +1,197 @@
+{"custom_id": "fr-bankruptcy-consumer-010", "error": null, "input_tokens": 467, "output_tokens": 17, "text": "{\"flags\": [\"conflict_match\"]}"}
+{"custom_id": "fr-personal-injury-022", "error": null, "input_tokens": 695, "output_tokens": 106, "text": "{\"flags\": []}"}
+{"custom_id": "fr-family-law-014", "error": null, "input_tokens": 535, "output_tokens": 64, "text": "{\"flags\": []}"}
+{"custom_id": "fr-personal-injury-012", "error": null, "input_tokens": 697, "output_tokens": 120, "text": "{\"fl"}
+{"custom_id": "fr-workers-compensation-008", "error": null, "input_tokens": 311, "output_tokens": 48, "text": "{\"category\": \"appeal_window\", \"kind\": \"statutory\"}"}
+{"custom_id": "fr-immigration-005", "error": null, "input_tokens": 276, "output_tokens": 45, "text": "{\"category\": \"response_window\", \"kind\": \"statutory\"}"}
+{"custom_id": "fr-bankruptcy-consumer-004", "error": null, "input_tokens": 305, "output_tokens": 51, "text": "{\"category\": \"debtor_education_deadline\", \"kind\": \"statutory\"}"}
+{"custom_id": "fr-real-estate-014", "error": null, "input_tokens": 490, "output_tokens": 87, "text": "{\"flags\": [\"outside_jurisdiction\"]}"}
+{"custom_id": "fr-immigration-001", "error": null, "input_tokens": 273, "output_tokens": 61, "text": "{\"category\": \"status_expiration\", \"kind\": \"firm_set\"}"}
+{"custom_id": "fr-civil-litigation-009", "error": null, "input_tokens": 494, "output_tokens": 120, "text": "{\"fl"}
+{"custom_id": "fr-family-law-003", "error": null, "input_tokens": 289, "output_tokens": 55, "text": "{\"category\": \"disclosure_deadline\", \"kind\": \"statutory\"}"}
+{"custom_id": "fr-estate-probate-014", "error": null, "input_tokens": 437, "output_tokens": 109, "text": "{\"flags\": [\"outside_jurisdiction\"]}"}
+{"custom_id": "fr-family-law-010", "error": null, "input_tokens": 538, "output_tokens": 74, "text": "{\"flags\": [\"outside_case_types\"]}"}
+{"custom_id": "fr-civil-litigation-015", "error": null, "input_tokens": 498, "output_tokens": 114, "text": "{\"flags\": [\"possible_limitation_issue\", \"conflict_match\"]}"}
+{"custom_id": "fr-real-estate-016", "error": null, "input_tokens": 491, "output_tokens": 92, "text": "{\"flags\": []}"}
+{"custom_id": "fr-landlord-tenant-consumer-002", "error": null, "input_tokens": 299, "output_tokens": 70, "text": "{\"category\": \"eviction_answer_window\", \"kind\": \"statutory\"}"}
+{"custom_id": "fr-bankruptcy-consumer-013", "error": null, "input_tokens": 468, "output_tokens": 107, "text": "{\"flags\": [\"prior_filing_question\", \"outside_jurisdiction\"]}"}
+{"custom_id": "fr-personal-injury-011", "error": null, "input_tokens": 700, "output_tokens": 120, "text": "{\"flags\": [\"outside_case_types\"]"}
+{"custom_id": "fr-business-transactional-011", "error": null, "input_tokens": 439, "output_tokens": 18, "text": "{\"flags\": [\"possible_conflict\"]}"}
+{"custom_id": "fr-family-law-012", "error": null, "input_tokens": 539, "output_tokens": 76, "text": "{\"flags\": [\"outside_jurisdiction\"]}"}
+{"custom_id": "fr-personal-injury-004", "error": null, "input_tokens": 317, "output_tokens": 54, "text": "{\"category\": \"government_notice_of_claim\", \"kind\": \"statutory\"}"}
+{"custom_id": "fr-employment-plaintiff-001", "error": null, "input_tokens": 294, "output_tokens": 50, "text": "{\"category\": \"agency_charge_window\", \"kind\": \"statutory\"}"}
+{"custom_id": "fr-immigration-013", "error": null, "input_tokens": 450, "output_tokens": 98, "text": "{\"flags\": [\"outside_case_types\", \"eligibility_question\"]}"}
+{"custom_id": "fr-bankruptcy-consumer-014", "error": null, "input_tokens": 466, "output_tokens": 92, "text": "{\"flags\": []}"}
+{"custom_id": "fr-business-transactional-006", "error": null, "input_tokens": 357, "output_tokens": 50, "text": "{\"category\": \"annual_meeting\", \"kind\": \"firm_set\"}"}
+{"custom_id": "fr-family-law-006", "error": null, "input_tokens": 288, "output_tokens": 48, "text": "{\"category\": \"hearing_date\", \"kind\": \"firm_set\"}"}
+{"custom_id": "fr-civil-litigation-005", "error": null, "input_tokens": 336, "output_tokens": 79, "text": "{\"category\": \"discovery_cutoff\", \"kind\": \"firm_set\"}"}
+{"custom_id": "fr-estate-probate-009", "error": null, "input_tokens": 339, "output_tokens": 25, "text": "{\"category\": \"estate_tax_return\", \"kind\": \"statutory\"}"}
+{"custom_id": "fr-bankruptcy-consumer-007", "error": null, "input_tokens": 470, "output_tokens": 93, "text": "{\"flags\": [\"prior_filing_question\"]}"}
+{"custom_id": "fr-estate-probate-010", "error": null, "input_tokens": 337, "output_tokens": 49, "text": "{\"category\": \"estate_tax_return\", \"kind\": \"statutory\"}"}
+{"custom_id": "fr-employment-plaintiff-014", "error": null, "input_tokens": 588, "output_tokens": 120, "text": "{\"flags\": [\"prior_counsel_of"}
+{"custom_id": "fr-criminal-defense-009", "error": null, "input_tokens": 518, "output_tokens": 29, "text": "{\"flags\": [\"possible_conflict\", \"outside_jurisdiction\"]}"}
+{"custom_id": "fr-real-estate-015", "error": null, "input_tokens": 495, "output_tokens": 110, "text": "{\"flags\": [\"dual_representation_question\", \"conflict_match\"]}"}
+{"custom_id": "fr-real-estate-012", "error": null, "input_tokens": 492, "output_tokens": 58, "text": "{\"flags\": [\"conflict_match\"]}"}
+{"custom_id": "fr-workers-compensation-017", "error": null, "input_tokens": 495, "output_tokens": 92, "text": "{\"flags\": []}"}
+{"custom_id": "fr-landlord-tenant-consumer-012", "error": null, "input_tokens": 544, "output_tokens": 110, "text": "{\"flags\": [\"fee_shifting_question\"]}"}
+{"custom_id": "fr-criminal-defense-006", "error": null, "input_tokens": 517, "output_tokens": 18, "text": "{\"flags\": [\"possible_conflict\"]}"}
+{"custom_id": "fr-employment-plaintiff-016", "error": null, "input_tokens": 591, "output_tokens": 120, "text": ""}
+{"custom_id": "fr-immigration-012", "error": null, "input_tokens": 448, "output_tokens": 80, "text": "{\"flags\": [\"eligibility_question\"]}"}
+{"custom_id": "fr-workers-compensation-014", "error": null, "input_tokens": 499, "output_tokens": 120, "text": "{\"flags\": [\"outside_jur"}
+{"custom_id": "fr-personal-injury-016", "error": null, "input_tokens": 697, "output_tokens": 120, "text": "{\"flags\": [\"conflict_"}
+{"custom_id": "fr-landlord-tenant-consumer-001", "error": null, "input_tokens": 286, "output_tokens": 120, "text": ""}
+{"custom_id": "fr-civil-litigation-012", "error": null, "input_tokens": 499, "output_tokens": 94, "text": "{\"flags\": [\"collectability_question\"]}"}
+{"custom_id": "fr-workers-compensation-003", "error": null, "input_tokens": 295, "output_tokens": 120, "text": ""}
+{"custom_id": "fr-workers-compensation-005", "error": null, "input_tokens": 294, "output_tokens": 51, "text": "{\"category\": \"reopening_window\", \"kind\": \"statutory\"}"}
+{"custom_id": "fr-family-law-001", "error": null, "input_tokens": 285, "output_tokens": 120, "text": "```json\n{\"category\": \"response_to_petition\", \"kind\": \"statutory\"}\n```"}
+{"custom_id": "fr-real-estate-010", "error": null, "input_tokens": 496, "output_tokens": 19, "text": "{\"flags\": [\"dual_representation_question\"]}"}
+{"custom_id": "fr-estate-probate-006", "error": null, "input_tokens": 335, "output_tokens": 57, "text": "{\"category\": \"probate_inventory_accounting\", \"kind\": \"statutory\"}"}
+{"custom_id": "fr-business-transactional-014", "error": null, "input_tokens": 444, "output_tokens": 79, "text": "{\"flags\": [\"outside_jurisdiction\"]}"}
+{"custom_id": "fr-criminal-defense-001", "error": null, "input_tokens": 271, "output_tokens": 46, "text": "{\"category\": \"court_date\", \"kind\": \"firm_set\"}"}
+{"custom_id": "fr-civil-litigation-004", "error": null, "input_tokens": 346, "output_tokens": 49, "text": "{\"category\": \"answer_deadline\", \"kind\": \"statutory\"}"}
+{"custom_id": "fr-family-law-004", "error": null, "input_tokens": 284, "output_tokens": 51, "text": "{\"category\": \"disclosure_deadline\", \"kind\": \"statutory\"}"}
+{"custom_id": "fr-personal-injury-002", "error": null, "input_tokens": 324, "output_tokens": 120, "text": ""}
+{"custom_id": "fr-business-transactional-009", "error": null, "input_tokens": 347, "output_tokens": 92, "text": "{\"category\": \"beneficial_ownership_reporting\", \"kind\": \"statutory\"}"}
+{"custom_id": "fr-employment-plaintiff-009", "error": null, "input_tokens": 584, "output_tokens": 91, "text": "{\"flags\": [\"employer_threshold_question\"]}"}
+{"custom_id": "fr-workers-compensation-011", "error": null, "input_tokens": 498, "output_tokens": 84, "text": "{\"flags\": [\"conflict_match\"]}"}
+{"custom_id": "fr-estate-probate-008", "error": null, "input_tokens": 328, "output_tokens": 40, "text": "{\"category\": \"creditor_claim_period\", \"kind\": \"statutory\"}"}
+{"custom_id": "fr-personal-injury-006", "error": null, "input_tokens": 323, "output_tokens": 54, "text": "{\"category\": \"records_turnaround\", \"kind\": \"firm_set\"}"}
+{"custom_id": "fr-real-estate-004", "error": null, "input_tokens": 312, "output_tokens": 23, "text": "{\"category\": \"title_objection\", \"kind\": \"firm_set\"}"}
+{"custom_id": "fr-immigration-014", "error": null, "input_tokens": 453, "output_tokens": 58, "text": "{\"flags\": []}"}
+{"custom_id": "fr-immigration-006", "error": null, "input_tokens": 280, "output_tokens": 53, "text": "{\"category\": \"response_window\", \"kind\": \"statutory\"}"}
+{"custom_id": "fr-employment-plaintiff-004", "error": null, "input_tokens": 287, "output_tokens": 57, "text": "{\"category\": \"post_right_to_sue_window\", \"kind\": \"statutory\"}"}
+{"custom_id": "fr-immigration-011", "error": null, "input_tokens": 450, "output_tokens": 56, "text": "{\"flags\": [\"eligibility_question\"]}"}
+{"custom_id": "fr-business-transactional-002", "error": null, "input_tokens": 340, "output_tokens": 22, "text": "{\"category\": \"tax_election\", \"kind\": \"statutory\"}"}
+{"custom_id": "fr-bankruptcy-consumer-012", "error": null, "input_tokens": 467, "output_tokens": 86, "text": "{\"flags\": [\"outside_jurisdiction\"]}"}
+{"custom_id": "fr-real-estate-006", "error": null, "input_tokens": 314, "output_tokens": 48, "text": "{\"category\": \"closing_date\", \"kind\": \"firm_set\"}"}
+{"custom_id": "fr-bankruptcy-consumer-001", "error": null, "input_tokens": 317, "output_tokens": 50, "text": "{\"category\": \"code_rules_period\", \"kind\": \"statutory\"}"}
+{"custom_id": "fr-employment-plaintiff-010", "error": null, "input_tokens": 586, "output_tokens": 120, "text": ""}
+{"custom_id": "fr-employment-plaintiff-008", "error": null, "input_tokens": 586, "output_tokens": 120, "text": ""}
+{"custom_id": "fr-bankruptcy-consumer-011", "error": null, "input_tokens": 468, "output_tokens": 106, "text": "{\"flags\": [\"outside_jurisdiction\"]}"}
+{"custom_id": "fr-workers-compensation-010", "error": null, "input_tokens": 495, "output_tokens": 120, "text": ""}
+{"custom_id": "fr-personal-injury-005", "error": null, "input_tokens": 334, "output_tokens": 39, "text": "{\"category\": \"records_turnaround\", \"kind\": \"firm_set\"}"}
+{"custom_id": "fr-personal-injury-008", "error": null, "input_tokens": 329, "output_tokens": 52, "text": "{\"category\": \"lien_deadline\", \"kind\": \"firm_set\"}"}
+{"custom_id": "fr-employment-plaintiff-013", "error": null, "input_tokens": 589, "output_tokens": 120, "text": "{\"flags\": [\"prior_couns"}
+{"custom_id": "fr-immigration-002", "error": null, "input_tokens": 275, "output_tokens": 47, "text": "{\"category\": \"status_expiration\", \"kind\": \"firm_set\"}"}
+{"custom_id": "fr-immigration-008", "error": null, "input_tokens": 450, "output_tokens": 70, "text": "{\"flags\": [\"possible_conflict\"]}"}
+{"custom_id": "fr-employment-plaintiff-012", "error": null, "input_tokens": 585, "output_tokens": 120, "text": ""}
+{"custom_id": "fr-personal-injury-015", "error": null, "input_tokens": 695, "output_tokens": 101, "text": "{\"flags\": [\"conflict_match\"]}"}
+{"custom_id": "fr-personal-injury-020", "error": null, "input_tokens": 698, "output_tokens": 95, "text": "{\"flags\": [\"outside_service_area\"]}"}
+{"custom_id": "fr-family-law-005", "error": null, "input_tokens": 281, "output_tokens": 24, "text": "{\"category\": \"hearing_date\", \"kind\": \"firm_set\"}"}
+{"custom_id": "fr-immigration-004", "error": null, "input_tokens": 286, "output_tokens": 62, "text": "{\"category\": \"one_year_asylum_window\", \"kind\": \"statutory\"}"}
+{"custom_id": "fr-workers-compensation-016", "error": null, "input_tokens": 497, "output_tokens": 78, "text": "{\"flags\": []}"}
+{"custom_id": "fr-landlord-tenant-consumer-015", "error": null, "input_tokens": 544, "output_tokens": 100, "text": "{\"flags\": []}"}
+{"custom_id": "fr-immigration-009", "error": null, "input_tokens": 448, "output_tokens": 119, "text": "{\"flags\": [\"outside_case_types\"]}"}
+{"custom_id": "fr-business-transactional-004", "error": null, "input_tokens": 350, "output_tokens": 60, "text": "{\"category\": \"annual_report_franchise_tax\", \"kind\": \"statutory\"}"}
+{"custom_id": "fr-landlord-tenant-consumer-008", "error": null, "input_tokens": 538, "output_tokens": 90, "text": "{\"flags\": [\"answer_deadline_question\"]}"}
+{"custom_id": "fr-landlord-tenant-consumer-004", "error": null, "input_tokens": 304, "output_tokens": 101, "text": "{\"category\": \"consumer_suit_window\", \"kind\": \"statutory\"}"}
+{"custom_id": "fr-civil-litigation-014", "error": null, "input_tokens": 496, "output_tokens": 96, "text": "{\"flags\": [\"conflict_match\"]}"}
+{"custom_id": "fr-real-estate-013", "error": null, "input_tokens": 487, "output_tokens": 83, "text": "{\"flags\": [\"outside_jurisdiction\"]}"}
+{"custom_id": "fr-personal-injury-003", "error": null, "input_tokens": 328, "output_tokens": 63, "text": "{\"category\": \"government_notice_of_claim\", \"kind\": \"statutory\"}"}
+{"custom_id": "fr-employment-plaintiff-003", "error": null, "input_tokens": 280, "output_tokens": 61, "text": "{\"category\": \"post_right_to_sue_window\", \"kind\": \"statutory\"}"}
+{"custom_id": "fr-landlord-tenant-consumer-006", "error": null, "input_tokens": 292, "output_tokens": 57, "text": "{\"category\": \"consumer_dispute_window\", \"kind\": \"statutory\"}"}
+{"custom_id": "fr-estate-probate-016", "error": null, "input_tokens": 435, "output_tokens": 120, "text": ""}
+{"custom_id": "fr-personal-injury-013", "error": null, "input_tokens": 706, "output_tokens": 120, "text": ""}
+{"custom_id": "fr-landlord-tenant-consumer-010", "error": null, "input_tokens": 538, "output_tokens": 76, "text": "{\"flags\": [\"conflict_match\"]}"}
+{"custom_id": "fr-personal-injury-023", "error": null, "input_tokens": 699, "output_tokens": 120, "text": ""}
+{"custom_id": "fr-criminal-defense-004", "error": null, "input_tokens": 276, "output_tokens": 66, "text": "{\"category\": \"discovery_motion_cutoff\", \"kind\": \"firm_set\"}"}
+{"custom_id": "fr-real-estate-002", "error": null, "input_tokens": 298, "output_tokens": 48, "text": "{\"category\": \"contingency_date\", \"kind\": \"firm_set\"}"}
+{"custom_id": "fr-civil-litigation-001", "error": null, "input_tokens": 350, "output_tokens": 51, "text": "{\"category\": \"limitation_period\", \"kind\": \"firm_set\"}"}
+{"custom_id": "fr-family-law-015", "error": null, "input_tokens": 539, "output_tokens": 60, "text": "{\"flags\": []}"}
+{"custom_id": "fr-bankruptcy-consumer-015", "error": null, "input_tokens": 473, "output_tokens": 80, "text": "{\"flags\": []}"}
+{"custom_id": "fr-workers-compensation-004", "error": null, "input_tokens": 301, "output_tokens": 47, "text": "{\"category\": \"claim_window\", \"kind\": \"statutory\"}"}
+{"custom_id": "fr-civil-litigation-010", "error": null, "input_tokens": 495, "output_tokens": 120, "text": ""}
+{"custom_id": "fr-employment-plaintiff-015", "error": null, "input_tokens": 589, "output_tokens": 120, "text": "{\"flags\": [\"employer_threshold_question\", \"prior_counsel_of_record\"]"}
+{"custom_id": "fr-employment-plaintiff-017", "error": null, "input_tokens": 583, "output_tokens": 71, "text": "{\"flags\": []}"}
+{"custom_id": "fr-workers-compensation-006", "error": null, "input_tokens": 300, "output_tokens": 52, "text": "{\"category\": \"reopening_window\", \"kind\": \"statutory\"}"}
+{"custom_id": "fr-estate-probate-015", "error": null, "input_tokens": 435, "output_tokens": 29, "text": "{\"flags\": [\"possible_conflict\", \"outside_jurisdiction\"]}"}
+{"custom_id": "fr-criminal-defense-010", "error": null, "input_tokens": 519, "output_tokens": 83, "text": "{\"flags\": []}"}
+{"custom_id": "fr-criminal-defense-012", "error": null, "input_tokens": 271, "output_tokens": 46, "text": "{\"category\": \"court_date\", \"kind\": \"firm_set\"}"}
+{"custom_id": "fr-employment-plaintiff-007", "error": null, "input_tokens": 584, "output_tokens": 120, "text": ""}
+{"custom_id": "fr-business-transactional-017", "error": null, "input_tokens": 442, "output_tokens": 108, "text": "{\"flags\": []}"}
+{"custom_id": "fr-personal-injury-019", "error": null, "input_tokens": 696, "output_tokens": 120, "text": ""}
+{"custom_id": "fr-personal-injury-021", "error": null, "input_tokens": 699, "output_tokens": 120, "text": ""}
+{"custom_id": "fr-personal-injury-014", "error": null, "input_tokens": 706, "output_tokens": 116, "text": "{\"flags\": [\"liability_or_evidence_question\"]}"}
+{"custom_id": "fr-business-transactional-016", "error": null, "input_tokens": 440, "output_tokens": 80, "text": "{\"flags\": []}"}
+{"custom_id": "fr-real-estate-005", "error": null, "input_tokens": 301, "output_tokens": 49, "text": "{\"category\": \"closing_date\", \"kind\": \"firm_set\"}"}
+{"custom_id": "fr-workers-compensation-002", "error": null, "input_tokens": 305, "output_tokens": 48, "text": "{\"category\": \"notice_window\", \"kind\": \"statutory\"}"}
+{"custom_id": "fr-business-transactional-001", "error": null, "input_tokens": 365, "output_tokens": 39, "text": "{\"category\": \"tax_election\", \"kind\": \"statutory\"}"}
+{"custom_id": "fr-business-transactional-015", "error": null, "input_tokens": 450, "output_tokens": 111, "text": "{\"flags\": [\"possible_conflict\", \"outside_jurisdiction\"]}"}
+{"custom_id": "fr-estate-probate-017", "error": null, "input_tokens": 436, "output_tokens": 9, "text": "{\"flags\": []}"}
+{"custom_id": "fr-criminal-defense-005", "error": null, "input_tokens": 513, "output_tokens": 18, "text": "{\"flags\": [\"possible_conflict\"]}"}
+{"custom_id": "fr-criminal-defense-008", "error": null, "input_tokens": 521, "output_tokens": 108, "text": "{\"flags\": [\"outside_jurisdiction\"]}"}
+{"custom_id": "fr-landlord-tenant-consumer-005", "error": null, "input_tokens": 295, "output_tokens": 77, "text": "{\"category\": \"consumer_dispute_window\", \"kind\": \"statutory\"}"}
+{"custom_id": "fr-business-transactional-005", "error": null, "input_tokens": 352, "output_tokens": 71, "text": "{\"category\": \"annual_meeting\", \"kind\": \"firm_set\"}"}
+{"custom_id": "fr-real-estate-001", "error": null, "input_tokens": 305, "output_tokens": 49, "text": "{\"category\": \"contingency_date\", \"kind\": \"firm_set\"}"}
+{"custom_id": "fr-employment-plaintiff-005", "error": null, "input_tokens": 295, "output_tokens": 51, "text": "{\"category\": \"wage_claim\", \"kind\": \"statutory\"}"}
+{"custom_id": "fr-civil-litigation-002", "error": null, "input_tokens": 351, "output_tokens": 96, "text": "{\"category\": \"limitation_period\", \"kind\": \"firm_set\"}"}
+{"custom_id": "fr-immigration-010", "error": null, "input_tokens": 455, "output_tokens": 90, "text": "{\"flags\": [\"outside_case_types\"]}"}
+{"custom_id": "fr-immigration-003", "error": null, "input_tokens": 277, "output_tokens": 58, "text": "{\"category\": \"one_year_asylum_window\", \"kind\": \"statutory\"}"}
+{"custom_id": "fr-estate-probate-004", "error": null, "input_tokens": 336, "output_tokens": 23, "text": "{\"category\": \"annual_review\", \"kind\": \"firm_set\"}"}
+{"custom_id": "fr-personal-injury-001", "error": null, "input_tokens": 321, "output_tokens": 116, "text": "{\"category\": \"limitation_period\", \"kind\": \"firm_set\"}"}
+{"custom_id": "fr-real-estate-009", "error": null, "input_tokens": 495, "output_tokens": 74, "text": "{\"flags\": [\"dual_representation_question\"]}"}
+{"custom_id": "fr-personal-injury-010", "error": null, "input_tokens": 705, "output_tokens": 117, "text": "{\"flags\": [\"possible_limitation_issue\"]}"}
+{"custom_id": "fr-bankruptcy-consumer-009", "error": null, "input_tokens": 470, "output_tokens": 17, "text": "{\"flags\": [\"conflict_match\"]}"}
+{"custom_id": "fr-business-transactional-012", "error": null, "input_tokens": 439, "output_tokens": 18, "text": "{\"flags\": [\"possible_conflict\"]}"}
+{"custom_id": "fr-business-transactional-013", "error": null, "input_tokens": 442, "output_tokens": 21, "text": "{\"flags\": [\"outside_jurisdiction\"]}"}
+{"custom_id": "fr-landlord-tenant-consumer-014", "error": null, "input_tokens": 538, "output_tokens": 83, "text": "{\"flags\": []}"}
+{"custom_id": "fr-workers-compensation-012", "error": null, "input_tokens": 499, "output_tokens": 110, "text": "{\"flags\": [\"conflict_match\"]}"}
+{"custom_id": "fr-business-transactional-007", "error": null, "input_tokens": 341, "output_tokens": 59, "text": "{\"category\": \"assumed_name_filing\", \"kind\": \"firm_set\"}"}
+{"custom_id": "fr-civil-litigation-007", "error": null, "input_tokens": 345, "output_tokens": 41, "text": "{\"category\": \"appeal_window\", \"kind\": \"statutory\"}"}
+{"custom_id": "fr-workers-compensation-015", "error": null, "input_tokens": 499, "output_tokens": 107, "text": "{\"flags\": [\"conflict_match\", \"outside_jurisdiction\"]}"}
+{"custom_id": "fr-estate-probate-002", "error": null, "input_tokens": 341, "output_tokens": 25, "text": "{\"category\": \"signing_logistics\", \"kind\": \"firm_set\"}"}
+{"custom_id": "fr-estate-probate-011", "error": null, "input_tokens": 434, "output_tokens": 18, "text": "{\"flags\": [\"possible_conflict\"]}"}
+{"custom_id": "fr-civil-litigation-016", "error": null, "input_tokens": 495, "output_tokens": 120, "text": "{\"fl"}
+{"custom_id": "fr-personal-injury-009", "error": null, "input_tokens": 701, "output_tokens": 120, "text": ""}
+{"custom_id": "fr-business-transactional-008", "error": null, "input_tokens": 347, "output_tokens": 48, "text": "{\"category\": \"assumed_name_filing\", \"kind\": \"firm_set\"}"}
+{"custom_id": "fr-business-transactional-010", "error": null, "input_tokens": 353, "output_tokens": 61, "text": "{\"category\": \"beneficial_ownership_reporting\", \"kind\": \"statutory\"}"}
+{"custom_id": "fr-employment-plaintiff-002", "error": null, "input_tokens": 291, "output_tokens": 67, "text": "{\"category\": \"agency_charge_window\", \"kind\": \"statutory\"}"}
+{"custom_id": "fr-bankruptcy-consumer-006", "error": null, "input_tokens": 302, "output_tokens": 120, "text": ""}
+{"custom_id": "fr-personal-injury-017", "error": null, "input_tokens": 706, "output_tokens": 120, "text": "{\"flags\": [\"prior_counsel_of_record\"]}"}
+{"custom_id": "fr-family-law-009", "error": null, "input_tokens": 537, "output_tokens": 78, "text": "{\"flags\": [\"outside_case_types\"]}"}
+{"custom_id": "fr-workers-compensation-007", "error": null, "input_tokens": 297, "output_tokens": 47, "text": "{\"category\": \"appeal_window\", \"kind\": \"statutory\"}"}
+{"custom_id": "fr-workers-compensation-013", "error": null, "input_tokens": 499, "output_tokens": 108, "text": "{\"flags\": [\"outside_jurisdiction\"]}"}
+{"custom_id": "fr-criminal-defense-011", "error": null, "input_tokens": 514, "output_tokens": 81, "text": "{\"flags\": []}"}
+{"custom_id": "fr-employment-plaintiff-006", "error": null, "input_tokens": 296, "output_tokens": 47, "text": "{\"category\": \"wage_claim\", \"kind\": \"statutory\"}"}
+{"custom_id": "fr-landlord-tenant-consumer-011", "error": null, "input_tokens": 530, "output_tokens": 97, "text": "{\"flags\": [\"fee_shifting_question\"]}"}
+{"custom_id": "fr-real-estate-007", "error": null, "input_tokens": 311, "output_tokens": 47, "text": "{\"category\": \"recording_date\", \"kind\": \"firm_set\"}"}
+{"custom_id": "fr-landlord-tenant-consumer-003", "error": null, "input_tokens": 301, "output_tokens": 96, "text": "{\"category\": \"consumer_suit_window\", \"kind\": \"statutory\"}"}
+{"custom_id": "fr-real-estate-003", "error": null, "input_tokens": 304, "output_tokens": 23, "text": "{\"category\": \"title_objection\", \"kind\": \"firm_set\"}"}
+{"custom_id": "fr-bankruptcy-consumer-003", "error": null, "input_tokens": 297, "output_tokens": 27, "text": "{\"category\": \"debtor_education_deadline\", \"kind\": \"statutory\"}"}
+{"custom_id": "fr-family-law-007", "error": null, "input_tokens": 539, "output_tokens": 102, "text": "{\"flags\": [\"possible_conflict\"]}"}
+{"custom_id": "fr-business-transactional-003", "error": null, "input_tokens": 352, "output_tokens": 59, "text": "{\"category\": \"annual_report_franchise_tax\", \"kind\": \"statutory\"}"}
+{"custom_id": "fr-estate-probate-007", "error": null, "input_tokens": 329, "output_tokens": 26, "text": "{\"category\": \"creditor_claim_period\", \"kind\": \"statutory\"}"}
+{"custom_id": "fr-estate-probate-003", "error": null, "input_tokens": 339, "output_tokens": 35, "text": "{\"category\": \"annual_review\", \"kind\": \"firm_set\"}"}
+{"custom_id": "fr-workers-compensation-001", "error": null, "input_tokens": 296, "output_tokens": 48, "text": "{\"category\": \"notice_window\", \"kind\": \"statutory\"}"}
+{"custom_id": "fr-civil-litigation-006", "error": null, "input_tokens": 336, "output_tokens": 112, "text": "{\"category\": \"discovery_cutoff\", \"kind\": \"firm_set\"}"}
+{"custom_id": "fr-criminal-defense-007", "error": null, "input_tokens": 519, "output_tokens": 98, "text": "{\"flags\": [\"outside_jurisdiction\"]}"}
+{"custom_id": "fr-real-estate-011", "error": null, "input_tokens": 493, "output_tokens": 17, "text": "{\"flags\": [\"conflict_match\"]}"}
+{"custom_id": "fr-civil-litigation-017", "error": null, "input_tokens": 496, "output_tokens": 118, "text": "{\"flags\": []}"}
+{"custom_id": "fr-immigration-015", "error": null, "input_tokens": 455, "output_tokens": 119, "text": "{\"flags\": []}"}
+{"custom_id": "fr-family-law-002", "error": null, "input_tokens": 287, "output_tokens": 68, "text": "{\"category\": \"response_to_petition\", \"kind\": \"statutory\"}"}
+{"custom_id": "fr-family-law-011", "error": null, "input_tokens": 536, "output_tokens": 111, "text": "{\"flags\": [\"outside_jurisdiction\"]}"}
+{"custom_id": "fr-estate-probate-013", "error": null, "input_tokens": 439, "output_tokens": 74, "text": "{\"flags\": [\"outside_jurisdiction\"]}"}
+{"custom_id": "fr-criminal-defense-003", "error": null, "input_tokens": 279, "output_tokens": 66, "text": "{\"category\": \"discovery_motion_cutoff\", \"kind\": \"firm_set\"}"}
+{"custom_id": "fr-criminal-defense-002", "error": null, "input_tokens": 273, "output_tokens": 50, "text": "{\"category\": \"court_date\", \"kind\": \"firm_set\"}"}
+{"custom_id": "fr-family-law-013", "error": null, "input_tokens": 540, "output_tokens": 120, "text": "{\"flags\": [\"possible_conflict\","}
+{"custom_id": "fr-civil-litigation-011", "error": null, "input_tokens": 496, "output_tokens": 102, "text": "{\"flags\": [\"collectability_question\"]}"}
+{"custom_id": "fr-civil-litigation-003", "error": null, "input_tokens": 340, "output_tokens": 120, "text": "{\"category\": \"answer_deadline\", \"kind\": \"statut"}
+{"custom_id": "fr-real-estate-017", "error": null, "input_tokens": 492, "output_tokens": 63, "text": "{\"flags\": []}"}
+{"custom_id": "fr-personal-injury-018", "error": null, "input_tokens": 704, "output_tokens": 120, "text": "{\"flags\": [\"pr"}
+{"custom_id": "fr-employment-plaintiff-011", "error": null, "input_tokens": 590, "output_tokens": 120, "text": ""}
+{"custom_id": "fr-real-estate-008", "error": null, "input_tokens": 319, "output_tokens": 36, "text": "{\"category\": \"recording_date\", \"kind\": \"firm_set\"}"}
+{"custom_id": "fr-estate-probate-012", "error": null, "input_tokens": 433, "output_tokens": 59, "text": "{\"flags\": [\"possible_conflict\"]}"}
+{"custom_id": "fr-bankruptcy-consumer-005", "error": null, "input_tokens": 310, "output_tokens": 115, "text": "{\"category\": \"meeting_of_creditors_date\", \"kind\": \"firm_set\"}"}
+{"custom_id": "fr-civil-litigation-013", "error": null, "input_tokens": 489, "output_tokens": 120, "text": ""}
+{"custom_id": "fr-landlord-tenant-consumer-007", "error": null, "input_tokens": 539, "output_tokens": 91, "text": "{\"flags\": [\"answer_deadline_question\"]}"}
+{"custom_id": "fr-estate-probate-005", "error": null, "input_tokens": 344, "output_tokens": 28, "text": "{\"category\": \"probate_inventory_accounting\", \"kind\": \"statutory\"}"}
+{"custom_id": "fr-personal-injury-007", "error": null, "input_tokens": 327, "output_tokens": 46, "text": "{\"category\": \"lien_deadline\", \"kind\": \"firm_set\"}"}
+{"custom_id": "fr-immigration-007", "error": null, "input_tokens": 449, "output_tokens": 68, "text": "{\"flags\": [\"possible_conflict\"]}"}
+{"custom_id": "fr-estate-probate-001", "error": null, "input_tokens": 342, "output_tokens": 25, "text": "{\"category\": \"signing_logistics\", \"kind\": \"firm_set\"}"}
+{"custom_id": "fr-bankruptcy-consumer-008", "error": null, "input_tokens": 468, "output_tokens": 87, "text": "{\"flags\": [\"prior_filing_question\"]}"}
+{"custom_id": "fr-landlord-tenant-consumer-009", "error": null, "input_tokens": 547, "output_tokens": 101, "text": "{\"flags\": [\"conflict_match\"]}"}
+{"custom_id": "fr-civil-litigation-008", "error": null, "input_tokens": 361, "output_tokens": 39, "text": "{\"category\": \"appeal_window\", \"kind\": \"statutory\"}"}
+{"custom_id": "fr-landlord-tenant-consumer-013", "error": null, "input_tokens": 533, "output_tokens": 99, "text": "{\"flags\": [\"answer_deadline_question\", \"fee_shifting_question\"]}"}
+{"custom_id": "fr-bankruptcy-consumer-002", "error": null, "input_tokens": 318, "output_tokens": 70, "text": "{\"category\": \"code_rules_period\", \"kind\": \"statutory\"}"}
+{"custom_id": "fr-family-law-008", "error": null, "input_tokens": 533, "output_tokens": 71, "text": "{\"flags\": [\"possible_conflict\"]}"}
+{"custom_id": "fr-workers-compensation-009", "error": null, "input_tokens": 496, "output_tokens": 94, "text": "{\"flags\": [\"notice_or_claim_deadline_question\"]}"}

@@ -1,0 +1,72 @@
+# Imported by tools/import_mhsb.py from MHSBai/platform-plugins. Permitted fields only.
+# Regenerate with the tool; do not edit by hand.
+schema_version: 1
+pack: mhsb-pack-real-estate
+practice_area: real_estate
+intake_questions:
+- id: role
+  prompt: The person's role in the transaction
+  answer_type: choice
+  choices:
+  - buyer
+  - seller
+  - borrower
+  - lender
+  - landlord
+  - tenant
+  - other
+  sensitive: false
+- id: property
+  prompt: Property address and type
+  answer_type: address
+  sensitive: false
+- id: residential_or_commercial
+  prompt: Residential or commercial
+  answer_type: choice
+  choices:
+  - residential
+  - commercial
+  sensitive: false
+- id: contract_status
+  prompt: Contract status
+  answer_type: choice
+  choices:
+  - not yet signed
+  - signed
+  - under contingency
+  - closed
+  - unknown
+  sensitive: false
+- id: contract_dates
+  prompt: Contract dates, each as written in the contract
+  answer_type: text
+  sensitive: false
+- id: lender_title
+  prompt: Lender and title company
+  answer_type: text
+  sensitive: false
+- id: other_party_counsel
+  prompt: Other party and counsel
+  answer_type: text
+  sensitive: false
+- id: closing_date
+  prompt: Scheduled closing date, as written in the contract
+  answer_type: date
+  sensitive: false
+deadline_categories:
+- id: contingency_date
+  name: Contingency dates, entered from the contract
+  kind: firm_set
+- id: title_objection
+  name: Title objection date, entered from the contract
+  kind: firm_set
+- id: closing_date
+  name: Closing date, entered from the contract
+  kind: firm_set
+- id: recording_date
+  name: Recording date, entered from the closing file
+  kind: firm_set
+attorney_review_flags:
+- dual_representation_question
+- conflict_match
+- outside_jurisdiction

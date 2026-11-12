@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "families": {
+    "fragments": {
+      "count": 197,
+      "sha256": "71fa9bc5d37851eebe126d3f5954e02860971a4266bbedad928714d1fe6aee55",
+      "files": {
+        "data/fragments/mhsb-pack-bankruptcy-consumer.jsonl": {
+          "count": 15,
+          "sha256": "03d2d288cad3a6c2387cf18361f10c00d2e7faab1f413b16d05a1b400541f59b"
+        },
+        "data/fragments/mhsb-pack-business-transactional.jsonl": {
+          "count": 17,
+          "sha256": "7291167514ae21c27741d13d317f8cd7db2b90676bbc3520865991a546186b58"
+        },
+        "data/fragments/mhsb-pack-civil-litigation.jsonl": {
+          "count": 17,
+          "sha256": "f9c3a4eb7fb6f5f296a4433314c02f5bf9f0706ec9f0dfb0b61cdff080df7ecc"
+        },
+        "data/fragments/mhsb-pack-criminal-defense.jsonl": {
+          "count": 12,
+          "sha256": "a083df04801a65e592498d52b6b192c12c26bee4e2d1b5fc92689a79431b0b49"
+        },
+        "data/fragments/mhsb-pack-employment-plaintiff.jsonl": {
+          "count": 17,
+          "sha256": "87dff49e4cbeb2f03bfe6a7a97143871d63358e7893f1c22f30ded36da69659b"
+        },
+        "data/fragments/mhsb-pack-estate-probate.jsonl": {
+          "count": 17,
+          "sha256": "3a1abf0a2a79c53762da6c947d09d8b6e6bee51e98d5f437f719a3d6eea57235"
+        },
+        "data/fragments/mhsb-pack-family-law.jsonl": {
+          "count": 15,
+          "sha256": "129e14a9a607f6ccfdbc9a044b3cd99f3935b7a4fdfd4437f8bd48fe0d73c951"
+        },
+        "data/fragments/mhsb-pack-immigration.jsonl": {
+          "count": 15,
+          "sha256": "dbde39e7b217976e2fa4d62ff386720db9335b7b134fb6c79811b9ca63d94dfd"
+        },
+        "data/fragments/mhsb-pack-landlord-tenant-consumer.jsonl": {
+          "count": 15,
+          "sha256": "209dc1798e9385ab7db321661f1d1172162e2965ab4e1a22bea4ae908ded179f"
+        },
+        "data/fragments/mhsb-pack-personal-injury.jsonl": {
+          "count": 23,
+          "sha256": "5fa4ac0587dae19f5f546a7afa076f9214ea83e39908b8a0d2c9decedcbc4db9"
+        },
+        "data/fragments/mhsb-pack-real-estate.jsonl": {
+          "count": 17,
+          "sha256": "9561cd415621d91138da3345e377b4b000d62e78252b0baa5a5bc837e2b3892c"
+        },
+        "data/fragments/mhsb-pack-workers-compensation.jsonl": {
+          "count": 17,
+          "sha256": "45624dab8c19b09a60639496c43239671204b33e4bf9ba0e50fadc3daabca247"
+        }
+      },
+      "seed": 20261110,
+      "generator": "lexbench/families/fragments.py",
+      "built_at": "2026-11-10T17:44:43Z"
+    },
+    "routing": {
+      "count": 271,
+      "sha256": "fc9ba25cca7572b2789a6a899d9bd22d598bb812ce340e13e7277fcfeae3d9d5",
+      "files": {
+        "data/routing/cases.jsonl": {
+          "count": 271,
+          "sha256": "76b532c7da256e701f96420ebb325713eab7cb310675d770c859264901d88ee1"
+        }
+      },
+      "built_at": "2026-11-10T16:32:55Z"
+    },
+    "legalbench": {
+      "count": 1079,
+      "sha256": "36b9ace52e687be250c78ee26e410860a6c8bfd4e517431ec6e9833648c5665c",
+      "files": {
+        "data/legalbench/corporate_lobbying.jsonl": {
+          "count": 100,
+          "sha256": "dcd2d9cdd1669e393d53653e9d27e01e3a8f98e85e74e6554ea9dc222dc8c3b4"
+        },
+        "data/legalbench/cuad_audit_rights.jsonl": {
+          "count": 100,
+          "sha256": "faf6cd362e514a38137873f09fef980cdb24a60eed3a0b0787ad99316b450674"
+        },
+        "data/legalbench/diversity_1.jsonl": {
+          "count": 100,
+          "sha256": "002fea633c0ee91a87353fa4159d912d3f7eb79631f0e17ceecc16b1c87d90e6"
+        },
+        "data/legalbench/function_of_decision_section.jsonl": {
+          "count": 99,
+          "sha256": "03c20c061ab7e14692ae4cf17f307384992d42515493f608baadb13b50bf3998"
+        },
+        "data/legalbench/hearsay.jsonl": {
+          "count": 94,
+          "sha256": "b266c90f8246d819f69a6e3de3075fad5aa7f22d474cdd7793bd349aafc3bc55"
+        },
+        "data/legalbench/insurance_policy_interpretation.jsonl": {
+          "count": 100,
+          "sha256": "fdabc3a6524980313932b0b57a34e9ec0fb9ec163fe574d5ced0a299e5d60354"
+        },
+        "data/legalbench/oral_argument_question_purpose.jsonl": {
+          "count": 100,
+          "sha256": "680fac1b4e0d983c286a28a51550133ad944018b7768c8cf12e090d51f4f6ce9"
+        },
+        "data/legalbench/overruling.jsonl": {
+          "count": 100,
+          "sha256": "3520962c229fb6089f770c1467922a4cd6d07502f159810cd5fd1b2144e40e1f"
+        },
+        "data/legalbench/personal_jurisdiction.jsonl": {
+          "count": 50,
+          "sha256": "0c602826d0eea2e2daac2b0204d8d361c9ec53eb08e7589c808dbb46c3486e94"
+        },
+        "data/legalbench/proa.jsonl": {
+          "count": 95,
+          "sha256": "0549c3293866f7622ac08f0662a70ee916c2754a2d2f7bc42cd3cc1e47aecf7e"
+        },
+        "data/legalbench/telemarketing_sales_rule.jsonl": {
+          "count": 47,
+          "sha256": "fa88d4f92255d6793430150c9b7fa0ae736ef28b3eb45e65095e00dc95f24d5d"
+        },
+        "data/legalbench/ucc_v_common_law.jsonl": {
+          "count": 94,
+          "sha256": "3e9cef6e74342e3da2eb9efdccadbc0c234a7f899fae1ebd72b6d22769e01d59"
+        }
+      },
+      "provenance": {
+        "dataset": "nguha/legalbench",
+        "dataset_revision": "daec8237410aa23e3faf4bc41ad8b3a7e1696826",
+        "upstream": "HazyResearch/legalbench",
+        "upstream_commit": "b46bf4ffae90524b2b72aaa30e7745fe9db64481",
+        "sample_size": 100,
+        "seed": 20261110,
+        "excluded": [
+          "lb-decisionfn-0366"
+        ]
+      },
+      "tasks": {
+        "corporate_lobbying": "issue-spotting",
+        "hearsay": "rule-application",
+        "diversity_1": "rule-application",
+        "personal_jurisdiction": "rule-application",
+        "ucc_v_common_law": "rule-application",
+        "telemarketing_sales_rule": "rule-application",
+        "proa": "interpretation",
+        "cuad_audit_rights": "interpretation",
+        "insurance_policy_interpretation": "interpretation",
+        "function_of_decision_section": "rhetorical-understanding",
+        "oral_argument_question_purpose": "rhetorical-understanding",
+        "overruling": "rhetorical-understanding"
+      },
+      "built_at": "2026-11-10T17:45:52Z"
+    }
+  }
+}

@@ -1,0 +1,65 @@
+# Imported by tools/import_mhsb.py from MHSBai/platform-plugins. Permitted fields only.
+# Regenerate with the tool; do not edit by hand.
+schema_version: 1
+pack: mhsb-pack-estate-probate
+practice_area: estate_planning_probate
+intake_questions:
+- id: family_tree
+  prompt: Family members, with the spelling of each name
+  answer_type: text
+  sensitive: false
+- id: special_needs
+  prompt: Any beneficiary with special needs
+  answer_type: boolean
+  sensitive: false
+- id: assets_titling
+  prompt: Assets, how each is titled, and approximate values
+  answer_type: text
+  sensitive: true
+- id: beneficiary_designations
+  prompt: Accounts and policies with beneficiary designations
+  answer_type: text
+  sensitive: true
+- id: existing_documents
+  prompt: Existing wills, trusts and powers of attorney
+  answer_type: text
+  sensitive: false
+- id: fiduciary_choices
+  prompt: Proposed executors, trustees, agents and guardians
+  answer_type: text
+  sensitive: false
+- id: business_interests
+  prompt: Business interests held
+  answer_type: text
+  sensitive: true
+- id: capacity_observations
+  prompt: Observations bearing on capacity or undue influence, recorded as observations
+  answer_type: text
+  sensitive: true
+- id: matter_kind
+  prompt: Planning or probate
+  answer_type: choice
+  choices:
+  - planning
+  - probate
+  - both
+  sensitive: false
+deadline_categories:
+- id: signing_logistics
+  name: Signing logistics
+  kind: firm_set
+- id: annual_review
+  name: Annual plan review
+  kind: firm_set
+- id: probate_inventory_accounting
+  name: Probate inventory and accounting dates, by state
+  kind: statutory
+- id: creditor_claim_period
+  name: Creditor claim periods, by state
+  kind: statutory
+- id: estate_tax_return
+  name: Estate tax return timing
+  kind: statutory
+attorney_review_flags:
+- possible_conflict
+- outside_jurisdiction

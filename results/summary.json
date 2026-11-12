@@ -1,0 +1,724 @@
+{
+  "generated_at": "2026-11-10T18:05:27Z",
+  "models": [
+    "claude-opus-5-5",
+    "claude-sonnet-5-5",
+    "claude-haiku-5-5"
+  ],
+  "families": {
+    "legalbench": {
+      "pass_bar": null,
+      "groups": {
+        "corporate_lobbying": {
+          "reasoning_type": "issue-spotting",
+          "claude-opus-5-5": {
+            "n": 100,
+            "correct": 81,
+            "accuracy": 0.81,
+            "format_failures": 0,
+            "balanced_accuracy": 0.7648
+          },
+          "claude-sonnet-5-5": {
+            "n": 100,
+            "correct": 79,
+            "accuracy": 0.79,
+            "format_failures": 0,
+            "balanced_accuracy": 0.7511
+          },
+          "claude-haiku-5-5": {
+            "n": 100,
+            "correct": 76,
+            "accuracy": 0.76,
+            "format_failures": 0,
+            "balanced_accuracy": 0.7306
+          }
+        },
+        "cuad_audit_rights": {
+          "reasoning_type": "interpretation",
+          "claude-opus-5-5": {
+            "n": 100,
+            "correct": 100,
+            "accuracy": 1.0,
+            "format_failures": 0,
+            "balanced_accuracy": 1.0
+          },
+          "claude-sonnet-5-5": {
+            "n": 100,
+            "correct": 99,
+            "accuracy": 0.99,
+            "format_failures": 0,
+            "balanced_accuracy": 0.9896
+          },
+          "claude-haiku-5-5": {
+            "n": 100,
+            "correct": 99,
+            "accuracy": 0.99,
+            "format_failures": 0,
+            "balanced_accuracy": 0.9896
+          }
+        },
+        "diversity_1": {
+          "reasoning_type": "rule-application",
+          "claude-opus-5-5": {
+            "n": 100,
+            "correct": 100,
+            "accuracy": 1.0,
+            "format_failures": 0,
+            "balanced_accuracy": 1.0
+          },
+          "claude-sonnet-5-5": {
+            "n": 100,
+            "correct": 100,
+            "accuracy": 1.0,
+            "format_failures": 0,
+            "balanced_accuracy": 1.0
+          },
+          "claude-haiku-5-5": {
+            "n": 100,
+            "correct": 100,
+            "accuracy": 1.0,
+            "format_failures": 0,
+            "balanced_accuracy": 1.0
+          }
+        },
+        "function_of_decision_section": {
+          "reasoning_type": "rhetorical-understanding",
+          "claude-opus-5-5": {
+            "n": 99,
+            "correct": 55,
+            "accuracy": 0.5556,
+            "format_failures": 0,
+            "balanced_accuracy": 0.5467
+          },
+          "claude-sonnet-5-5": {
+            "n": 99,
+            "correct": 57,
+            "accuracy": 0.5758,
+            "format_failures": 0,
+            "balanced_accuracy": 0.5654
+          },
+          "claude-haiku-5-5": {
+            "n": 99,
+            "correct": 45,
+            "accuracy": 0.4545,
+            "format_failures": 0,
+            "balanced_accuracy": 0.4373
+          }
+        },
+        "hearsay": {
+          "reasoning_type": "rule-application",
+          "claude-opus-5-5": {
+            "n": 94,
+            "correct": 83,
+            "accuracy": 0.883,
+            "format_failures": 0,
+            "balanced_accuracy": 0.8741
+          },
+          "claude-sonnet-5-5": {
+            "n": 94,
+            "correct": 81,
+            "accuracy": 0.8617,
+            "format_failures": 0,
+            "balanced_accuracy": 0.8497
+          },
+          "claude-haiku-5-5": {
+            "n": 94,
+            "correct": 81,
+            "accuracy": 0.8617,
+            "format_failures": 0,
+            "balanced_accuracy": 0.8608
+          }
+        },
+        "insurance_policy_interpretation": {
+          "reasoning_type": "interpretation",
+          "claude-opus-5-5": {
+            "n": 100,
+            "correct": 66,
+            "accuracy": 0.66,
+            "format_failures": 0,
+            "balanced_accuracy": 0.7092
+          },
+          "claude-sonnet-5-5": {
+            "n": 100,
+            "correct": 59,
+            "accuracy": 0.59,
+            "format_failures": 2,
+            "balanced_accuracy": 0.6403
+          },
+          "claude-haiku-5-5": {
+            "n": 100,
+            "correct": 54,
+            "accuracy": 0.54,
+            "format_failures": 0,
+            "balanced_accuracy": 0.6152
+          }
+        },
+        "oral_argument_question_purpose": {
+          "reasoning_type": "rhetorical-understanding",
+          "claude-opus-5-5": {
+            "n": 100,
+            "correct": 46,
+            "accuracy": 0.46,
+            "format_failures": 0,
+            "balanced_accuracy": 0.4491
+          },
+          "claude-sonnet-5-5": {
+            "n": 100,
+            "correct": 52,
+            "accuracy": 0.52,
+            "format_failures": 0,
+            "balanced_accuracy": 0.4386
+          },
+          "claude-haiku-5-5": {
+            "n": 100,
+            "correct": 35,
+            "accuracy": 0.35,
+            "format_failures": 0,
+            "balanced_accuracy": 0.2663
+          }
+        },
+        "overruling": {
+          "reasoning_type": "rhetorical-understanding",
+          "claude-opus-5-5": {
+            "n": 100,
+            "correct": 95,
+            "accuracy": 0.95,
+            "format_failures": 0,
+            "balanced_accuracy": 0.9554
+          },
+          "claude-sonnet-5-5": {
+            "n": 100,
+            "correct": 95,
+            "accuracy": 0.95,
+            "format_failures": 0,
+            "balanced_accuracy": 0.9554
+          },
+          "claude-haiku-5-5": {
+            "n": 100,
+            "correct": 98,
+            "accuracy": 0.98,
+            "format_failures": 0,
+            "balanced_accuracy": 0.9821
+          }
+        },
+        "personal_jurisdiction": {
+          "reasoning_type": "rule-application",
+          "claude-opus-5-5": {
+            "n": 50,
+            "correct": 49,
+            "accuracy": 0.98,
+            "format_failures": 0,
+            "balanced_accuracy": 0.9762
+          },
+          "claude-sonnet-5-5": {
+            "n": 50,
+            "correct": 50,
+            "accuracy": 1.0,
+            "format_failures": 0,
+            "balanced_accuracy": 1.0
+          },
+          "claude-haiku-5-5": {
+            "n": 50,
+            "correct": 46,
+            "accuracy": 0.92,
+            "format_failures": 0,
+            "balanced_accuracy": 0.9113
+          }
+        },
+        "proa": {
+          "reasoning_type": "interpretation",
+          "claude-opus-5-5": {
+            "n": 95,
+            "correct": 89,
+            "accuracy": 0.9368,
+            "format_failures": 5,
+            "balanced_accuracy": 0.9364
+          },
+          "claude-sonnet-5-5": {
+            "n": 95,
+            "correct": 93,
+            "accuracy": 0.9789,
+            "format_failures": 0,
+            "balanced_accuracy": 0.9789
+          },
+          "claude-haiku-5-5": {
+            "n": 95,
+            "correct": 89,
+            "accuracy": 0.9368,
+            "format_failures": 0,
+            "balanced_accuracy": 0.9375
+          }
+        },
+        "telemarketing_sales_rule": {
+          "reasoning_type": "rule-application",
+          "claude-opus-5-5": {
+            "n": 47,
+            "correct": 45,
+            "accuracy": 0.9574,
+            "format_failures": 0,
+            "balanced_accuracy": 0.9558
+          },
+          "claude-sonnet-5-5": {
+            "n": 47,
+            "correct": 44,
+            "accuracy": 0.9362,
+            "format_failures": 0,
+            "balanced_accuracy": 0.938
+          },
+          "claude-haiku-5-5": {
+            "n": 47,
+            "correct": 39,
+            "accuracy": 0.8298,
+            "format_failures": 0,
+            "balanced_accuracy": 0.8233
+          }
+        },
+        "ucc_v_common_law": {
+          "reasoning_type": "rule-application",
+          "claude-opus-5-5": {
+            "n": 94,
+            "correct": 93,
+            "accuracy": 0.9894,
+            "format_failures": 0,
+            "balanced_accuracy": 0.9907
+          },
+          "claude-sonnet-5-5": {
+            "n": 94,
+            "correct": 94,
+            "accuracy": 1.0,
+            "format_failures": 0,
+            "balanced_accuracy": 1.0
+          },
+          "claude-haiku-5-5": {
+            "n": 94,
+            "correct": 94,
+            "accuracy": 1.0,
+            "format_failures": 0,
+            "balanced_accuracy": 1.0
+          }
+        }
+      },
+      "overall": {
+        "claude-opus-5-5": {
+          "n": 1079,
+          "correct": 902,
+          "accuracy": 0.836,
+          "format_failures": 5,
+          "mean_task_accuracy": 0.8485
+        },
+        "claude-sonnet-5-5": {
+          "n": 1079,
+          "correct": 903,
+          "accuracy": 0.8369,
+          "format_failures": 2,
+          "mean_task_accuracy": 0.8494
+        },
+        "claude-haiku-5-5": {
+          "n": 1079,
+          "correct": 856,
+          "accuracy": 0.7933,
+          "format_failures": 0,
+          "mean_task_accuracy": 0.8019
+        }
+      }
+    },
+    "fragments": {
+      "pass_bar": 0.9,
+      "groups": {
+        "mhsb-pack-bankruptcy-consumer": {
+          "claude-opus-5-5": {
+            "n": 15,
+            "correct": 15,
+            "accuracy": 1.0,
+            "format_failures": 0
+          },
+          "claude-sonnet-5-5": {
+            "n": 15,
+            "correct": 15,
+            "accuracy": 1.0,
+            "format_failures": 0
+          },
+          "claude-haiku-5-5": {
+            "n": 15,
+            "correct": 15,
+            "accuracy": 1.0,
+            "format_failures": 0
+          }
+        },
+        "mhsb-pack-business-transactional": {
+          "claude-opus-5-5": {
+            "n": 17,
+            "correct": 15,
+            "accuracy": 0.8824,
+            "format_failures": 0
+          },
+          "claude-sonnet-5-5": {
+            "n": 17,
+            "correct": 16,
+            "accuracy": 0.9412,
+            "format_failures": 0
+          },
+          "claude-haiku-5-5": {
+            "n": 17,
+            "correct": 15,
+            "accuracy": 0.8824,
+            "format_failures": 0
+          }
+        },
+        "mhsb-pack-civil-litigation": {
+          "claude-opus-5-5": {
+            "n": 17,
+            "correct": 11,
+            "accuracy": 0.6471,
+            "format_failures": 0
+          },
+          "claude-sonnet-5-5": {
+            "n": 17,
+            "correct": 11,
+            "accuracy": 0.6471,
+            "format_failures": 0
+          },
+          "claude-haiku-5-5": {
+            "n": 17,
+            "correct": 11,
+            "accuracy": 0.6471,
+            "format_failures": 0
+          }
+        },
+        "mhsb-pack-criminal-defense": {
+          "claude-opus-5-5": {
+            "n": 12,
+            "correct": 12,
+            "accuracy": 1.0,
+            "format_failures": 0
+          },
+          "claude-sonnet-5-5": {
+            "n": 12,
+            "correct": 12,
+            "accuracy": 1.0,
+            "format_failures": 0
+          },
+          "claude-haiku-5-5": {
+            "n": 12,
+            "correct": 12,
+            "accuracy": 1.0,
+            "format_failures": 0
+          }
+        },
+        "mhsb-pack-employment-plaintiff": {
+          "claude-opus-5-5": {
+            "n": 17,
+            "correct": 17,
+            "accuracy": 1.0,
+            "format_failures": 0
+          },
+          "claude-sonnet-5-5": {
+            "n": 17,
+            "correct": 17,
+            "accuracy": 1.0,
+            "format_failures": 0
+          },
+          "claude-haiku-5-5": {
+            "n": 17,
+            "correct": 17,
+            "accuracy": 1.0,
+            "format_failures": 0
+          }
+        },
+        "mhsb-pack-estate-probate": {
+          "claude-opus-5-5": {
+            "n": 17,
+            "correct": 17,
+            "accuracy": 1.0,
+            "format_failures": 0
+          },
+          "claude-sonnet-5-5": {
+            "n": 17,
+            "correct": 17,
+            "accuracy": 1.0,
+            "format_failures": 0
+          },
+          "claude-haiku-5-5": {
+            "n": 17,
+            "correct": 17,
+            "accuracy": 1.0,
+            "format_failures": 0
+          }
+        },
+        "mhsb-pack-family-law": {
+          "claude-opus-5-5": {
+            "n": 15,
+            "correct": 15,
+            "accuracy": 1.0,
+            "format_failures": 0
+          },
+          "claude-sonnet-5-5": {
+            "n": 15,
+            "correct": 15,
+            "accuracy": 1.0,
+            "format_failures": 0
+          },
+          "claude-haiku-5-5": {
+            "n": 15,
+            "correct": 15,
+            "accuracy": 1.0,
+            "format_failures": 0
+          }
+        },
+        "mhsb-pack-immigration": {
+          "claude-opus-5-5": {
+            "n": 15,
+            "correct": 13,
+            "accuracy": 0.8667,
+            "format_failures": 0
+          },
+          "claude-sonnet-5-5": {
+            "n": 15,
+            "correct": 13,
+            "accuracy": 0.8667,
+            "format_failures": 0
+          },
+          "claude-haiku-5-5": {
+            "n": 15,
+            "correct": 13,
+            "accuracy": 0.8667,
+            "format_failures": 0
+          }
+        },
+        "mhsb-pack-landlord-tenant-consumer": {
+          "claude-opus-5-5": {
+            "n": 15,
+            "correct": 15,
+            "accuracy": 1.0,
+            "format_failures": 0
+          },
+          "claude-sonnet-5-5": {
+            "n": 15,
+            "correct": 15,
+            "accuracy": 1.0,
+            "format_failures": 0
+          },
+          "claude-haiku-5-5": {
+            "n": 15,
+            "correct": 15,
+            "accuracy": 1.0,
+            "format_failures": 0
+          }
+        },
+        "mhsb-pack-personal-injury": {
+          "claude-opus-5-5": {
+            "n": 23,
+            "correct": 21,
+            "accuracy": 0.913,
+            "format_failures": 0
+          },
+          "claude-sonnet-5-5": {
+            "n": 23,
+            "correct": 21,
+            "accuracy": 0.913,
+            "format_failures": 0
+          },
+          "claude-haiku-5-5": {
+            "n": 23,
+            "correct": 21,
+            "accuracy": 0.913,
+            "format_failures": 0
+          }
+        },
+        "mhsb-pack-real-estate": {
+          "claude-opus-5-5": {
+            "n": 17,
+            "correct": 17,
+            "accuracy": 1.0,
+            "format_failures": 0
+          },
+          "claude-sonnet-5-5": {
+            "n": 17,
+            "correct": 17,
+            "accuracy": 1.0,
+            "format_failures": 0
+          },
+          "claude-haiku-5-5": {
+            "n": 17,
+            "correct": 17,
+            "accuracy": 1.0,
+            "format_failures": 0
+          }
+        },
+        "mhsb-pack-workers-compensation": {
+          "claude-opus-5-5": {
+            "n": 17,
+            "correct": 17,
+            "accuracy": 1.0,
+            "format_failures": 0
+          },
+          "claude-sonnet-5-5": {
+            "n": 17,
+            "correct": 17,
+            "accuracy": 1.0,
+            "format_failures": 0
+          },
+          "claude-haiku-5-5": {
+            "n": 17,
+            "correct": 16,
+            "accuracy": 0.9412,
+            "format_failures": 0
+          }
+        }
+      },
+      "overall": {
+        "claude-opus-5-5": {
+          "n": 197,
+          "correct": 185,
+          "accuracy": 0.9391,
+          "format_failures": 0,
+          "by_case_kind": {
+            "deadline": {
+              "n": 87,
+              "correct": 75,
+              "accuracy": 0.8621,
+              "format_failures": 0
+            },
+            "flags": {
+              "n": 110,
+              "correct": 110,
+              "accuracy": 1.0,
+              "format_failures": 0
+            }
+          },
+          "passes": true
+        },
+        "claude-sonnet-5-5": {
+          "n": 197,
+          "correct": 186,
+          "accuracy": 0.9442,
+          "format_failures": 0,
+          "by_case_kind": {
+            "deadline": {
+              "n": 87,
+              "correct": 76,
+              "accuracy": 0.8736,
+              "format_failures": 0
+            },
+            "flags": {
+              "n": 110,
+              "correct": 110,
+              "accuracy": 1.0,
+              "format_failures": 0
+            }
+          },
+          "passes": true
+        },
+        "claude-haiku-5-5": {
+          "n": 197,
+          "correct": 184,
+          "accuracy": 0.934,
+          "format_failures": 0,
+          "by_case_kind": {
+            "deadline": {
+              "n": 87,
+              "correct": 74,
+              "accuracy": 0.8506,
+              "format_failures": 0
+            },
+            "flags": {
+              "n": 110,
+              "correct": 110,
+              "accuracy": 1.0,
+              "format_failures": 0
+            }
+          },
+          "passes": true
+        }
+      }
+    },
+    "routing": {
+      "pass_bar": 0.95,
+      "groups": {
+        "manifest_trigger": {
+          "claude-opus-5-5": {
+            "n": 141,
+            "correct": 126,
+            "accuracy": 0.8936,
+            "format_failures": 0
+          },
+          "claude-sonnet-5-5": {
+            "n": 141,
+            "correct": 123,
+            "accuracy": 0.8723,
+            "format_failures": 0
+          },
+          "claude-haiku-5-5": {
+            "n": 141,
+            "correct": 124,
+            "accuracy": 0.8794,
+            "format_failures": 0
+          }
+        },
+        "paraphrase": {
+          "claude-opus-5-5": {
+            "n": 72,
+            "correct": 72,
+            "accuracy": 1.0,
+            "format_failures": 0
+          },
+          "claude-sonnet-5-5": {
+            "n": 72,
+            "correct": 72,
+            "accuracy": 1.0,
+            "format_failures": 0
+          },
+          "claude-haiku-5-5": {
+            "n": 72,
+            "correct": 72,
+            "accuracy": 1.0,
+            "format_failures": 0
+          }
+        },
+        "routing_suite": {
+          "claude-opus-5-5": {
+            "n": 58,
+            "correct": 54,
+            "accuracy": 0.931,
+            "format_failures": 0
+          },
+          "claude-sonnet-5-5": {
+            "n": 58,
+            "correct": 56,
+            "accuracy": 0.9655,
+            "format_failures": 0
+          },
+          "claude-haiku-5-5": {
+            "n": 58,
+            "correct": 52,
+            "accuracy": 0.8966,
+            "format_failures": 0
+          }
+        }
+      },
+      "overall": {
+        "claude-opus-5-5": {
+          "n": 271,
+          "correct": 252,
+          "accuracy": 0.9299,
+          "format_failures": 0,
+          "passes": false
+        },
+        "claude-sonnet-5-5": {
+          "n": 271,
+          "correct": 251,
+          "accuracy": 0.9262,
+          "format_failures": 0,
+          "passes": false
+        },
+        "claude-haiku-5-5": {
+          "n": 271,
+          "correct": 248,
+          "accuracy": 0.9151,
+          "format_failures": 0,
+          "passes": false
+        }
+      }
+    }
+  }
+}

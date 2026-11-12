@@ -1,0 +1,90 @@
+# Imported by tools/import_mhsb.py from MHSBai/platform-plugins. Permitted fields only.
+# Regenerate with the tool; do not edit by hand.
+schema_version: 1
+pack: mhsb-pack-personal-injury
+practice_area: personal_injury
+intake_questions:
+- id: loss_date
+  prompt: Date of the loss, as the person states it
+  answer_type: date
+  sensitive: false
+- id: loss_location
+  prompt: Where the loss occurred
+  answer_type: address
+  sensitive: false
+- id: loss_type
+  prompt: Type of loss
+  answer_type: choice
+  choices:
+  - motor vehicle
+  - premises
+  - dog bite
+  - product
+  - workplace
+  - other
+  sensitive: false
+- id: injuries_treatment
+  prompt: Injuries and treatment to date, in the person's words
+  answer_type: text
+  sensitive: true
+- id: treatment_providers
+  prompt: Treating providers seen so far
+  answer_type: text
+  sensitive: true
+- id: insurance_both_parties
+  prompt: Insurance carriers and limits for both parties, if known
+  answer_type: text
+  sensitive: true
+- id: witnesses
+  prompt: Witnesses, with contact details if known
+  answer_type: text
+  sensitive: false
+- id: employment_wage_loss
+  prompt: Employment and any wage loss
+  answer_type: text
+  sensitive: true
+- id: prior_claims
+  prompt: Prior claims or suits arising from this or another loss
+  answer_type: boolean
+  sensitive: false
+- id: prior_counsel
+  prompt: Any lawyer already consulted or retained on this loss
+  answer_type: text
+  sensitive: false
+- id: impact_statement
+  prompt: How the loss has affected daily life, in the person's words
+  answer_type: text
+  sensitive: false
+- id: source
+  prompt: How the person heard of the firm
+  answer_type: choice
+  choices:
+  - referral
+  - search
+  - advertising
+  - event
+  - prior client
+  - other
+  - unknown
+  sensitive: false
+deadline_categories:
+- id: limitation_period
+  name: Limitation period per matter type and incident-date range; the firm records the governing statute
+    as its own
+  kind: firm_set
+- id: government_notice_of_claim
+  name: Government notice-of-claim window
+  kind: statutory
+- id: records_turnaround
+  name: Records turnaround
+  kind: firm_set
+- id: lien_deadline
+  name: Lien deadlines
+  kind: firm_set
+attorney_review_flags:
+- possible_limitation_issue
+- outside_case_types
+- liability_or_evidence_question
+- conflict_match
+- prior_counsel_of_record
+- outside_service_area

@@ -1,0 +1,81 @@
+# Imported by tools/import_mhsb.py from MHSBai/platform-plugins. Permitted fields only.
+# Regenerate with the tool; do not edit by hand.
+schema_version: 1
+pack: mhsb-pack-landlord-tenant-consumer
+practice_area: landlord_tenant_consumer
+intake_questions:
+- id: side
+  prompt: Which side the person is on
+  answer_type: choice
+  choices:
+  - tenant
+  - landlord
+  - consumer
+  - other
+  sensitive: false
+- id: property
+  prompt: Property address
+  answer_type: address
+  sensitive: false
+- id: lease
+  prompt: Whether a written lease exists
+  answer_type: choice
+  choices:
+  - 'yes'
+  - 'no'
+  - unknown
+  sensitive: false
+- id: notices_dates
+  prompt: Notices received or served, each with its date
+  answer_type: text
+  sensitive: false
+- id: rent_ledger
+  prompt: Rent ledger or amounts claimed
+  answer_type: text
+  sensitive: true
+- id: answer_hearing_date
+  prompt: Answer or hearing date, as written on the court papers
+  answer_type: date
+  sensitive: false
+- id: habitability
+  prompt: Habitability conditions, in the person's words
+  answer_type: text
+  sensitive: false
+- id: subsidy_status
+  prompt: Whether the tenancy is subsidized
+  answer_type: choice
+  choices:
+  - 'yes'
+  - 'no'
+  - unknown
+  sensitive: true
+- id: collector
+  prompt: Collector or creditor named
+  answer_type: text
+  sensitive: false
+- id: debt
+  prompt: Debt claimed
+  answer_type: currency
+  sensitive: true
+- id: debt_dates
+  prompt: Dates of the debt and of collection contacts
+  answer_type: text
+  sensitive: false
+- id: validation_notice
+  prompt: Whether a validation notice was received, and its date
+  answer_type: text
+  sensitive: false
+deadline_categories:
+- id: eviction_answer_window
+  name: Eviction answer windows, by state
+  kind: statutory
+- id: consumer_suit_window
+  name: Consumer suit windows
+  kind: statutory
+- id: consumer_dispute_window
+  name: Consumer dispute windows
+  kind: statutory
+attorney_review_flags:
+- answer_deadline_question
+- conflict_match
+- fee_shifting_question

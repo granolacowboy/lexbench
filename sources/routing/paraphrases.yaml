@@ -1,0 +1,99 @@
+# Paraphrases written for LexBench, three per command. The expected command is the key.
+schema_version: 1
+paraphrases:
+  start:
+    - which commands do I have available
+    - I am new to this plugin, how does it work
+    - give me an overview of what you can help with
+  before-i-paste:
+    - am I allowed to upload this client contract here
+    - before I share this intake form, is that permitted
+    - can this deposition transcript go into the chat
+  explain-this:
+    - put this court notice into everyday words
+    - I do not follow this clause, can you break it down
+    - what is this letter from opposing counsel actually saying
+  follow-up:
+    - help me answer the email the client sent yesterday
+    - who have we not written back to this week
+    - draft a short check-in message to the client
+  meeting-notes:
+    - make a memo for the file from this phone call
+    - list the action items from today's consultation
+    - summarise the intake interview I just finished
+  ai-policy-draft:
+    - put together a written policy on how the firm uses AI
+    - should our engagement letter disclose that we use AI
+    - write the firm's guidelines for generative AI
+  ai-training:
+    - prepare a short lesson for the assistants on using Claude well
+    - what should staff never do with AI tools
+    - teach the intake team to use the plugin safely
+  ask-mhsb:
+    - report a bug in the plugin to the vendor
+    - I need help from MHSB with an error message
+    - let the support team know the connector failed
+  brief:
+    - summarise everything that needs attention today
+    - which matters have had no activity for a month
+    - show me the workload for each paralegal
+  consult-prep:
+    - brief me before I meet the prospective client at three
+    - questions to ask at tomorrow's initial consultation
+    - prepare me for the hearing on Friday
+  matter-status:
+    - what is the current state of the Petrov file
+    - draft an update for the client on how the case is going
+    - summarise the progress on this matter so far
+  intake-triage:
+    - rank the inquiries that arrived this weekend
+    - check the new prospects against our client list for conflicts
+    - which new inquiries look strongest
+  letter:
+    - prepare a letter turning down this prospective client
+    - write the engagement welcome letter
+    - send the client a list of the records we still need from them
+  dates:
+    - when is the response to the complaint due
+    - calculate the days elapsed since the incident
+    - which hearings are on the calendar this month
+  checklist:
+    - what paperwork is still outstanding on this matter
+    - are all the documents in for the closing
+    - compare the file against the required documents list
+  hygiene:
+    - find custom fields that are never filled in
+    - which open matters have no lead attorney
+    - tidy up duplicated fields in our case management system
+  report:
+    - pull the aging report for me
+    - email me the weekly summary every Friday
+    - what standard reports are available
+  on-brand:
+    - does this newsletter match our tone
+    - review this client email for style before I send it
+    - is this announcement consistent with how we usually write
+  check-setup:
+    - is the integration connected properly
+    - what version of the plugin do I have
+    - why is the matter data not showing up
+  form-protections:
+    - is our website contact form protected against spam bots
+    - could a fake appointment be booked through our intake page
+    - check whether our public forms have any safeguards
+  pipeline-health:
+    - which of our automated sequences are not running
+    - are any email templates sending twice
+    - list the automations that have stopped firing
+  timekeeper-hours:
+    - show recorded hours for each lawyer this quarter
+    - how much time did the associates log last week
+    - total hours by timekeeper for September
+  production:
+    - break down our billings by hourly versus flat fee
+    - what was billed last quarter
+    - total invoiced amount this month by billing type
+  budget-vs-actual:
+    - which matters have used more hours than budgeted
+    - compare budgeted and actual time on the Haddad matter
+    - are any fixed-fee cases running over

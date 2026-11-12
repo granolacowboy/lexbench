@@ -1,0 +1,248 @@
+{
+  "generated_at": "2026-11-10T17:47:32Z",
+  "method": "input tokens: characters / 3 plus 16 per request; output tokens: the output bound of each request",
+  "spend_cap_usd": 60.0,
+  "data": {
+    "legalbench": "36b9ace52e687be250c78ee26e410860a6c8bfd4e517431ec6e9833648c5665c",
+    "fragments": "71fa9bc5d37851eebe126d3f5954e02860971a4266bbedad928714d1fe6aee55",
+    "routing": "fc9ba25cca7572b2789a6a899d9bd22d598bb812ce340e13e7277fcfeae3d9d5"
+  },
+  "pricing_check": {
+    "url": "https://platform.claude.com/docs/en/about-claude/pricing",
+    "fetched_at": "2026-11-10T17:47:33Z",
+    "entries": {
+      "claude-opus-5-5": {
+        "page_name": "Claude Opus 5.5",
+        "page": {
+          "input": 4.0,
+          "output": 20.0,
+          "batch_input": 2.0,
+          "batch_output": 10.0
+        },
+        "registry": {
+          "input": 4.0,
+          "output": 20.0,
+          "batch_discount": 0.5
+        },
+        "match": true
+      },
+      "claude-sonnet-5-5": {
+        "page_name": "Claude Sonnet 5.5",
+        "page": {
+          "input": 2.0,
+          "output": 10.0,
+          "batch_input": 1.0,
+          "batch_output": 5.0
+        },
+        "registry": {
+          "input": 2.0,
+          "output": 10.0,
+          "batch_discount": 0.5
+        },
+        "match": true
+      },
+      "claude-haiku-5-5": {
+        "page_name": "Claude Haiku 5.5",
+        "page": {
+          "input": 0.1,
+          "output": 0.5,
+          "batch_input": 0.05,
+          "batch_output": 0.25
+        },
+        "registry": {
+          "input": 0.1,
+          "output": 0.5,
+          "batch_discount": 0.5
+        },
+        "match": true
+      }
+    },
+    "status": "match"
+  },
+  "entries": {
+    "claude-opus-5-5": {
+      "legalbench": {
+        "requests": 1079,
+        "input_tokens": 968309,
+        "output_tokens": 1130792,
+        "usd": 13.2445,
+        "batch": true,
+        "paid": true,
+        "config_sha256": "8b77f10d2a61f2e01d0a0b329fab5f7d030e10ceb24f002c5440439aeeffc974",
+        "pricing": {
+          "input_per_mtok": 4.0,
+          "output_per_mtok": 20.0,
+          "batch_discount": 0.5
+        }
+      },
+      "fragments": {
+        "requests": 197,
+        "input_tokens": 86911,
+        "output_tokens": 319928,
+        "usd": 3.3731,
+        "batch": true,
+        "paid": true,
+        "config_sha256": "fe5d02633c8b4f9b1817c97e9797813c6f359cefee368490f899f68c8313de2a",
+        "pricing": {
+          "input_per_mtok": 4.0,
+          "output_per_mtok": 20.0,
+          "batch_discount": 0.5
+        }
+      },
+      "routing": {
+        "requests": 271,
+        "input_tokens": 228036,
+        "output_tokens": 282924,
+        "usd": 3.2853,
+        "batch": true,
+        "paid": true,
+        "config_sha256": "dc01684c8f07d957c461f939bd294772fd36b5539ed046d0fbe3210dda73645a",
+        "pricing": {
+          "input_per_mtok": 4.0,
+          "output_per_mtok": 20.0,
+          "batch_discount": 0.5
+        }
+      }
+    },
+    "claude-sonnet-5-5": {
+      "legalbench": {
+        "requests": 1079,
+        "input_tokens": 968309,
+        "output_tokens": 1130792,
+        "usd": 6.6223,
+        "batch": true,
+        "paid": true,
+        "config_sha256": "b5753c8e2d9e066c7727c6f0aa7a988fdfb5e938b271e4610c54dd5275036470",
+        "pricing": {
+          "input_per_mtok": 2.0,
+          "output_per_mtok": 10.0,
+          "batch_discount": 0.5
+        }
+      },
+      "fragments": {
+        "requests": 197,
+        "input_tokens": 86911,
+        "output_tokens": 319928,
+        "usd": 1.6866,
+        "batch": true,
+        "paid": true,
+        "config_sha256": "f6e6916439776e702dbae19feedf2d5979ea01dfdca9e08281b7c06b325b8e50",
+        "pricing": {
+          "input_per_mtok": 2.0,
+          "output_per_mtok": 10.0,
+          "batch_discount": 0.5
+        }
+      },
+      "routing": {
+        "requests": 271,
+        "input_tokens": 228036,
+        "output_tokens": 5420,
+        "usd": 0.2551,
+        "batch": true,
+        "paid": true,
+        "config_sha256": "c85a48a844568004da3f397ad279bf4bd4e506c22d1eda2943087de54a008b58",
+        "pricing": {
+          "input_per_mtok": 2.0,
+          "output_per_mtok": 10.0,
+          "batch_discount": 0.5
+        }
+      }
+    },
+    "claude-haiku-5-5": {
+      "legalbench": {
+        "requests": 1079,
+        "input_tokens": 968309,
+        "output_tokens": 1130792,
+        "usd": 0.3311,
+        "batch": true,
+        "paid": true,
+        "config_sha256": "408d46e00909fe8217c3996f32270777765c53ab42116374c1a8db5ed4936402",
+        "pricing": {
+          "input_per_mtok": 0.1,
+          "output_per_mtok": 0.5,
+          "batch_discount": 0.5
+        }
+      },
+      "fragments": {
+        "requests": 197,
+        "input_tokens": 86911,
+        "output_tokens": 319928,
+        "usd": 0.0843,
+        "batch": true,
+        "paid": true,
+        "config_sha256": "88f8d039e61c2f3d59179fbf5fcf3a25ab058cba736b4bae63dc70d28e19e4c5",
+        "pricing": {
+          "input_per_mtok": 0.1,
+          "output_per_mtok": 0.5,
+          "batch_discount": 0.5
+        }
+      },
+      "routing": {
+        "requests": 271,
+        "input_tokens": 228036,
+        "output_tokens": 5420,
+        "usd": 0.0128,
+        "batch": true,
+        "paid": true,
+        "config_sha256": "d7b5775f3fb47f6e47657e2b637b8c709c2161fa0ca93197778cceeb0e6a117b",
+        "pricing": {
+          "input_per_mtok": 0.1,
+          "output_per_mtok": 0.5,
+          "batch_discount": 0.5
+        }
+      }
+    },
+    "mock": {
+      "legalbench": {
+        "requests": 1079,
+        "input_tokens": 968309,
+        "output_tokens": 25896,
+        "usd": 0.0,
+        "batch": true,
+        "paid": false,
+        "config_sha256": "30a9baacf666ecdf68462a4854224d08a4cf48d1594cec5493e488f35d94947c",
+        "pricing": {
+          "input_per_mtok": 0.0,
+          "output_per_mtok": 0.0,
+          "batch_discount": 0.0
+        }
+      },
+      "fragments": {
+        "requests": 197,
+        "input_tokens": 86911,
+        "output_tokens": 118200,
+        "usd": 0.0,
+        "batch": true,
+        "paid": false,
+        "config_sha256": "30a9baacf666ecdf68462a4854224d08a4cf48d1594cec5493e488f35d94947c",
+        "pricing": {
+          "input_per_mtok": 0.0,
+          "output_per_mtok": 0.0,
+          "batch_discount": 0.0
+        }
+      },
+      "routing": {
+        "requests": 271,
+        "input_tokens": 228036,
+        "output_tokens": 5420,
+        "usd": 0.0,
+        "batch": true,
+        "paid": false,
+        "config_sha256": "30a9baacf666ecdf68462a4854224d08a4cf48d1594cec5493e488f35d94947c",
+        "pricing": {
+          "input_per_mtok": 0.0,
+          "output_per_mtok": 0.0,
+          "batch_discount": 0.0
+        }
+      }
+    }
+  },
+  "totals_usd": {
+    "claude-opus-5-5": 19.9029,
+    "claude-sonnet-5-5": 8.564,
+    "claude-haiku-5-5": 0.4282,
+    "mock": 0.0
+  },
+  "total_usd": 28.8951,
+  "within_cap": true
+}

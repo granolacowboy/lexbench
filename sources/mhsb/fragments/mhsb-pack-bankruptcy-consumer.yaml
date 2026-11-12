@@ -1,0 +1,52 @@
+# Imported by tools/import_mhsb.py from MHSBai/platform-plugins. Permitted fields only.
+# Regenerate with the tool; do not edit by hand.
+schema_version: 1
+pack: mhsb-pack-bankruptcy-consumer
+practice_area: bankruptcy_consumer
+intake_questions:
+- id: income_six_months
+  prompt: Household income for each of the last six months
+  answer_type: text
+  sensitive: true
+- id: household_size
+  prompt: Household size
+  answer_type: number
+  sensitive: false
+- id: debts_by_type
+  prompt: Debts by type
+  answer_type: text
+  sensitive: true
+- id: assets
+  prompt: Assets
+  answer_type: text
+  sensitive: true
+- id: prior_filings
+  prompt: Any prior bankruptcy filing, with the date
+  answer_type: text
+  sensitive: false
+- id: suits_garnishments_foreclosure
+  prompt: Pending suits, garnishments or foreclosure
+  answer_type: text
+  sensitive: false
+- id: transfers
+  prompt: Transfers of property or payments to family members
+  answer_type: text
+  sensitive: true
+- id: business_ownership
+  prompt: Any business owned now or recently
+  answer_type: boolean
+  sensitive: false
+deadline_categories:
+- id: code_rules_period
+  name: Code and Rules periods
+  kind: statutory
+- id: debtor_education_deadline
+  name: Debtor education course deadline
+  kind: statutory
+- id: meeting_of_creditors_date
+  name: Meeting of creditors date, entered from the court's notice
+  kind: firm_set
+attorney_review_flags:
+- prior_filing_question
+- conflict_match
+- outside_jurisdiction

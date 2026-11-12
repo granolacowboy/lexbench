@@ -1,0 +1,58 @@
+# Imported by tools/import_mhsb.py from MHSBai/platform-plugins. Permitted fields only.
+# Regenerate with the tool; do not edit by hand.
+schema_version: 1
+pack: mhsb-pack-business-transactional
+practice_area: business_transactional
+intake_questions:
+- id: client_identity
+  prompt: 'Who the client is: the entity, a founder, or another person'
+  answer_type: choice
+  choices:
+  - entity
+  - founder
+  - other person
+  - not yet decided
+  sensitive: false
+- id: owners_percentages
+  prompt: Owners and their stated ownership percentages
+  answer_type: text
+  sensitive: false
+- id: goals
+  prompt: What the owners want the engagement to achieve
+  answer_type: text
+  sensitive: false
+- id: state
+  prompt: State of formation or intended formation
+  answer_type: text
+  sensitive: false
+- id: capital_debt
+  prompt: Capital contributed and debt the business carries
+  answer_type: text
+  sensitive: true
+- id: regulated_profession
+  prompt: Whether the business practises a licensed or regulated profession
+  answer_type: choice
+  choices:
+  - 'yes'
+  - 'no'
+  - unknown
+  sensitive: false
+deadline_categories:
+- id: tax_election
+  name: Tax elections
+  kind: statutory
+- id: annual_report_franchise_tax
+  name: Annual reports and franchise tax, by state
+  kind: statutory
+- id: annual_meeting
+  name: Annual meetings
+  kind: firm_set
+- id: assumed_name_filing
+  name: Assumed-name filings and renewals
+  kind: firm_set
+- id: beneficial_ownership_reporting
+  name: Beneficial-ownership reporting, where it applies
+  kind: statutory
+attorney_review_flags:
+- possible_conflict
+- outside_jurisdiction

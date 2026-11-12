@@ -1,0 +1,112 @@
+# LexBench model registry. Models are configuration, never code.
+#
+# Each key under `models` is the entry name that results are filed under. Fields:
+#   provider        adapter name in lexbench/providers (anthropic, openai_compatible, mock)
+#   model           the provider's model identifier
+#   endpoint        optional base URL (required for openai_compatible)
+#   auth            name of the environment variable that holds the credential, never a value
+#   pricing         USD per million input and output tokens; batch_discount is the fraction
+#                   taken off when batch is true; zero prices (self-hosted) count as zero
+#   max_tokens      upper bound on output tokens per request (each family sets a lower bound)
+#   reasoning_tokens  optional output room added to each family bound for a model that may
+#                   reason before it answers; the sum never exceeds max_tokens
+#   concurrency     parallel requests for synchronous runs
+#   rate_limit_rpm  optional cap on request starts per minute for synchronous runs
+#   batch           true to submit asynchronous batches when the adapter supports them
+#   options         optional adapter settings; options.params is merged into each request
+#   family_settings optional settings for one family (legalbench, fragments or routing):
+#                   max_tokens fixes that family's output bound, replacing the family bound,
+#                   reasoning_tokens and the entry ceiling; params replaces options.params.
+#                   A family setting changes only that family's settings fingerprint.
+#
+# Thinking. The Claude 5.5 models think adaptively by default, and thinking counts toward
+# max_tokens. At the entry level each Claude entry runs at its lowest thinking setting:
+# disabled on Haiku 5.5, between_tools (no up-front thinking) on Sonnet 5.5, and effort low
+# on Opus 5.5, which accepts no setting that turns thinking off; Opus 5.5 gets reasoning room
+# instead. The routing results were measured at these entry-level settings.
+#
+# Equal settings (run FIX-LEXBENCH-1). For legalbench and fragments, family_settings give
+# the three Claude entries the same request settings: adaptive thinking at effort low, the
+# one thinking setting all three models accept, and the same output bound (1,048 tokens for
+# legalbench, room for a label and a short justification; 1,624 for fragments). These are
+# the bounds Opus 5.5 already had (24 + 1,024 and 600 + 1,024 tokens).
+#
+# Claude identifiers were verified against GET https://api.anthropic.com/v1/models and
+# prices against https://platform.claude.com/docs/en/about-claude/pricing on 2026-11-10;
+# `lexbench models` and `lexbench estimate` repeat both checks.
+schema_version: 1
+
+limits:
+  spend_cap_usd: 60.0
+  max_requests_per_batch: 10000
+
+models:
+  claude-opus-5-5:
+    provider: anthropic
+    model: claude-opus-5-5
+    auth: ANTHROPIC_API_KEY
+    pricing: {input_per_mtok: 4.00, output_per_mtok: 20.00, batch_discount: 0.5}
+    max_tokens: 2048
+    reasoning_tokens: 1024
+    concurrency: 4
+    rate_limit_rpm: 50
+    batch: true
+    options:
+      params: {output_config: {effort: low}}
+    family_settings:
+      legalbench: {max_tokens: 1048, params: {output_config: {effort: low}}}
+      fragments: {max_tokens: 1624, params: {output_config: {effort: low}}}
+
+  claude-sonnet-5-5:
+    provider: anthropic
+    model: claude-sonnet-5-5
+    auth: ANTHROPIC_API_KEY
+    pricing: {input_per_mtok: 2.00, output_per_mtok: 10.00, batch_discount: 0.5}
+    max_tokens: 1024
+    concurrency: 4
+    rate_limit_rpm: 50
+    batch: true
+    options:
+      params: {thinking: {type: between_tools}}
+    family_settings:
+      legalbench: {max_tokens: 1048, params: {output_config: {effort: low}}}
+      fragments: {max_tokens: 1624, params: {output_config: {effort: low}}}
+
+  claude-haiku-5-5:
+    provider: anthropic
+    model: claude-haiku-5-5
+    auth: ANTHROPIC_API_KEY
+    # Prompt-length tier: prices for prompts up to 100,000 tokens; every LexBench prompt is shorter.
+    pricing: {input_per_mtok: 0.10, output_per_mtok: 0.50, batch_discount: 0.5}
+    max_tokens: 1024
+    concurrency: 8
+    rate_limit_rpm: 100
+    batch: true
+    options:
+      params: {thinking: {type: disabled}}
+    family_settings:
+      legalbench: {max_tokens: 1048, params: {output_config: {effort: low}}}
+      fragments: {max_tokens: 1624, params: {output_config: {effort: low}}}
+
+  # Example: a self-hosted model behind an OpenAI-compatible server (vLLM, Ollama,
+  # llama.cpp server, TGI). Remove the comment markers and set the endpoint to use it.
+  # The auth line is only needed when the server requires a bearer token.
+  #
+  # local-llama-3-70b:
+  #   provider: openai_compatible
+  #   model: meta-llama/Llama-3.3-70B-Instruct
+  #   endpoint: http://localhost:8000/v1
+  #   # auth: LOCAL_LLM_TOKEN
+  #   pricing: {input_per_mtok: 0, output_per_mtok: 0}
+  #   max_tokens: 1024
+  #   concurrency: 8
+  #   batch: false
+
+  mock:
+    provider: mock
+    model: mock-oracle-1
+    pricing: {input_per_mtok: 0, output_per_mtok: 0}
+    max_tokens: 1024
+    concurrency: 1
+    batch: true
+    options: {mode: oracle}

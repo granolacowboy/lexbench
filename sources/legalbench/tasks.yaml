@@ -1,0 +1,32 @@
+# LegalBench tasks selected for LexBench v1. Each task's license is read at build time from
+# the task README in HazyResearch/legalbench and recorded in data/legalbench/LICENSES.md;
+# a task whose license is not CC BY 4.0 or more permissive is refused by the build.
+# Both upstream revisions are pinned, so a rebuild reproduces data/MANIFEST.json exactly.
+schema_version: 1
+dataset: nguha/legalbench
+dataset_revision: daec8237410aa23e3faf4bc41ad8b3a7e1696826
+upstream: HazyResearch/legalbench
+upstream_commit: b46bf4ffae90524b2b72aaa30e7745fe9db64481
+sample_size: 100
+seed: 20261110
+tasks:
+  - {task: corporate_lobbying, short: lobbying, reasoning_type: issue-spotting}
+  - {task: hearsay, short: hearsay, reasoning_type: rule-application}
+  - {task: diversity_1, short: diversity1, reasoning_type: rule-application}
+  - {task: personal_jurisdiction, short: persjuris, reasoning_type: rule-application}
+  - {task: ucc_v_common_law, short: ucc, reasoning_type: rule-application}
+  - {task: telemarketing_sales_rule, short: tsr, reasoning_type: rule-application}
+  - {task: proa, short: proa, reasoning_type: interpretation}
+  - {task: cuad_audit_rights, short: cuadaudit, reasoning_type: interpretation}
+  - {task: insurance_policy_interpretation, short: insurance, reasoning_type: interpretation}
+  - {task: function_of_decision_section, short: decisionfn, reasoning_type: rhetorical-understanding}
+  - {task: oral_argument_question_purpose, short: oralarg, reasoning_type: rhetorical-understanding}
+  - {task: overruling, short: overruling, reasoning_type: rhetorical-understanding}
+# Test cases dropped from the sample after it is drawn, each with its reason. The build
+# records them in data/legalbench/LICENSES.md and data/MANIFEST.json.
+exclude:
+  - id: lb-decisionfn-0366
+    reason: >-
+      The test input "For these reasons, we AFFIRM." (label Decree) is also the last
+      demonstration in the upstream base prompt for function_of_decision_section, so the
+      case would test recall of the prompt rather than classification.

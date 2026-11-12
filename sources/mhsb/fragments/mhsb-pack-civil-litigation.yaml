@@ -1,0 +1,66 @@
+# Imported by tools/import_mhsb.py from MHSBai/platform-plugins. Permitted fields only.
+# Regenerate with the tool; do not edit by hand.
+schema_version: 1
+pack: mhsb-pack-civil-litigation
+practice_area: civil_litigation
+intake_questions:
+- id: parties_counsel
+  prompt: Parties and their counsel
+  answer_type: text
+  sensitive: false
+- id: claim_type
+  prompt: Type of claim
+  answer_type: choice
+  choices:
+  - contract
+  - property damage
+  - business tort
+  - debt collection
+  - other
+  - unknown
+  sensitive: false
+- id: key_dates
+  prompt: Key dates, each with its source
+  answer_type: text
+  sensitive: false
+- id: writing_or_contract
+  prompt: Whether a contract or other writing exists
+  answer_type: choice
+  choices:
+  - 'yes'
+  - 'no'
+  - unknown
+  sensitive: false
+- id: damages
+  prompt: Damages claimed, in the person's words
+  answer_type: text
+  sensitive: false
+- id: prior_suits
+  prompt: Prior suits between the parties or on the same facts
+  answer_type: boolean
+  sensitive: false
+- id: insurance
+  prompt: Insurance that may respond, and limits if known
+  answer_type: text
+  sensitive: true
+- id: goals_budget
+  prompt: Goals and budget for the matter
+  answer_type: text
+  sensitive: true
+deadline_categories:
+- id: limitation_period
+  name: Limitation periods by claim type; the firm records the governing statute as its own
+  kind: firm_set
+- id: answer_deadline
+  name: Answer deadlines, entered from the docket
+  kind: statutory
+- id: discovery_cutoff
+  name: Discovery cutoffs, entered from the court's order
+  kind: firm_set
+- id: appeal_window
+  name: Appeal windows, entered from the docket
+  kind: statutory
+attorney_review_flags:
+- possible_limitation_issue
+- collectability_question
+- conflict_match

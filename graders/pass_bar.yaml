@@ -1,0 +1,17 @@
+# Pass bars per family, applied by `lexbench report` to the accuracy of each model entry.
+# LegalBench is reported per task without a bar.
+#
+# Note: the MHSB Stage 11 pass bar for the Platform Plugins skills is applied by the
+# plugins program to LexBench results; it is not defined in this repository.
+schema_version: 1
+families:
+  routing:
+    metric: accuracy
+    pass_at_or_above: 0.95
+  fragments:
+    metric: accuracy
+    pass_at_or_above: 0.90
+  legalbench:
+    metric: accuracy
+    pass_at_or_above: null
+    note: Reported per task; no bar.

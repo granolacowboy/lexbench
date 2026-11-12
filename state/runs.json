@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "runs": [
+    {
+      "run_id": "probe_thinking_disabled_20261110T1641Z",
+      "family": "probe",
+      "model": "claude-haiku-5-5, claude-sonnet-5-5, claude-opus-5-5",
+      "provider": "anthropic",
+      "request_count": 4,
+      "estimated_usd": 0.0001,
+      "data_sha256": "",
+      "submitted_at": "2026-11-10T16:41:30Z",
+      "status": "completed",
+      "counts": {
+        "succeeded": 1,
+        "errored": 3
+      },
+      "ended_at": "2026-11-10T16:41:40Z",
+      "note": "Diagnostic probe: thinking type disabled accepted by Haiku 5.5 only; rejected requests are not billed."
+    },
+    {
+      "run_id": "probe_lowest_thinking_20261110T1645Z",
+      "family": "probe",
+      "model": "claude-haiku-5-5, claude-sonnet-5-5, claude-opus-5-5",
+      "provider": "anthropic",
+      "request_count": 12,
+      "estimated_usd": 0.0331,
+      "data_sha256": "",
+      "submitted_at": "2026-11-10T16:45:00Z",
+      "status": "completed",
+      "counts": {
+        "succeeded": 12,
+        "errored": 0
+      },
+      "ended_at": "2026-11-10T16:45:30Z",
+      "note": "Diagnostic probe: lowest thinking setting per model on four cases each; cost computed from reported usage."
+    }
+  ]
+}
